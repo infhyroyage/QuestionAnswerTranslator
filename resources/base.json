@@ -15,7 +15,6 @@
   "variables": {
     "apim": {
       "apisName": "apis-functions",
-      "diagnosticsName": "diagnostics-application-insights",
       "loggersName": "loggers-insights",
       "name": "qatranslator-je-apim",
       "namedValuesNames": {
@@ -147,7 +146,7 @@
         {
           "type": "diagnostics",
           "apiVersion": "2019-01-01",
-          "name": "[variables('apim').diagnosticsName]",
+          "name": "applicationinsights",
           "dependsOn": [
             "[resourceId('Microsoft.ApiManagement/service', variables('apim').name)]",
             "[resourceId('Microsoft.ApiManagement/service/loggers', variables('apim').name, variables('apim').loggersName)]"
