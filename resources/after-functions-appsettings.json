@@ -1,0 +1,74 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "apim": {
+      "backendsName": "backends-functions",
+      "name": "qatranslator-je-apim",
+      "namedValuesNames": {
+        "functionsDefaultHostKey": "named-values-functions-default-host-key"
+      }
+    },
+    "functions": {
+      "name": "qatranslator-je-func"
+    },
+    "vault": {
+      "name": "qatranslator-je-vault",
+      "secretNames": {
+        "functionsDefaultHostKey": "functions-default-host-key"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2021-11-01-preview",
+      "name": "[concat(variables('vault').name, '/', variables('vault').secretNames.functionsDefaultHostKey)]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "attributes": {
+          "enabled": true
+        },
+        "value": "[listKeys(resourceId('Microsoft.Web/sites/host', variables('functions').name, 'default'), '2018-11-01').functionKeys.default]"
+      }
+    },
+    {
+      "type": "Microsoft.ApiManagement/service/namedValues",
+      "apiVersion": "2021-12-01-preview",
+      "name": "[concat(variables('apim').name, '/', variables('apim').namedValuesNames.functionsDefaultHostKey)]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('vault').name, variables('vault').secretNames.functionsDefaultHostKey)]"
+      ],
+      "properties": {
+        "displayName": "[variables('apim').namedValuesNames.functionsDefaultHostKey]",
+        "keyVault": {
+          "secretIdentifier": "[reference(resourceId('Microsoft.KeyVault/vaults/secrets', variables('vault').name, variables('vault').secretNames.functionsDefaultHostKey), '2021-11-01-preview', 'Full').properties.secretUri]"
+        },
+        "secret": true
+      }
+    },
+    {
+      "type": "Microsoft.ApiManagement/service/backends",
+      "apiVersion": "2021-12-01-preview",
+      "name": "[concat(variables('apim').name, '/', variables('apim').backendsName)]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ApiManagement/service/namedValues', variables('apim').name, variables('apim').namedValuesNames.functionsDefaultHostKey)]"
+      ],
+      "properties": {
+        "description": "[variables('functions').name]",
+        "url": "[concat('https://', variables('functions').name, '.azurewebsites.net/api')]",
+        "protocol": "http",
+        "resourceId": "[concat('https://management.azure.com', resourceId('Microsoft.Web/sites', variables('functions').name))]",
+        "credentials": {
+          "header": {
+            "x-functions-key": [
+              "[concat('{{', variables('apim').namedValuesNames.functionsDefaultHostKey, '}}')]"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
