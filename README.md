@@ -1,5 +1,25 @@
 # QuestionAnswerTranslator
 
+## Azure リソースアーキテクチャー図
+
+準備中
+
+| リソース名                 | 概要                                                                       | workflow での CI/CD |
+| -------------------------- | -------------------------------------------------------------------------- | :-----------------: |
+| `qatranslator-je-apim`     | App Service/localhost からアクセスする API Management                      |          o          |
+| `qatranslator-je-func`     | API Management からアクセスする Functions                                  |          o          |
+| `qatranslator-je-funcplan` | Functions のプラン                                                         |                     |
+| `qatranslatorjesa`         | Functions から参照するストレージアカウント                                 |                     |
+| `qatranslator-je-insights` | App Service/API Management/Functions を一括で監視する Application Insights |                     |
+| `qatranslator-je-ws`       | Application Insights を分析する Workspaces                                 |                     |
+| `qatranslator-je-vault`    | 暗号鍵/シークレットを管理する Key Vault                                    |                     |
+
+## 使用するバージョン
+
+| 名称    | バージョン |
+| ------- | ---------- |
+| Node.js | 16.17.0    |
+
 ## 初期構築
 
 Azure リソース/localhost に環境を構築する事前準備として、以下の順で初期構築を必ずすべて行う必要がある。
@@ -28,7 +48,7 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
    - Supported account types : `Accounts in this organizational directory only`
    - Redirect URI : `Single-page application(SPA)`(左) と `http://localhost:3000`(右)
 2. QATranslator_MSAL の App Registration ブレードに遷移し、概要にある `Application (client) ID`の UUID を手元に控える。
-3. Authentication > Single-page application にある 「Add URI」を押下して、Redirect URIs にあるリストに`https://qatranslator-je-client-app.azurewebsites.net`を追加し、Save ボタンを押下する。
+3. Authentication > Single-page application にある 「Add URI」を押下して、Redirect URIs にあるリストに`https://qatranslator-je-app.azurewebsites.net`を追加し、Save ボタンを押下する。
 4. Expose an API > Application ID URI の右にある小さな文字「Set」を押下し、Application ID URI の入力欄に`api://{2で手元に控えたUUID}`が反映されていることを確認し、Save ボタンを押下する。
 5. Expose an API > Scopes defined by this API にある「Add a scope」を押下し、以下の項目を入力後、Save ボタンを押下する。
    - Scope name : `access_as_user`
@@ -59,6 +79,20 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
 | AZURE_AD_SP_MSAL_CLIENT_ID                       | 2.で Azure AD に登録したアプリケーションのクライアント ID                               |
 | AZURE_AD_GLOBAL_ADMIN_EMAIL                      | API Management の発行者メールアドレス                                                   |
 | AZURE_AD_GLOBAL_ADMIN_OBJECT_ID                  | ディレクトリの Azure AD のグローバル管理者のオブジェクト ID                             |
+
+## Azure リソース構築手順
+
+1. 以下の順で workflow を手動で実行する。
+   1. Create Azure Resources
+
+## Azure リソース削除手順
+
+1. Azure Portal からリソースグループ`qatranslator-je`を削除する。
+2. Azure Portal から Key Vault > Manage deleted vaults > サブスクリプション > qatranslator-je-vault の順で押下し、Purge ボタンを押下して、論理的に削除した Key Vault を物理的に削除する。
+3. 以下の Azure CLI の実行後に正常復帰することを確認し、論理的に削除した API Management を物理的に削除する。
+   ```bash
+   az rest -m DELETE -u https://management.azure.com/subscriptions/(サブスクリプションID)/providers/Microsoft.ApiManagement/locations/japaneast/deletedservices/qatranslator-je-server-apim?api-version=2021-08-01
+   ```
 
 ## 完全初期化
 
