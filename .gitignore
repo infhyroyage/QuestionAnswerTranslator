@@ -105,3 +105,6 @@ dist
 
 # ARM Template Parameter JSON Files
 resources/base.parameters.json
+
+# vscode
+.vscode/
