@@ -23,6 +23,9 @@
       "orgName": "qatranslator-je-apim-org",
       "subscriptionsName": "subscriptions-functions"
     },
+    "cosmosDB": {
+      "name": "qatranslator-je-cosmosdb"
+    },
     "functions": {
       "name": "qatranslator-je-func",
       "planName": "qatranslator-je-funcplan"
@@ -40,6 +43,8 @@
       "name": "qatranslator-je-vault",
       "secretNames": {
         "apimSubscriptionKey": "api-management-subscription-key",
+        "cosmosDBPrimaryKey": "cosmos-db-primary-key",
+        "cosmosDBPrimaryReadonlyKey": "cosmos-db-primary-readonly-key",
         "insightsConnectionString": "insights-connection-string",
         "insightsInstrumentationKey": "insights-instrumentation-key",
         "storageConnectionString": "storage-connection-string"
@@ -165,6 +170,50 @@
       ]
     },
     {
+      "apiVersion": "2022-02-15-preview",
+      "kind": "GlobalDocumentDB",
+      "type": "Microsoft.DocumentDb/databaseAccounts",
+      "name": "[variables('cosmosDB').name]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "backupPolicy": {
+          "periodicModeProperties": {
+            "backupIntervalInMinutes": 240,
+            "backupRetentionIntervalInHours": 8,
+            "backupStorageRedundancy": "Local"
+          },
+          "type": "Periodic"
+        },
+        "capabilities": [
+          {
+            "name": "EnableServerless"
+          }
+        ],
+        "capacity": {
+          "totalThroughputLimit": 4000
+        },
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "Eventual"
+        },
+        "databaseAccountOfferType": "Standard",
+        "enableFreeTier": false,
+        "ipRules": [],
+        "isVirtualNetworkFilterEnabled": false,
+        "locations": [
+          {
+            "failoverPriority": 0,
+            "id": "[concat(variables('cosmosDB').name, '-', resourceGroup().location)]",
+            "locationName": "[resourceGroup().location]"
+          }
+        ],
+        "virtualNetworkRules": []
+      },
+      "tags": {
+        "defaultExperience": "false",
+        "hidden-cosmos-mmspecial": ""
+      }
+    },
+    {
       "apiVersion": "2021-08-01",
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('storageAccount').name]",
@@ -258,6 +307,10 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('functions').planName)]",
         "siteConfig": {
           "appSettings": [
+            {
+              "name": "COSMOSDB_URI",
+              "value": "[concat('https://', variables('cosmosDB').name, '.documents.azure.com:443')]"
+            },
             {
               "name": "FUNCTIONS_EXTENSION_VERSION",
               "value": "~4"
@@ -429,6 +482,38 @@
               "enabled": true
             },
             "value": "[listSecrets(resourceId('Microsoft.ApiManagement/service/subscriptions', variables('apim').name, variables('apim').subscriptionsName), '2021-12-01-preview').primaryKey]"
+          }
+        },
+        {
+          "type": "secrets",
+          "apiVersion": "2021-11-01-preview",
+          "name": "[variables('vault').secretNames.cosmosDBPrimaryKey]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name)]",
+            "[resourceId('Microsoft.KeyVault/vaults', variables('vault').name)]"
+          ],
+          "properties": {
+            "attributes": {
+              "enabled": true
+            },
+            "value": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name), '2022-02-15-preview').primaryMasterKey]"
+          }
+        },
+        {
+          "type": "secrets",
+          "apiVersion": "2021-11-01-preview",
+          "name": "[variables('vault').secretNames.cosmosDBPrimaryReadonlyKey]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name)]",
+            "[resourceId('Microsoft.KeyVault/vaults', variables('vault').name)]"
+          ],
+          "properties": {
+            "attributes": {
+              "enabled": true
+            },
+            "value": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name), '2022-02-15-preview').primaryReadonlyMasterKey]"
           }
         },
         {
