@@ -271,10 +271,6 @@
               "value": "[subscription().subscriptionId]"
             },
             {
-              "name": "WEBSITE_CONTENTSHARE",
-              "value": "[toLower(variables('functions').name)]"
-            },
-            {
               "name": "WEBSITE_ENABLE_SYNC_UPDATE_SITE",
               "value": "true"
             },
