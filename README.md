@@ -10,6 +10,7 @@
 | `qatranslator-je-func`     | API Management からアクセスする Functions                                  |          o          |
 | `qatranslator-je-funcplan` | Functions のプラン                                                         |                     |
 | `qatranslatorjesa`         | Functions から参照するストレージアカウント                                 |                     |
+| `qatranslator-je-cosmosdb` | Functions からアクセスする Cosmos DB                                       |                     |
 | `qatranslator-je-insights` | App Service/API Management/Functions を一括で監視する Application Insights |                     |
 | `qatranslator-je-ws`       | Application Insights を分析する Workspaces                                 |                     |
 | `qatranslator-je-vault`    | 暗号鍵/シークレットを管理する Key Vault                                    |                     |
@@ -91,7 +92,7 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
 2. Azure Portal から Key Vault > Manage deleted vaults > サブスクリプション > qatranslator-je-vault の順で押下し、Purge ボタンを押下して、論理的に削除した Key Vault を物理的に削除する。
 3. 以下の Azure CLI の実行後に正常復帰することを確認し、論理的に削除した API Management を物理的に削除する。
    ```bash
-   az rest -m DELETE -u https://management.azure.com/subscriptions/(サブスクリプションID)/providers/Microsoft.ApiManagement/locations/japaneast/deletedservices/qatranslator-je-server-apim?api-version=2021-08-01
+   az rest -m DELETE -u https://management.azure.com/subscriptions/(サブスクリプションID)/providers/Microsoft.ApiManagement/locations/japaneast/deletedservices/qatranslator-je-apim?api-version=2021-08-01
    ```
 
 ## 完全初期化
