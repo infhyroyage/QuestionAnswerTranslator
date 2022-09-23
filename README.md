@@ -17,9 +17,10 @@
 
 ## 使用するバージョン
 
-| 名称    | バージョン |
-| ------- | ---------- |
-| Node.js | 16.17.0    |
+| 名称       | バージョン |
+| ---------- | ---------- |
+| Node.js    | 16.17.0    |
+| Typescript | 10.9.1     |
 
 ## 初期構築
 
@@ -83,14 +84,21 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
 
 ## Azure リソース構築手順
 
-1. 以下の順で workflow を手動で実行する。
+1. 以下の順で workflow を手動で実行する(workflow が無効化されていたら有効化しておくこと)。
    1. Create Azure Resources
+2. 以下の順で、Azure にデプロイ済の Cosmos DB に対して、手動インポート用のデータをインポートする。
+   1. 手動インポート用の JSON を cosmosdb/data/manualImport.json に保存する。
+   2. 以下のコマンドを実行する。タイムアウトなどで失敗した場合、もう一度同じコマンドで実行し直すこと。
+      ```bash
+      npm run cosmosdb:manual
+      ```
 
 ## Azure リソース削除手順
 
-1. Azure Portal からリソースグループ`qatranslator-je`を削除する。
-2. Azure Portal から Key Vault > Manage deleted vaults > サブスクリプション > qatranslator-je-vault の順で押下し、Purge ボタンを押下して、論理的に削除した Key Vault を物理的に削除する。
-3. 以下の Azure CLI の実行後に正常復帰することを確認し、論理的に削除した API Management を物理的に削除する。
+1. QuestionAnswerTranslator リポジトリの各 workflow をすべて無効化する。
+2. Azure Portal からリソースグループ`qatranslator-je`を削除する。
+3. Azure Portal から Key Vault > Manage deleted vaults > サブスクリプション > qatranslator-je-vault の順で押下し、Purge ボタンを押下して、論理的に削除した Key Vault を物理的に削除する。
+4. 以下の Azure CLI の実行後に正常復帰することを確認し、論理的に削除した API Management を物理的に削除する。
    ```bash
    az rest -m DELETE -u https://management.azure.com/subscriptions/(サブスクリプションID)/providers/Microsoft.ApiManagement/locations/japaneast/deletedservices/qatranslator-je-apim?api-version=2021-08-01
    ```
