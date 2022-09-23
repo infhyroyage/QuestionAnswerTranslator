@@ -74,6 +74,7 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
 | ------------------------------------------------ | --------------------------------------------------------------------------------------- |
 | AZURE_SUBSCRIPTION_ID                            | サブスクリプション ID                                                                   |
 | AZURE_TENANT_ID                                  | ディレクトリ ID                                                                         |
+| AZURE_AD_CONTRIBUTOR_OBJECT_ID                   | 1.で発行した Contributor のサービスプリンシパルのオブジェクト ID                        |
 | AZURE_AD_CONTRIBUTOR_CLIENT_ID                   | 1.で発行した Contributor のサービスプリンシパルのクライアント ID                        |
 | AZURE_AD_CONTRIBUTOR_CLIENT_SECRET               | 1.で発行した Contributor のサービスプリンシパルのクライアントシークレット               |
 | AZURE_AD_USER_ACCESS_ADMINISTRATOR_CLIENT_ID     | 1.で発行した User Access Administrator のサービスプリンシパルのクライアント ID          |
