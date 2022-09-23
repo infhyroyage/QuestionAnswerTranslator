@@ -2,6 +2,9 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "azureADContributorObjectId": {
+      "type": "securestring"
+    },
     "azureADGlobalAdminEmail": {
       "type": "string"
     },
@@ -361,19 +364,7 @@
       "properties": {
         "accessPolicies": [
           {
-            "objectId": "[reference(resourceId('Microsoft.ApiManagement/service', variables('apim').name), '2021-01-01-preview', 'Full').identity.principalId]",
-            "tenantId": "[tenant().tenantId]",
-            "permissions": {
-              "keys": [],
-              "secrets": [
-                "Get",
-                "list"
-              ],
-              "certificates": []
-            }
-          },
-          {
-            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('functions').name), '2018-11-01', 'Full').identity.principalId]",
+            "objectId": "[parameters('azureADContributorObjectId')]",
             "tenantId": "[tenant().tenantId]",
             "permissions": {
               "keys": [],
@@ -429,6 +420,29 @@
                 "SetIssuers",
                 "DeleteIssuers"
               ]
+            }
+          },
+          {
+            "objectId": "[reference(resourceId('Microsoft.ApiManagement/service', variables('apim').name), '2021-01-01-preview', 'Full').identity.principalId]",
+            "tenantId": "[tenant().tenantId]",
+            "permissions": {
+              "keys": [],
+              "secrets": [
+                "Get",
+                "list"
+              ],
+              "certificates": []
+            }
+          },
+          {
+            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('functions').name), '2018-11-01', 'Full').identity.principalId]",
+            "tenantId": "[tenant().tenantId]",
+            "permissions": {
+              "keys": [],
+              "secrets": [
+                "Get"
+              ],
+              "certificates": []
             }
           }
         ],
