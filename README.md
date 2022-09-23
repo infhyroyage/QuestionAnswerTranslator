@@ -10,7 +10,7 @@
 | `qatranslator-je-func`     | API Management からアクセスする Functions                                  |          o          |
 | `qatranslator-je-funcplan` | Functions のプラン                                                         |                     |
 | `qatranslatorjesa`         | Functions から参照するストレージアカウント                                 |                     |
-| `qatranslator-je-cosmosdb` | Functions からアクセスする Cosmos DB                                       |                     |
+| `qatranslator-kc-cosmosdb` | Functions からアクセスする Cosmos DB                                       |                     |
 | `qatranslator-je-insights` | App Service/API Management/Functions を一括で監視する Application Insights |                     |
 | `qatranslator-je-ws`       | Application Insights を分析する Workspaces                                 |                     |
 | `qatranslator-je-vault`    | 暗号鍵/シークレットを管理する Key Vault                                    |                     |
@@ -105,3 +105,11 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
 - QATranslator_UserAccessAdministrator
 
 QuestionAnswerTranslator リポジトリのシークレットの削除については、[GitHub の QuestionAnswerTranslator リポジトリのページ](https://github.com/infhyroyage/QuestionAnswerTranslator)にある Setting > Secrets > Actions より、登録した各シークレットの Remove ボタンを押下する。
+
+# 制限事項
+
+- Cosmos DB のリージョンが東日本(japaneast)ではなく、中央韓国(koreacentral)となっている。
+  - 2022/09/23 現在、Microsoft Azure 東日本リージョンの Cosmos DB 用リソースが枯渇している影響で、Cosmos DB のリージョンを東日本リージョンとしてデプロイすると以下のエラーメッセージとともにデプロイに失敗するため、暫定的に中央韓国リージョンとしてデプロイしている。
+    ```
+    "{\"status\":\"Failed\",\"error\":{\"code\":\"ResourceOperationFailure\",\"message\":\"The resource operation completed with terminal provisioning state 'Failed'.\",\"details\":[{\"code\":\"ServiceUnavailable\",\"message\":\"Database account creation failed. Operation Id: 957e812a-4b5e-42e8-a81f-29fe7e3805e3, Error : Service is currently unavailable. More info: https://aka.ms/cosmosdb-tsg-service-unavailable\\r\\nActivityId: cca8475b-6d1c-45ae-ba4c-058b33247e7e, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0\"}]}}"
+    ```

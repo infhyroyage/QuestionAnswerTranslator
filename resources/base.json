@@ -24,7 +24,8 @@
       "subscriptionsName": "subscriptions-functions"
     },
     "cosmosDB": {
-      "name": "qatranslator-je-cosmosdb"
+      // "name": "qatranslator-je-cosmosdb"
+      "name": "qatranslator-kc-cosmosdb"
     },
     "functions": {
       "name": "qatranslator-je-func",
@@ -174,7 +175,8 @@
       "kind": "GlobalDocumentDB",
       "type": "Microsoft.DocumentDb/databaseAccounts",
       "name": "[variables('cosmosDB').name]",
-      "location": "[resourceGroup().location]",
+      // "location": "[resourceGroup().location]",
+      "location": "koreacentral",
       "properties": {
         "backupPolicy": {
           "periodicModeProperties": {
