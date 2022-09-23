@@ -204,8 +204,10 @@
         "locations": [
           {
             "failoverPriority": 0,
-            "id": "[concat(variables('cosmosDB').name, '-', resourceGroup().location)]",
-            "locationName": "[resourceGroup().location]"
+            // "id": "[concat(variables('cosmosDB').name, '-', resourceGroup().location)]",
+            "id": "[concat(variables('cosmosDB').name, '-koreacentral')]",
+            // "locationName": "[resourceGroup().location]"
+            "locationName": "koreacentral"
           }
         ],
         "virtualNetworkRules": []
