@@ -108,3 +108,6 @@ resources/base.parameters.json
 
 # vscode
 .vscode/
+
+# Cosmos DB Manual Import Data
+cosmosdb/data/manualImport.json
