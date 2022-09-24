@@ -83,7 +83,9 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
 | AZURE_AD_GLOBAL_ADMIN_EMAIL                      | API Management の発行者メールアドレス                                                   |
 | AZURE_AD_GLOBAL_ADMIN_OBJECT_ID                  | ディレクトリの Azure AD のグローバル管理者のオブジェクト ID                             |
 
-## Azure リソース構築手順
+## Azure リソース環境構築
+
+### 構築手順
 
 1. 以下の順で workflow を手動で実行する(workflow が無効化されていたら有効化しておくこと)。
    1. Create Azure Resources
@@ -94,7 +96,7 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
       npm run cosmosdb:manual
       ```
 
-## Azure リソース削除手順
+### 削除手順
 
 1. QuestionAnswerTranslator リポジトリの各 workflow をすべて無効化する。
 2. Azure Portal からリソースグループ`qatranslator-je`を削除する。
@@ -103,6 +105,41 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
    ```bash
    az rest -m DELETE -u https://management.azure.com/subscriptions/(サブスクリプションID)/providers/Microsoft.ApiManagement/locations/japaneast/deletedservices/qatranslator-je-apim?api-version=2021-08-01
    ```
+
+## localhost 環境構築
+
+Azure にリソースを構築せず、Azure Functions(HTTP Trigger の関数アプリのみ)・Cosmos DB・React サーバーを localhost 上で構築することもできる。
+Azure Functions は[Azure Functions Core Tools](https://docs.microsoft.com/ja-jp/azure/azure-functions/functions-run-local)、Cosmos DB は[Azure Cosmos DB Linux Emulator](https://docs.microsoft.com/ja-jp/azure/cosmos-db/local-emulator)を Docker Compose で起動することによって実現する。
+localhost 環境で使用する Azure Functions・Cosmos DB・React サーバーのポートは、それぞれ 9229・9230・3000 である。
+localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localhost:9230/_explorer/index.html) にアクセスすると、DB 内のデータをプレビューすることができる。
+
+### 構築手順
+
+Docker および Docker Compose をインストール後、ターミナルを起動し以下を実行すると、localhost に環境が構築できる。
+
+```bash
+npm run local:create
+```
+
+なお、localhost 環境構築後、ローカルで関数アプリを更新し、その更新を localhost 環境にデプロイしたい場合、ターミナルを起動し以下を実行すればよい。
+
+```bash
+npm run local:functionsUpdate
+```
+
+### 削除手順
+
+ターミナルを起動し以下を実行すると、localhost 環境を削除できる。
+
+```bash
+npm run local:destroy
+```
+
+なお、localhost 環境構築時にビルドした Docker イメージを削除したい場合は、ターミナルを起動し以下を実行すればよい。
+
+```bash
+docker image rm functions_localfunctions mcr.microsoft.com/azure-functions/node mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator
+```
 
 ## 完全初期化
 
