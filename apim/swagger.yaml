@@ -1,0 +1,95 @@
+openapi: 3.0.1
+info:
+  title: qatranslator-je-func
+  description: Import from qatranslator-je-func Function App
+  version: "1.0"
+servers:
+  - url: https://qatranslator-je-apim.azure-api.net
+paths:
+  /healthcheck:
+    get:
+      summary: /healthcheck
+      operationId: get-healthcheck
+      responses:
+        "200":
+          description: Normal Response
+  /tests:
+    get:
+      summary: /tests
+      operationId: get-tests
+      responses:
+        "200":
+          description: Normal Response
+        "401":
+          description: Invalid token
+        "500":
+          description: Internal Server Error
+  /tests/{testId}/questions/{questionNumber}:
+    get:
+      summary: /tests/{testId}/questions/{questionNumber}
+      operationId: tests-testid-questions-questionnumber
+      parameters:
+        - name: testId
+          in: path
+          description: testId
+          required: true
+          schema:
+            type: string
+        - name: questionNumber
+          in: path
+          description: questionNumber
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Normal Response
+        "400":
+          description: "Invalid questionNumber: {questionNumber}"
+        "401":
+          description: Invalid token
+        "404":
+          description: Not Found Question
+        "500":
+          description: Internal Server Error
+  /tests/{testId}/questions/{questionNumber}/answer:
+    get:
+      summary: /tests/{testId}/questions/{questionNumber}/answer
+      operationId: tests-testid-questions-questionnumber-answer
+      parameters:
+        - name: testId
+          in: path
+          description: testId
+          required: true
+          schema:
+            type: string
+        - name: questionNumber
+          in: path
+          description: questionNumber
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Normal Response
+        "400":
+          description: "Invalid questionNumber: {questionNumber}"
+        "401":
+          description: Invalid token
+        "404":
+          description: Not Found Question
+        "500":
+          description: Internal Server Error
+components:
+  securitySchemes:
+    apiKeyHeader:
+      type: apiKey
+      name: Ocp-Apim-Subscription-Key
+      in: header
+    apiKeyQuery:
+      type: apiKey
+      name: subscription-key
+      in: query
+security:
+  - apiKeyHeader: []
+  - apiKeyQuery: []

@@ -1,0 +1,53 @@
+name: Deploy API Management
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/deploy-apim.yaml
+      - apim**
+
+env:
+  APIM_NAME: qatranslator-je-apim
+  RESOURCE_GROUP: qatranslator-je
+
+jobs:
+  deploy-apim:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Login Azure as Contributor
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_AD_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+          enable-AzPSSession: true
+
+      - name: Import Swagger into API Management
+        run: |
+          az apim api import \
+            -g ${{ env.RESOURCE_GROUP }} \
+            -n ${{ env.APIM_NAME }} \
+            --path "api" \
+            --specification-format OpenApi \
+            --api-id apis-functions \
+            --specification-path ./apim/swagger.yaml
+
+      # healthcheckのAPIのポリシーは、Functions API全体に対するポリシーとは違い、
+      # CORSチェック・JWTトークンチェックを行わずに、inboundにバックエンドのみ設定した
+      # 独自のポリシーを、Powershellにて設定する
+      - name: Set GET /healthcheck original Policy
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $apimContext = New-AzApiManagementContext `
+              -ResourceGroupName "${{ env.RESOURCE_GROUP }}" `
+              -ServiceName "${{ env.APIM_NAME }}"
+            Set-AzApiManagementPolicy `
+              -Context $apimContext `
+              -ApiId "apis-functions" `
+              -OperationId "get-healthcheck" `
+              -PolicyFilePath "./apim/get-healthcheck-policy.xml"
+          azPSVersion: latest
