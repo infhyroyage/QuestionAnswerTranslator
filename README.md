@@ -91,7 +91,7 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
    1. Create Azure Resources
 2. 以下の順で、Azure にデプロイ済の Cosmos DB に対して、手動インポート用のデータをインポートする。
    1. 手動インポート用の JSON を cosmosdb/data/manualImport.json に保存する。
-   2. 以下のコマンドを実行する。タイムアウトなどで失敗した場合、もう一度同じコマンドで実行し直すこと。
+   2. 以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
       ```bash
       npm run cosmosdb:manual
       ```
@@ -106,6 +106,19 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
    az rest -m DELETE -u https://management.azure.com/subscriptions/(サブスクリプションID)/providers/Microsoft.ApiManagement/locations/japaneast/deletedservices/qatranslator-je-apim?api-version=2021-08-01
    ```
 
+## API 追加時の対応
+
+### 関数アプリ
+
+functions 配下に cd し、以下のファイルを持つ関数アプリのプロジェクトディレクトリを生成する。
+
+- function.json
+- index.ts
+
+### API Management
+
+上記で生成した関数アプリが HTTP Trigger の場合は、apim/swagger.yaml にその関数アプリの Swagger を記述する。
+
 ## localhost 環境構築
 
 Azure にリソースを構築せず、Azure Functions(HTTP Trigger の関数アプリのみ)・Cosmos DB・React サーバーを localhost 上で構築することもできる。
@@ -115,13 +128,37 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localh
 
 ### 構築手順
 
-Docker および Docker Compose をインストール後、ターミナルを起動し以下を実行すると、localhost に環境が構築できる。
+1. Docker および Docker Compose をインストールする。
+2. ターミナルを起動し以下を実行する。
+   ```bash
+   npm run local:create
+   ```
+   実行後、localfunctions の Docker Compose が以下のように表示されるまで待機する。
+   ```
+   localfunctions    |
+   localfunctions    | Functions:
+   localfunctions    |
+   localfunctions    |     healthcheck: [GET] http://localhost:9229/api/healthcheck
+   localfunctions    |
+   (略)
+   localfunctions    |
+   localfunctions    | For detailed output, run func with --verbose flag.
+   localfunctions    | [略] Worker process started and initialized.
+   localfunctions    | [略] Host lock lease acquired by instance ID '(略)'.
+   ```
+3. 2 とは別のターミナルで、以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+   ```bash
+   npm run cosmosdb:localInit
+   ```
+4. 手動インポート用の JSON を cosmosdb/data/manualImport.json に保存する。
+5. 2 とは別のターミナルで、以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+   ```bash
+   npm run cosmosdb:localManual
+   ```
 
-```bash
-npm run local:create
-```
+### 関数アプリアップデート手順
 
-なお、localhost 環境構築後、ローカルで関数アプリを更新し、その更新を localhost 環境にデプロイしたい場合、ターミナルを起動し以下を実行すればよい。
+localhost 環境構築後、ローカルで関数アプリを更新し、localhost 環境にデプロイしたい場合、ターミナルを起動し以下を実行する。
 
 ```bash
 npm run local:functionsUpdate
@@ -138,7 +175,7 @@ npm run local:destroy
 なお、localhost 環境構築時にビルドした Docker イメージを削除したい場合は、ターミナルを起動し以下を実行すればよい。
 
 ```bash
-docker image rm functions_localfunctions mcr.microsoft.com/azure-functions/node mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator
+docker image rm questionanswertranslator_localfunctions mcr.microsoft.com/azure-functions/node mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator
 ```
 
 ## 完全初期化
