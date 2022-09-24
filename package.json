@@ -6,7 +6,10 @@
     "cosmosdb:manual": "ts-node cosmosdb/src/manualImport.ts",
     "cosmosdb:localInit": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node cosmosdb/src/initialImport.ts",
     "cosmosdb:localManual": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node cosmosdb/src/manualImport.ts",
-    "functions:start": "cd functions; tsc; func start"
+    "functions:start": "cd functions; tsc; func start",
+    "functions:localStart": "docker-compose up --build",
+    "functions:localUpdate": "docker-compose up -d --no-deps --build localfunctions",
+    "functions:localDestroy": "docker-compose down"
   },
   "repository": {
     "type": "git",
