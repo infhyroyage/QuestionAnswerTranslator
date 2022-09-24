@@ -28,6 +28,7 @@ jobs:
         run: |
           npm install
           npm run functions:build
+          mv node_modules functions
 
       - name: Login Azure as Contributor
         uses: azure/login@v1
