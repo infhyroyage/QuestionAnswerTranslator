@@ -7,6 +7,7 @@ COPY . /home/site/wwwroot
 
 WORKDIR /home/site/wwwroot
 
-RUN npm install
+RUN npm install && \
+    npm run functions:build
 
 CMD [ "npm", "run", "functions:start" ]
