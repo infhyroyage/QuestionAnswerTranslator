@@ -5,7 +5,8 @@
     "cosmosdb:init": "ts-node cosmosdb/src/initialImport.ts",
     "cosmosdb:manual": "ts-node cosmosdb/src/manualImport.ts",
     "cosmosdb:localInit": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node cosmosdb/src/initialImport.ts",
-    "cosmosdb:localManual": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node cosmosdb/src/manualImport.ts"
+    "cosmosdb:localManual": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node cosmosdb/src/manualImport.ts",
+    "functions:start": "cd functions; tsc; func start"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
   },
   "dependencies": {
     "@azure/cosmos": "^3.17.1",
+    "@azure/functions": "^3.2.0",
     "@azure/identity": "^3.0.0",
     "@azure/keyvault-keys": "^4.5.0",
     "@azure/keyvault-secrets": "^4.5.1",
