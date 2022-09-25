@@ -11,7 +11,7 @@ on:
 
 env:
   APIM_NAME: qatranslator-je-apim
-  # APP_NAME: qatranslator-je-app
+  APP_NAME: qatranslator-je-app
   FUNCTIONS_NAME: qatranslator-je-func
   LOCATION: japaneast
   NODE_VERSION: "16.x"
@@ -20,8 +20,6 @@ env:
 jobs:
   create-resources:
     runs-on: ubuntu-latest
-    outputs:
-      functionsPrincipalId: ${{ steps.exec-template.outputs.functionsPrincipalId }}
     steps:
       - name: Checkout
         uses: actions/checkout@main
@@ -69,40 +67,24 @@ jobs:
           npm install
           npx ts-node cosmosdb/src/initialImport.ts
 
-  # assign-role-2-func:
-  #   runs-on: ubuntu-latest
-  #   needs: create-resources
-  #   steps:
-  #     - name: Login Azure as User Access Administrator
-  #       uses: azure/login@v1
-  #       with:
-  #         creds: ${{ secrets.AZURE_USER_ACCESS_ADMINISTRATOR_CREDENTIALS }}
+  set-appservice-appsettings:
+    runs-on: ubuntu-latest
+    needs: create-resources
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
 
-  #     - name: Assign Website Contributor to Functions
-  #       run: |
-  #         az role assignment create \
-  #           --role "Website Contributor" \
-  #           --assignee ${{ needs.create-resources.outputs.functionsPrincipalId }} \
-  #           --scope "/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ env.RESOURCE_GROUP }}/providers/Microsoft.Web/sites/${{ env.FUNCTIONS_NAME }}/config/web"
+      - name: Login Azure as Contributor
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_AD_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
-  # set-appservice-appsettings:
-  #   runs-on: ubuntu-latest
-  #   needs: create-resources
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@main
-
-  #     - name: Login Azure as Contributor
-  #       uses: azure/login@v1
-  #       with:
-  #         creds: ${{ secrets.AZURE_CONTRIBUTOR_CREDENTIALS }}
-
-  #     - name: Add Key Vault Secrets
-  #       run: |
-  #         az webapp config appsettings set \
-  #           -g ${{ env.RESOURCE_GROUP }} \
-  #           -n ${{ env.APP_NAME }} \
-  #           --settings @appservice/appsettings-key-vault-secret.json
+      - name: Add Key Vault Secrets
+        run: |
+          az webapp config appsettings set \
+            -g ${{ env.RESOURCE_GROUP }} \
+            -n ${{ env.APP_NAME }} \
+            --settings @resources/app-appsettings-vault-secret.json
 
   set-functions-appsettings:
     runs-on: ubuntu-latest

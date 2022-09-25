@@ -6,6 +6,8 @@
 
 | リソース名                 | 概要                                                                       | workflow での CI/CD |
 | -------------------------- | -------------------------------------------------------------------------- | :-----------------: |
+| `qatranslator-je-app`      | React サーバーの App Service                                               |          o          |
+| `qatranslator-je-appplan`  | App Service のプラン                                                       |                     |
 | `qatranslator-je-apim`     | App Service/localhost からアクセスする API Management                      |          o          |
 | `qatranslator-je-func`     | API Management からアクセスする Functions                                  |          o          |
 | `qatranslator-je-funcplan` | Functions のプラン                                                         |                     |
@@ -89,6 +91,8 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
 
 1. 以下の順で workflow を手動で実行する(workflow が無効化されていたら有効化しておくこと)。
    1. Create Azure Resources
+   2. Deploy API Management
+   3. Build and Deploy Azure Functions Application
 2. 以下の順で、Azure にデプロイ済の Cosmos DB に対して、手動インポート用のデータをインポートする。
    1. 手動インポート用の JSON を cosmosdb/data/manualImport.json に保存する。
    2. 以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
