@@ -1,3 +1,4 @@
+import initialImportJson from "../data/initialImport.json";
 import { Data } from "../types/common";
 import {
   createDatabasesAndContainers,
@@ -9,7 +10,10 @@ import {
 const main = async () => {
   // 初期インポートデータ作成
   const cosmosReadonlyClient = await generateCosmosClient(true);
-  const importData: Data = await createInitialImportData(cosmosReadonlyClient);
+  const importData: Data = await createInitialImportData(
+    initialImportJson,
+    cosmosReadonlyClient
+  );
   console.log("createInitialImportData: OK");
 
   // 各データベース・コンテナー作成

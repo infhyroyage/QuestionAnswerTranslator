@@ -16,8 +16,6 @@ import {
 } from "@azure/keyvault-keys";
 import { SecretClient } from "@azure/keyvault-secrets";
 import { v4 as uuidv4 } from "uuid";
-import initialImportJson from "../data/initialImport.json";
-import manualImportJson from "../data/manualImport.json";
 import { Item, Data, DatabaseData, TestName2TestId } from "../types/common";
 
 const COSMOSDB_LOCAL_KEY =
@@ -148,10 +146,12 @@ const createTestName2TestId = async (
 
 /**
  * 初期インポートデータを作成する
+ * @param {unknown} initialImportJson インポート用JSON
  * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
  * @returns {Promise<Data>} 初期インポートデータのPromise
  */
 export const createInitialImportData = async (
+  initialImportJson: unknown,
   cosmosClient: CosmosClient
 ): Promise<Data> => {
   // Cosmos DB格納済の初期インポート用JSONに対応する全項目を取得
@@ -204,10 +204,12 @@ export const createInitialImportData = async (
 
 /**
  * 手動インポートデータを作成する
+ * @param {unknown} manualImportJson 手動インポート用JSON
  * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
  * @returns {Promise<Data>} 手動インポートデータのPromise
  */
 export const createManualImportData = async (
+  manualImportJson: unknown,
   cosmosClient: CosmosClient
 ): Promise<Data> => {
   // Cosmos DB格納済の手動インポート用JSONに対応する全項目を取得
