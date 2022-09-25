@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "scripts": {
     "cosmosdb:manual": "ts-node cosmosdb/src/manualImport.ts",
-    "cosmosdb:localInit": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node cosmosdb/src/initialImport.ts",
-    "cosmosdb:localManual": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node cosmosdb/src/manualImport.ts",
     "functions:build": "cd functions; tsc",
     "functions:start": "cd functions; func start",
     "local:create": "docker-compose up --build",
+    "local:cosmosdbInit": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node cosmosdb/src/localImport.ts",
     "local:functionsUpdate": "docker-compose up -d --no-deps --build localfunctions",
     "local:destroy": "docker-compose down"
   },

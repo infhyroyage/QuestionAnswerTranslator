@@ -18,7 +18,7 @@ const main = async () => {
     manualImportJson,
     cosmosReadonlyClient
   );
-  console.log("Filter and Add id and testId columns: OK");
+  console.log("createManualImportData: OK");
 
   // 各データベース・コンテナー作成
   const cosmosClient = await generateCosmosClient(false);
@@ -26,71 +26,62 @@ const main = async () => {
   console.log("createDatabasesAndContainers: OK");
 
   // 非localhost環境のみ、CosmosDBのデータベース・コンテナーごとに直列で、手動インポートデータの一部カラムを暗号化
-  let encryptedInitData: Data;
-  if (process.env["NODE_TLS_REJECT_UNAUTHORIZED"] === "0") {
-    encryptedInitData = deepcopy(initData);
-  } else {
-    const cryptographyClient: CryptographyClient =
-      await createCryptographyClient();
-    encryptedInitData = await Object.keys(initData).reduce(
-      async (prevDatabasePromise: Promise<Data>, databaseName: string) => {
-        const prevData: Data = await prevDatabasePromise;
+  const cryptographyClient: CryptographyClient =
+    await createCryptographyClient();
+  const encryptedInitData: Data = await Object.keys(initData).reduce(
+    async (prevDatabasePromise: Promise<Data>, databaseName: string) => {
+      const prevData: Data = await prevDatabasePromise;
 
-        prevData[databaseName] = await Object.keys(
-          initData[databaseName]
-        ).reduce(
-          async (
-            prevContainerPromise: Promise<DatabaseData>,
-            containerName: string
-          ) => {
-            const prevDatabaseData: DatabaseData = await prevContainerPromise;
+      prevData[databaseName] = await Object.keys(initData[databaseName]).reduce(
+        async (
+          prevContainerPromise: Promise<DatabaseData>,
+          containerName: string
+        ) => {
+          const prevDatabaseData: DatabaseData = await prevContainerPromise;
 
-            // 項目単位では並列で各カラムの暗号化を実行
-            const encryptPromises = initData[databaseName][containerName].map(
-              async (item: Item): Promise<Item> => {
-                const encryptedItem = deepcopy(item);
+          // 項目単位では並列で各カラムの暗号化を実行
+          const encryptPromises = initData[databaseName][containerName].map(
+            async (item: Item): Promise<Item> => {
+              const encryptedItem = deepcopy(item);
 
-                // UsersデータベースのQuestionコンテナーのCosmos DB未格納の項目において、
-                // 以下のカラムの各要素の値をstring型→Uint8Array型→number[]型として暗号化
-                // ・subjects
-                // ・choices
-                // ・explanations
-                if (databaseName === "Users" && containerName === "Question") {
-                  encryptedItem.subjects = await encryptStrings2NumberArrays(
-                    item.subjects,
-                    cryptographyClient
-                  );
-                  encryptedItem.choices = await encryptStrings2NumberArrays(
-                    item.choices,
-                    cryptographyClient
-                  );
-                  encryptedItem.explanations =
-                    await encryptStrings2NumberArrays(
-                      item.explanations,
-                      cryptographyClient
-                    );
-                }
-
-                return encryptedItem;
+              // UsersデータベースのQuestionコンテナーのCosmos DB未格納の項目において、
+              // 以下のカラムの各要素の値をstring型→Uint8Array型→number[]型として暗号化
+              // ・subjects
+              // ・choices
+              // ・explanations
+              if (databaseName === "Users" && containerName === "Question") {
+                encryptedItem.subjects = await encryptStrings2NumberArrays(
+                  item.subjects,
+                  cryptographyClient
+                );
+                encryptedItem.choices = await encryptStrings2NumberArrays(
+                  item.choices,
+                  cryptographyClient
+                );
+                encryptedItem.explanations = await encryptStrings2NumberArrays(
+                  item.explanations,
+                  cryptographyClient
+                );
               }
-            );
-            prevDatabaseData[containerName] = await Promise.all(
-              encryptPromises
-            );
-            console.log(
-              `Database ${databaseName}, Container ${containerName}: Encryption OK`
-            );
 
-            return prevDatabaseData;
-          },
-          Promise.resolve({})
-        );
+              return encryptedItem;
+            }
+          );
+          prevDatabaseData[containerName] = await Promise.all(encryptPromises);
+          console.log(
+            `Database ${databaseName}, Container ${containerName}: Encryption OK`
+          );
 
-        return prevData;
-      },
-      Promise.resolve({})
-    );
-  }
+          return prevDatabaseData;
+        },
+        Promise.resolve({})
+      );
+
+      return prevData;
+    },
+    Promise.resolve({})
+  );
+  console.log("Manual Import Data Encrypt: OK");
 
   // 暗号化した手動インポートデータのUpsert
   // 暫定でUpsert実行の合間に3秒間sleepする
@@ -111,6 +102,7 @@ const main = async () => {
       )}`
     );
   }
+  console.log("Import Manual Import Data: OK");
 };
 
 main().catch((e) => {

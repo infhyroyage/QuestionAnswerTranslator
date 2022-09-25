@@ -36,6 +36,7 @@ const main = async () => {
       )}`
     );
   }
+  console.log("Import Initial Import Data: OK");
 };
 
 main().catch((e) => {

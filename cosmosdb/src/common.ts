@@ -18,9 +18,6 @@ import { SecretClient } from "@azure/keyvault-secrets";
 import { v4 as uuidv4 } from "uuid";
 import { Item, Data, DatabaseData, TestName2TestId } from "../types/common";
 
-const COSMOSDB_LOCAL_KEY =
-  "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
-const COSMOSDB_LOCAL_URI = "https://localhost:9230";
 const COSMOSDB_URI =
   "https://qatranslator-kc-cosmosdb.documents.azure.com:443/";
 const VAULT_URL = "https://qatranslator-je-vault.vault.azure.net";
@@ -34,27 +31,19 @@ const VAULT_CRYPTOGRAPHY_KEY_NAME = "manual-import-data";
 export const generateCosmosClient = async (
   isReadOnly: boolean = true
 ): Promise<CosmosClient> => {
-  if (process.env["NODE_TLS_REJECT_UNAUTHORIZED"] === "0") {
-    return new CosmosClient({
-      endpoint: COSMOSDB_LOCAL_URI,
-      key: COSMOSDB_LOCAL_KEY,
-    });
-  } else {
-    // 非localhost環境の場合は、az loginでログイン中のサービスプリンシパルで
-    // Key Vaultにログインし、Cosmos DBのプライマリーマスターキーを取得する
-    const keyName = isReadOnly
-      ? "cosmos-db-primary-readonly-key"
-      : "cosmos-db-primary-key";
-    const secretClient = new SecretClient(VAULT_URL, new AzureCliCredential());
-    const cosmosDBKey = (await secretClient.getSecret(keyName)).value;
-    if (!cosmosDBKey) {
-      throw new Error(`Key vault secret "${keyName}" is not found.`);
-    }
-    return new CosmosClient({
-      endpoint: COSMOSDB_URI,
-      key: cosmosDBKey,
-    });
+  // az loginでログイン中のサービスプリンシパルでKey Vaultにログインし、Cosmos DBのプライマリーマスターキーを取得
+  const keyName = isReadOnly
+    ? "cosmos-db-primary-readonly-key"
+    : "cosmos-db-primary-key";
+  const secretClient = new SecretClient(VAULT_URL, new AzureCliCredential());
+  const cosmosDBKey = (await secretClient.getSecret(keyName)).value;
+  if (!cosmosDBKey) {
+    throw new Error(`Key vault secret "${keyName}" is not found.`);
   }
+  return new CosmosClient({
+    endpoint: COSMOSDB_URI,
+    key: cosmosDBKey,
+  });
 };
 
 /**

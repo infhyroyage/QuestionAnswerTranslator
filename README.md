@@ -146,14 +146,10 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localh
    localfunctions    | [略] Worker process started and initialized.
    localfunctions    | [略] Host lock lease acquired by instance ID '(略)'.
    ```
-3. 2 とは別のターミナルで、以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+3. 手動インポート用の JSON を cosmosdb/data/manualImport.json に保存する。
+4. 2 とは別のターミナルで、以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
    ```bash
-   npm run cosmosdb:localInit
-   ```
-4. 手動インポート用の JSON を cosmosdb/data/manualImport.json に保存する。
-5. 2 とは別のターミナルで、以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
-   ```bash
-   npm run cosmosdb:localManual
+   npm run local:cosmosdbInit
    ```
 
 ### 関数アプリアップデート手順
