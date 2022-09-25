@@ -15,6 +15,9 @@ import {
   KeyClient,
 } from "@azure/keyvault-keys";
 import { SecretClient } from "@azure/keyvault-secrets";
+import { v4 as uuidv4 } from "uuid";
+import initialImportJson from "../data/initialImport.json";
+import manualImportJson from "../data/manualImport.json";
 import { Item, Data, DatabaseData, TestName2TestId } from "../types/common";
 
 const COSMOSDB_LOCAL_KEY =
@@ -62,7 +65,7 @@ export const generateCosmosClient = async (
  * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
  * @returns {Promise<Data>} Cosmos DB格納済の全項目を含むインポートデータのPromise
  */
-export const fetchInsertedImportJson = async (
+const fetchInsertedImportJson = async (
   importJson: unknown,
   cosmosClient: CosmosClient
 ): Promise<Data> => {
@@ -117,6 +120,146 @@ export const fetchInsertedImportJson = async (
 };
 
 /**
+ * 手動インポートデータのtestNameからtestIdへ変換するための変換器を作成する
+ * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
+ * @returns {Promise<TestName2TestId>} 変換器のPromise
+ */
+const createTestName2TestId = async (
+  cosmosClient: CosmosClient
+): Promise<TestName2TestId> => {
+  // UsersテータベースのTestコンテナーの全id、testNameをquery
+  const query: SqlQuerySpec = {
+    query: "SELECT c.id, c.testName FROM c",
+  };
+  type QueryResult = { id: string; testName: string };
+  const res: FeedResponse<QueryResult> = await cosmosClient
+    .database("Users")
+    .container("Test")
+    .items.query<QueryResult>(query)
+    .fetchAll();
+
+  const testName2TestId: TestName2TestId = {};
+  res.resources.map(
+    (resource: QueryResult) =>
+      (testName2TestId[resource.testName] = resource.id)
+  );
+  return testName2TestId;
+};
+
+/**
+ * 初期インポートデータを作成する
+ * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
+ * @returns {Promise<Data>} 初期インポートデータのPromise
+ */
+export const createInitialImportData = async (
+  cosmosClient: CosmosClient
+): Promise<Data> => {
+  // Cosmos DB格納済の初期インポート用JSONに対応する全項目を取得
+  const insertedInitialImportJson: Data = await fetchInsertedImportJson(
+    initialImportJson,
+    cosmosClient
+  );
+
+  // Cosmos DB未格納の全項目のみ抽出し、全項目にidカラムを付加
+  return Object.keys(initialImportJson).reduce(
+    (prevInitData: Data, databaseName: string) => {
+      prevInitData[databaseName] = Object.keys(
+        initialImportJson[databaseName]
+      ).reduce((prevInitDatabaseData: DatabaseData, containerName: string) => {
+        const insertedCourseNames: Set<string> = new Set<string>(
+          insertedInitialImportJson[databaseName][containerName].map(
+            (item: Item) => item.courseName
+          )
+        );
+        const insertedTestNames: Set<string> = new Set<string>(
+          insertedInitialImportJson[databaseName][containerName].map(
+            (item: Item) => item.testName
+          )
+        );
+
+        const nonInsertedItems: Item[] = initialImportJson[databaseName][
+          containerName
+        ].reduce((prevNonInsertedItems: Item[], item: Item) => {
+          if (
+            !insertedCourseNames.has(item.courseName) ||
+            !insertedTestNames.has(item.testName)
+          ) {
+            prevNonInsertedItems.push({ ...item, id: uuidv4() });
+          }
+
+          return prevNonInsertedItems;
+        }, []);
+
+        if (nonInsertedItems.length) {
+          prevInitDatabaseData[containerName] = nonInsertedItems;
+        }
+
+        return prevInitDatabaseData;
+      }, {});
+      return prevInitData;
+    },
+    {}
+  );
+};
+
+/**
+ * 手動インポートデータを作成する
+ * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
+ * @returns {Promise<Data>} 手動インポートデータのPromise
+ */
+export const createManualImportData = async (
+  cosmosClient: CosmosClient
+): Promise<Data> => {
+  // Cosmos DB格納済の手動インポート用JSONに対応する全項目を取得
+  const insertedManualImportJson: Data = await fetchInsertedImportJson(
+    manualImportJson,
+    cosmosClient
+  );
+
+  // testName→testIdの変換器を作成
+  const testName2TestId: TestName2TestId = await createTestName2TestId(
+    cosmosClient
+  );
+
+  // Cosmos DB未格納の全項目のみ抽出し、全項目にid、testIdカラムをそれぞれ付加
+  return Object.keys(manualImportJson).reduce(
+    (prevInitData: Data, databaseName: string) => {
+      prevInitData[databaseName] = Object.keys(
+        manualImportJson[databaseName]
+      ).reduce((prevInitDatabaseData: DatabaseData, containerName: string) => {
+        const insertedIds: string[] = insertedManualImportJson[databaseName][
+          containerName
+        ].map((item: Item) => item.id);
+
+        const nonInsertedItems: Item[] = manualImportJson[databaseName][
+          containerName
+        ].reduce((prevNonInsertedItems: Item[], item: Item) => {
+          const testId: string = testName2TestId[item.testName];
+
+          if (!insertedIds.includes(`${testId}_${item.number}`)) {
+            prevNonInsertedItems.push({
+              ...item,
+              id: `${testId}_${item.number}`,
+              testId,
+            });
+          }
+
+          return prevNonInsertedItems;
+        }, []);
+
+        if (nonInsertedItems.length) {
+          prevInitDatabaseData[containerName] = nonInsertedItems;
+        }
+
+        return prevInitDatabaseData;
+      }, {});
+      return prevInitData;
+    },
+    {}
+  );
+};
+
+/**
  * 指定したデータに定義する各データベース、コンテナーをすべて作成する
  * @param {Data} data データ
  * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
@@ -141,33 +284,6 @@ export const createDatabasesAndContainers = async (
     await Promise.all(createContainersPromises);
   });
   await Promise.all(createPromises);
-};
-
-/**
- * 手動インポートデータのtestNameからtestIdへ変換するための変換器を取得する
- * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
- * @returns {Promise<TestName2TestId>} 変換器のPromise
- */
-export const getTestName2TestId = async (
-  cosmosClient: CosmosClient
-): Promise<TestName2TestId> => {
-  // UsersテータベースのTestコンテナーの全id、testNameをquery
-  const query: SqlQuerySpec = {
-    query: "SELECT c.id, c.testName FROM c",
-  };
-  type QueryResult = { id: string; testName: string };
-  const res: FeedResponse<QueryResult> = await cosmosClient
-    .database("Users")
-    .container("Test")
-    .items.query<QueryResult>(query)
-    .fetchAll();
-
-  const testName2TestId: TestName2TestId = {};
-  res.resources.map(
-    (resource: QueryResult) =>
-      (testName2TestId[resource.testName] = resource.id)
-  );
-  return testName2TestId;
 };
 
 /**
