@@ -31,21 +31,21 @@ const main = async () => {
   console.log("1st createDatabasesAndContainers: OK");
 
   // 初期インポートデータのBulkUpsert
-  const bulkUpsertPromisses = bulkUpsertAllItems(
+  const initialImportPromisses = bulkUpsertAllItems(
     initialImportData,
     cosmosClient
   );
-  const responsesBulkUpsert = await Promise.all(bulkUpsertPromisses);
+  const responsesInitialImport = await Promise.all(initialImportPromisses);
 
   // レスポンス正常性チェック
-  const firstErrorResponseBulkUpsert = responsesBulkUpsert
+  const firstErrorResponseInitialImport = responsesInitialImport
     .flat()
     .find((res) => res.statusCode >= 400);
-  if (firstErrorResponseBulkUpsert) {
+  if (firstErrorResponseInitialImport) {
     throw new Error(
-      `Status Code ${firstErrorResponseBulkUpsert.statusCode}: ${JSON.stringify(
-        firstErrorResponseBulkUpsert.resourceBody
-      )}`
+      `Status Code ${
+        firstErrorResponseInitialImport.statusCode
+      }: ${JSON.stringify(firstErrorResponseInitialImport.resourceBody)}`
     );
   }
   console.log("Import Initial Import Data: OK");
@@ -62,22 +62,22 @@ const main = async () => {
   console.log("2nd createDatabasesAndContainers: OK");
 
   // 暗号化した手動インポートデータのUpsert
-  // 暫定でUpsert実行の合間に3秒間sleepする
-  const responsesAll = await upsertAndSleepAllItems(
+  // 暫定でUpsert実行の合間に1秒間sleepする
+  const responsesManualImport = await upsertAndSleepAllItems(
     manualImportData,
     cosmosClient,
-    3000
+    1000
   );
 
   // レスポンス正常性チェック
-  const firstErrorResponse = responsesAll
+  const firstErrorResponseManualImport = responsesManualImport
     .flat()
     .find((res) => res.statusCode >= 400);
-  if (firstErrorResponse) {
+  if (firstErrorResponseManualImport) {
     throw new Error(
-      `Status Code ${firstErrorResponse.statusCode}: ${JSON.stringify(
-        firstErrorResponse.item
-      )}`
+      `Status Code ${
+        firstErrorResponseManualImport.statusCode
+      }: ${JSON.stringify(firstErrorResponseManualImport.item)}`
     );
   }
   console.log("Import Manual Import Data: OK");
