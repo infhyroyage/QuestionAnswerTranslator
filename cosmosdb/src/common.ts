@@ -1,5 +1,7 @@
 import {
+  Container,
   CosmosClient,
+  Database,
   FeedResponse,
   ItemResponse,
   OperationResponse,
@@ -55,7 +57,67 @@ export const generateCosmosClient = async (
 };
 
 /**
- * 各データベースの各コンテナーにUpsertする項目を含むデータに示されるデータベース・コンテナーをすべて作成する
+ * 指定したインポート用JSONからCosmos DB格納済の項目を全取得する
+ * @param {unknown} importJson インポート用JSON
+ * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
+ * @returns {Promise<Data>} Cosmos DB格納済の全項目を含むインポートデータのPromise
+ */
+export const fetchInsertedImportJson = async (
+  importJson: unknown,
+  cosmosClient: CosmosClient
+): Promise<Data> => {
+  // データベース、コンテナー単位にreadAll()を並列実行し、配列として格納
+  const readAllPromises: Promise<Item[][]>[] = Object.keys(importJson).map(
+    async (databaseName: string): Promise<Item[][]> => {
+      const database: Database = cosmosClient.database(databaseName);
+
+      const readAllContainersPromises: Promise<Item[]>[] = Object.keys(
+        importJson[databaseName]
+      ).map(async (containerName: string): Promise<Item[]> => {
+        const container: Container = database.container(containerName);
+
+        try {
+          const response: FeedResponse<Item> = await container.items
+            .readAll<Item>()
+            .fetchAll();
+          return response.resources;
+        } catch (e) {
+          console.log(
+            `Database ${databaseName}, Container ${containerName}: Not Found Items`
+          );
+          return [];
+        }
+      });
+      return await Promise.all(readAllContainersPromises);
+    }
+  );
+  const responses: Item[][][] = await Promise.all(readAllPromises);
+
+  // データベース、コンテナー単位の配列→objectに構造変換
+  return Object.keys(importJson).reduce(
+    (nonInsertedData: Data, databaseName: string, databaseIdx: number) => {
+      nonInsertedData[databaseName] = Object.keys(
+        importJson[databaseName]
+      ).reduce(
+        (
+          nonInsertedDatabaseData: DatabaseData,
+          containerName: string,
+          containerIdx: number
+        ) => {
+          nonInsertedDatabaseData[containerName] =
+            responses[databaseIdx][containerIdx];
+          return nonInsertedDatabaseData;
+        },
+        {}
+      );
+      return nonInsertedData;
+    },
+    {}
+  );
+};
+
+/**
+ * 指定したデータに定義する各データベース、コンテナーをすべて作成する
  * @param {Data} data データ
  * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
  */
@@ -160,10 +222,6 @@ export const bulkUpsertAllItems = (
     })
     .flat();
 
-  if (bulkUpsertPromise.length === 0) {
-    throw new Error("There is no upsert item");
-  }
-
   return bulkUpsertPromise;
 };
 
@@ -225,76 +283,6 @@ export const upsertAndSleepAllItems = async (
   }
 
   return responses;
-};
-
-/**
- * 指定した手動インポートデータからCosmos DB格納済の項目を除外する
- * @param {Data} initData 手動インポートデータ
- * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
- * @returns {Promise<Data>} Cosmos DB未格納の手動インポートデータの項目のPromise
- */
-export const filterInsertedManualInitData = async (
-  initData: Data,
-  cosmosClient: CosmosClient
-): Promise<Data> => {
-  // dataのobjectの構造に従って、query処理を実行するPromiseを格納する
-  // データベース名、コンテナー名単位の2次元配列を生成して実行
-  const query: SqlQuerySpec = {
-    query: "SELECT c.id FROM c",
-  };
-  type QueryResult = { id: string };
-  const promises = Object.keys(initData).map(
-    (databaseName: string): Promise<FeedResponse<QueryResult>[]> => {
-      const database = cosmosClient.database(databaseName);
-
-      const queryPromises = Object.keys(initData[databaseName]).map(
-        (containerName: string): Promise<FeedResponse<QueryResult>> => {
-          const container = database.container(containerName);
-          return container.items.query<QueryResult>(query).fetchAll();
-        }
-      );
-      return Promise.all(queryPromises);
-    }
-  );
-  const responsesAll: FeedResponse<QueryResult>[][] = await Promise.all(
-    promises
-  );
-
-  // dataのobjectの構造に沿うように、
-  // データベース名、コンテナー名単位の2次元配列→objectのobjectに変換
-  return Object.keys(initData).reduce(
-    (nonInsertedData: Data, databaseName: string, databaseIdx: number) => {
-      nonInsertedData[databaseName] = Object.keys(
-        initData[databaseName]
-      ).reduce(
-        (
-          nonInsertedDatabaseData: DatabaseData,
-          containerName: string,
-          containerIdx: number
-        ) => {
-          const insertedIds: string[] = responsesAll[databaseIdx][
-            containerIdx
-          ].resources.map((resources: QueryResult) => resources.id);
-
-          const nonInsertedItems: Item[] = initData[databaseName][
-            containerName
-          ].reduce((prevNonInsertedItems: Item[], item: Item) => {
-            if (!insertedIds.includes(`${item.testId}_${item.number}`)) {
-              prevNonInsertedItems.push(item);
-            }
-            return prevNonInsertedItems;
-          }, []);
-          if (nonInsertedItems.length)
-            nonInsertedDatabaseData[containerName] = nonInsertedItems;
-
-          return nonInsertedDatabaseData;
-        },
-        {}
-      );
-      return nonInsertedData;
-    },
-    {}
-  );
 };
 
 /**

@@ -1,33 +1,60 @@
 import { v4 as uuidv4 } from "uuid";
 import initialImportJson from "../data/initialImport.json";
-import { Data, DatabaseData, InitialImportItem } from "../types/common";
+import { Data, DatabaseData, Item } from "../types/common";
 import {
   createDatabasesAndContainers,
   bulkUpsertAllItems,
   generateCosmosClient,
+  fetchInsertedImportJson,
 } from "./common";
 
 const main = async () => {
-  // 全項目にidカラムを付加
+  // Cosmos DB未格納の全項目のみ抽出し、全項目にidカラムを付加
+  const cosmosReadonlyClient = await generateCosmosClient(true);
+  const insertedInitialImportJson: Data = await fetchInsertedImportJson(
+    initialImportJson,
+    cosmosReadonlyClient
+  );
   const initData: Data = Object.keys(initialImportJson).reduce(
     (prevInitData: Data, databaseName: string) => {
       prevInitData[databaseName] = Object.keys(
         initialImportJson[databaseName]
       ).reduce((prevInitDatabaseData: DatabaseData, containerName: string) => {
-        const items: InitialImportItem[] =
-          initialImportJson[databaseName][containerName];
-        prevInitDatabaseData[containerName] = items.map(
-          (item: InitialImportItem) => {
-            return { ...item, id: uuidv4() };
-          }
+        const insertedCourseNames: Set<string> = new Set<string>(
+          insertedInitialImportJson[databaseName][containerName].map(
+            (item: Item) => item.courseName
+          )
         );
+        const insertedTestNames: Set<string> = new Set<string>(
+          insertedInitialImportJson[databaseName][containerName].map(
+            (item: Item) => item.testName
+          )
+        );
+
+        const nonInsertedItems: Item[] = initialImportJson[databaseName][
+          containerName
+        ].reduce((prevNonInsertedItems: Item[], item: Item) => {
+          if (
+            !insertedCourseNames.has(item.courseName) ||
+            !insertedTestNames.has(item.testName)
+          ) {
+            prevNonInsertedItems.push({ ...item, id: uuidv4() });
+          }
+
+          return prevNonInsertedItems;
+        }, []);
+
+        if (nonInsertedItems.length) {
+          prevInitDatabaseData[containerName] = nonInsertedItems;
+        }
+
         return prevInitDatabaseData;
       }, {});
       return prevInitData;
     },
     {}
   );
-  console.log("Add id columns: OK");
+  console.log("Filter and Add id columns: OK");
 
   // 各データベース・コンテナー作成
   const cosmosClient = await generateCosmosClient(false);
@@ -36,6 +63,10 @@ const main = async () => {
 
   // 初期データのBulkUpsert
   const bulkUpsertPromisses = bulkUpsertAllItems(initData, cosmosClient);
+  if (bulkUpsertPromisses.length === 0) {
+    console.log("There is no upsert item");
+    return;
+  }
   const responsesAll = await Promise.all(bulkUpsertPromisses);
 
   // 各コンテナーのレスポンス正常性チェック
