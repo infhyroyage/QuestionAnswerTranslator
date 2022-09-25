@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - .github/workflows/create-azure-resources.yaml
-      #   - cosmosdb**
+      - cosmosdb**
       - resources**
 
 env:
@@ -67,7 +67,7 @@ jobs:
       - name: Import Initial CosmosDB Items
         run: |
           npm install
-          npm run cosmosdb:init
+          npx ts-node cosmosdb/src/initialImport.ts
 
   # assign-role-2-func:
   #   runs-on: ubuntu-latest

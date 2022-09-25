@@ -2,7 +2,6 @@
   "name": "questionanswertranslator",
   "version": "1.0.0",
   "scripts": {
-    "cosmosdb:init": "ts-node cosmosdb/src/initialImport.ts",
     "cosmosdb:manual": "ts-node cosmosdb/src/manualImport.ts",
     "cosmosdb:localInit": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node cosmosdb/src/initialImport.ts",
     "cosmosdb:localManual": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node cosmosdb/src/manualImport.ts",
