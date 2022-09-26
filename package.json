@@ -32,5 +32,10 @@
     "@azure/keyvault-secrets": "^4.5.1",
     "deepcopy": "^2.1.0",
     "uuid": "^9.0.0"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ]
 }
