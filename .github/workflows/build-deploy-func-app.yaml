@@ -26,7 +26,7 @@ jobs:
 
       - name: Build Azure Functions Application
         run: |
-          npm install
+          npm install --production
           npm run functions:build
           mv node_modules functions
 
