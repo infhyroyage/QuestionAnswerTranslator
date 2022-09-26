@@ -13,7 +13,7 @@ env:
   NODE_VERSION: "16.x"
 
 jobs:
-  deploy-storage-and-func:
+  build-and-deploy-func-app:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
