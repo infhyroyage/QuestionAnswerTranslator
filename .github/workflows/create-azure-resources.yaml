@@ -14,7 +14,7 @@ env:
   APP_NAME: qatranslator-je-app
   FUNCTIONS_NAME: qatranslator-je-func
   LOCATION: japaneast
-  NODE_VERSION: "16.x"
+  NODE_VERSION: "16.17.0"
   RESOURCE_GROUP: qatranslator-je
 
 jobs:
