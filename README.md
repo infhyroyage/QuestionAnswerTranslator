@@ -84,6 +84,7 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
 | AZURE_AD_SP_MSAL_CLIENT_ID                       | 2.で Azure AD に登録したアプリケーションのクライアント ID                               |
 | AZURE_AD_GLOBAL_ADMIN_EMAIL                      | API Management の発行者メールアドレス                                                   |
 | AZURE_AD_GLOBAL_ADMIN_OBJECT_ID                  | ディレクトリの Azure AD のグローバル管理者のオブジェクト ID                             |
+| DEEPL_AUTH_KEY                                   | DeepL API の認証キー                                                                    |
 
 ## Azure リソース環境構築
 

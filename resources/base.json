@@ -13,6 +13,9 @@
     },
     "azureADSPMSALClientId": {
       "type": "securestring"
+    },
+    "deeplAuthKey": {
+      "type": "securestring"
     }
   },
   "variables": {
@@ -353,6 +356,10 @@
             {
               "name": "REACT_APP_AZURE_AD_APP_TENANT_ID",
               "value": "[tenant().tenantId]"
+            },
+            {
+              "name": "REACT_APP_DEEPL_AUTH_KEY",
+              "value": "[parameters('deeplAuthKey')]"
             },
             {
               "name": "WEBSITE_NODE_DEFAULT_VERSION",
