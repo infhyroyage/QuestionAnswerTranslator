@@ -2,7 +2,9 @@ version: "3"
 
 services:
   localfunctions:
-    build: .
+    build:
+      context: .
+      dockerfile: functions/Dockerfile
     container_name: localfunctions
     tty: true
     ports:
