@@ -22,6 +22,7 @@
 | 名称       | バージョン |
 | ---------- | ---------- |
 | Node.js    | 16.17.0    |
+| React      | 18.2.0     |
 | Typescript | 10.9.1     |
 
 ## 初期構築
@@ -159,7 +160,7 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localh
 
 ### 関数アプリアップデート手順
 
-localhost 環境構築後、ローカルで関数アプリを更新し、localhost 環境にデプロイしたい場合、ターミナルを起動し以下を実行する。
+localhost 環境構築後、更新した関数アプリのソースコードを localhost 環境にデプロイしたい場合、ターミナルを起動し以下を実行する。
 
 ```bash
 npm run local:functionsUpdate
@@ -197,3 +198,7 @@ QuestionAnswerTranslator リポジトリのシークレットの削除につい�
     ```
     "{\"status\":\"Failed\",\"error\":{\"code\":\"ResourceOperationFailure\",\"message\":\"The resource operation completed with terminal provisioning state 'Failed'.\",\"details\":[{\"code\":\"ServiceUnavailable\",\"message\":\"Database account creation failed. Operation Id: 957e812a-4b5e-42e8-a81f-29fe7e3805e3, Error : Service is currently unavailable. More info: https://aka.ms/cosmosdb-tsg-service-unavailable\\r\\nActivityId: cca8475b-6d1c-45ae-ba4c-058b33247e7e, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0\"}]}}"
     ```
+
+# TODO
+
+- React サーバーを App Service ではなく、Azure Container Instance および Azure Container Registory で構築してデプロイする。
