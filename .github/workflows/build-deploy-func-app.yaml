@@ -10,7 +10,7 @@ on:
 
 env:
   FUNCTIONS_NAME: qatranslator-je-func
-  NODE_VERSION: "16.x"
+  NODE_VERSION: "16.17.0"
 
 jobs:
   build-and-deploy-func-app:
@@ -26,9 +26,11 @@ jobs:
 
       - name: Build Azure Functions Application
         run: |
+          pushd functions
+          cp ../package.json .
           npm install --production
           npm run functions:build
-          mv node_modules functions
+          popd
 
       - name: Login Azure as Contributor
         uses: azure/login@v1
