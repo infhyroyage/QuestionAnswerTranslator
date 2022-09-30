@@ -135,11 +135,18 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localh
 ### 構築手順
 
 1. Docker および Docker Compose をインストールする。
-2. ターミナルを起動し以下を実行する。
+2. 以下を記述したファイル`.env.local`を QuestionAnswerTranslator リポジトリの app ディレクトリ配下に保存する。
+   ```
+   REACT_APP_AZURE_AD_APP_CLIENT_ID=(初期構築時にGitHubへ登録したシークレットAZURE_AD_SP_MSAL_CLIENT_IDの値)
+   REACT_APP_AZURE_AD_APP_TENANT_ID=(初期構築時にGitHubへ登録したシークレットAZURE_TENANT_IDの値)
+   REACT_APP_DEEPL_AUTH_KEY=(初期構築時にGitHubへ登録したシークレットDEEPL_AUTH_KEYの値)
+   ```
+3. 手動インポート用の JSON を cosmosdb/data/manualImport.json に保存する。
+4. ターミナルを起動して以下を実行し、Docker Compose で Azure Functions・Cosmos DB・React サーバーを起動する。実行したターミナルはそのまま放置する。
    ```bash
    npm run local:create
    ```
-   実行後、localfunctions の Docker Compose が以下のように表示されるまで待機する。
+   実行後、docker Compose で実行した localfunctions の標準出力が、以下のように表示されるまで待機する。
    ```
    localfunctions    |
    localfunctions    | Functions:
@@ -152,15 +159,23 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localh
    localfunctions    | [略] Worker process started and initialized.
    localfunctions    | [略] Host lock lease acquired by instance ID '(略)'.
    ```
-3. 手動インポート用の JSON を cosmosdb/data/manualImport.json に保存する。
-4. 2 とは別のターミナルで、以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+   なお、以前上記コマンドを実行したことがあり、`questionanswertranslator_localapp`および`questionanswertranslator_localfunctions`の Docker イメージが残ったままである場合は再ビルドせず、残った Docker イメージに対してそのまま Docker Compose で起動する。
+5. 4 とは別のターミナルで、以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
    ```bash
    npm run local:cosmosdbInit
    ```
 
+### React サーバーアップデート手順
+
+localhost 環境構築後、React サーバーを再ビルドして localhost 環境にデプロイしたい場合、ターミナルを起動し以下を実行する。
+
+```bash
+npm run local:appUpdate
+```
+
 ### 関数アプリアップデート手順
 
-localhost 環境構築後、更新した関数アプリのソースコードを localhost 環境にデプロイしたい場合、ターミナルを起動し以下を実行する。
+localhost 環境構築後、関数アプリを再ビルドして localhost 環境にデプロイしたい場合、ターミナルを起動し以下を実行する。
 
 ```bash
 npm run local:functionsUpdate
@@ -177,7 +192,7 @@ npm run local:destroy
 なお、localhost 環境構築時にビルドした Docker イメージを削除したい場合は、ターミナルを起動し以下を実行すればよい。
 
 ```bash
-docker image rm questionanswertranslator_localfunctions mcr.microsoft.com/azure-functions/node mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator
+docker image rm questionanswertranslator_localfunctions questionanswertranslator_localapp
 ```
 
 ## 完全初期化

@@ -2,11 +2,14 @@
   "name": "questionanswertranslator",
   "version": "1.0.0",
   "scripts": {
+    "app:build": "react-scripts build",
+    "app:start": "react-scripts start",
     "cosmosdb:manual": "ts-node cosmosdb/src/manualImport.ts",
     "functions:build": "tsc",
     "functions:start": "func start",
-    "local:create": "docker-compose up --build",
+    "local:create": "docker-compose up",
     "local:cosmosdbInit": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node cosmosdb/src/localImport.ts",
+    "local:appUpdate": "docker-compose up -d --no-deps --build localapp",
     "local:functionsUpdate": "docker-compose up -d --no-deps --build localfunctions",
     "local:destroy": "docker-compose down"
   },
@@ -18,7 +21,6 @@
   "bugs": {
     "url": "https://github.com/infhyroyage/QuestionAnswerTranslator/issues"
   },
-  "homepage": "https://github.com/infhyroyage/QuestionAnswerTranslator#readme",
   "devDependencies": {
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",

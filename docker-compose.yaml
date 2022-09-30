@@ -1,6 +1,17 @@
 version: "3"
 
 services:
+  localapp:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    container_name: localapp
+    tty: true
+    ports:
+      - 3000:3000
+    environment:
+      - REACT_APP_API_URL=http://localhost:9229
+      - REACT_APP_AZURE_AD_APP_REDIRECT_URI=http://localhost:3000
   localfunctions:
     build:
       context: .
