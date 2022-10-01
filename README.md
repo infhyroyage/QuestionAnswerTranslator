@@ -74,14 +74,14 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
 
 | シークレット名                        | シークレット値                                                            |
 | ------------------------------------- | ------------------------------------------------------------------------- |
-| AZURE_SUBSCRIPTION_ID                 | サブスクリプション ID                                                     |
-| AZURE_TENANT_ID                       | ディレクトリ ID                                                           |
-| AZURE_AD_SP_CONTRIBUTOR_OBJECT_ID     | 1.で発行した Contributor のサービスプリンシパルのオブジェクト ID          |
-| AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID     | 1.で発行した Contributor のサービスプリンシパルのクライアント ID          |
-| AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET | 1.で発行した Contributor のサービスプリンシパルのクライアントシークレット |
-| AZURE_AD_SP_MSAL_CLIENT_ID            | 2.で Azure AD に登録したアプリケーションのクライアント ID                 |
 | AZURE_AD_GLOBAL_ADMIN_EMAIL           | API Management の発行者メールアドレス                                     |
 | AZURE_AD_GLOBAL_ADMIN_OBJECT_ID       | ディレクトリの Azure AD のグローバル管理者のオブジェクト ID               |
+| AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID     | 1.で発行した Contributor のサービスプリンシパルのクライアント ID          |
+| AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET | 1.で発行した Contributor のサービスプリンシパルのクライアントシークレット |
+| AZURE_AD_SP_CONTRIBUTOR_OBJECT_ID     | 1.で発行した Contributor のサービスプリンシパルのオブジェクト ID          |
+| AZURE_AD_SP_MSAL_CLIENT_ID            | 2.で Azure AD に登録したアプリケーションのクライアント ID                 |
+| AZURE_SUBSCRIPTION_ID                 | サブスクリプション ID                                                     |
+| AZURE_TENANT_ID                       | ディレクトリ ID                                                           |
 | DEEPL_AUTH_KEY                        | DeepL API の認証キー                                                      |
 
 ## Azure リソース環境構築
@@ -135,8 +135,8 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localh
 1. Docker および Docker Compose をインストールする。
 2. 以下を記述したファイル`.env.local`を QuestionAnswerTranslator リポジトリの app ディレクトリ配下に保存する。
    ```
-   REACT_APP_AZURE_AD_APP_CLIENT_ID=(初期構築時にGitHubへ登録したシークレットAZURE_AD_SP_MSAL_CLIENT_IDの値)
-   REACT_APP_AZURE_AD_APP_TENANT_ID=(初期構築時にGitHubへ登録したシークレットAZURE_TENANT_IDの値)
+   REACT_APP_AZURE_AD_SP_MSAL_CLIENT_ID=(初期構築時にGitHubへ登録したシークレットAZURE_AD_SP_MSAL_CLIENT_IDの値)
+   REACT_APP_AZURE_TENANT_ID=(初期構築時にGitHubへ登録したシークレットAZURE_TENANT_IDの値)
    REACT_APP_DEEPL_AUTH_KEY=(初期構築時にGitHubへ登録したシークレットDEEPL_AUTH_KEYの値)
    ```
 3. 手動インポート用の JSON を cosmosdb/data/manualImport.json に保存する。
