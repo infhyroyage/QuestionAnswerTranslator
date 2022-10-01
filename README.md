@@ -35,14 +35,13 @@ Azure リソース/localhost に環境を構築する事前準備として、以
 
 ### 1. サービスプリンシパルの発行
 
-Azure CLI にてログイン後、以下のコマンドをそれぞれ実行し、Contributor(Azure リソースの作成を担当)、および、User Access Administrator(Role の設定を担当)のサービスプリンシパルをそれぞれ発行する。
+Azure CLI にてログイン後、以下のコマンドを実行し、サービスプリンシパル`QATranslator_Contributor`を発行する。
 
 ```bash
 az ad sp create-for-rbac --name "QATranslator_Contributor" --role "Contributor" --scope /subscriptions/{サブスクリプションID} --sdk-auth
-az ad sp create-for-rbac --name "QATranslator_UserAccessAdministrator" --role "User Access Administrator" --scope /subscriptions/{サブスクリプションID} --sdk-auth
 ```
 
-それぞれ実行して得た JSON のレスポンスのクライアント ID(`clientId`)およびクライアントシークレット`clientSecret`の値を、それぞれ手元に控える。
+実行して得た JSON のレスポンスのクライアント ID(`clientId`)およびクライアントシークレット`clientSecret`の値を、それぞれ手元に控える。
 
 ### 2. Azure AD へのアプリケーションの登録
 
@@ -73,19 +72,17 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
 
 [GitHub の QuestionAnswerTranslator リポジトリのページ](https://github.com/infhyroyage/QuestionAnswerTranslator)にある Setting > Secrets > Actions より、以下のシークレットをすべて設定する。
 
-| シークレット名                                   | シークレット値                                                                          |
-| ------------------------------------------------ | --------------------------------------------------------------------------------------- |
-| AZURE_SUBSCRIPTION_ID                            | サブスクリプション ID                                                                   |
-| AZURE_TENANT_ID                                  | ディレクトリ ID                                                                         |
-| AZURE_AD_CONTRIBUTOR_OBJECT_ID                   | 1.で発行した Contributor のサービスプリンシパルのオブジェクト ID                        |
-| AZURE_AD_CONTRIBUTOR_CLIENT_ID                   | 1.で発行した Contributor のサービスプリンシパルのクライアント ID                        |
-| AZURE_AD_CONTRIBUTOR_CLIENT_SECRET               | 1.で発行した Contributor のサービスプリンシパルのクライアントシークレット               |
-| AZURE_AD_USER_ACCESS_ADMINISTRATOR_CLIENT_ID     | 1.で発行した User Access Administrator のサービスプリンシパルのクライアント ID          |
-| AZURE_AD_USER_ACCESS_ADMINISTRATOR_CLIENT_SECRET | 1.で発行した User Access Administrator のサービスプリンシパルのクライアントシークレット |
-| AZURE_AD_SP_MSAL_CLIENT_ID                       | 2.で Azure AD に登録したアプリケーションのクライアント ID                               |
-| AZURE_AD_GLOBAL_ADMIN_EMAIL                      | API Management の発行者メールアドレス                                                   |
-| AZURE_AD_GLOBAL_ADMIN_OBJECT_ID                  | ディレクトリの Azure AD のグローバル管理者のオブジェクト ID                             |
-| DEEPL_AUTH_KEY                                   | DeepL API の認証キー                                                                    |
+| シークレット名                     | シークレット値                                                            |
+| ---------------------------------- | ------------------------------------------------------------------------- |
+| AZURE_SUBSCRIPTION_ID              | サブスクリプション ID                                                     |
+| AZURE_TENANT_ID                    | ディレクトリ ID                                                           |
+| AZURE_AD_CONTRIBUTOR_OBJECT_ID     | 1.で発行した Contributor のサービスプリンシパルのオブジェクト ID          |
+| AZURE_AD_CONTRIBUTOR_CLIENT_ID     | 1.で発行した Contributor のサービスプリンシパルのクライアント ID          |
+| AZURE_AD_CONTRIBUTOR_CLIENT_SECRET | 1.で発行した Contributor のサービスプリンシパルのクライアントシークレット |
+| AZURE_AD_SP_MSAL_CLIENT_ID         | 2.で Azure AD に登録したアプリケーションのクライアント ID                 |
+| AZURE_AD_GLOBAL_ADMIN_EMAIL        | API Management の発行者メールアドレス                                     |
+| AZURE_AD_GLOBAL_ADMIN_OBJECT_ID    | ディレクトリの Azure AD のグローバル管理者のオブジェクト ID               |
+| DEEPL_AUTH_KEY                     | DeepL API の認証キー                                                      |
 
 ## Azure リソース環境構築
 
@@ -95,6 +92,7 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
    1. Create Azure Resources
    2. Deploy API Management
    3. Build and Deploy Azure Functions Application
+   4. Build and Deploy Azure App Service
 2. 以下の順で、Azure にデプロイ済の Cosmos DB に対して、手動インポート用のデータをインポートする。
    1. 手動インポート用の JSON を cosmosdb/data/manualImport.json に保存する。
    2. 以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
@@ -202,7 +200,6 @@ docker image rm questionanswertranslator_localfunctions questionanswertranslator
 
 - QATranslator_Contributor
 - QATranslator_MSAL
-- QATranslator_UserAccessAdministrator
 
 QuestionAnswerTranslator リポジトリのシークレットの削除については、[GitHub の QuestionAnswerTranslator リポジトリのページ](https://github.com/infhyroyage/QuestionAnswerTranslator)にある Setting > Secrets > Actions より、登録した各シークレットの Remove ボタンを押下する。
 
