@@ -29,10 +29,6 @@
       "orgName": "qatranslator-je-apim-org",
       "subscriptionsName": "subscriptions-functions"
     },
-    "app": {
-      "name": "qatranslator-je-app",
-      "planName": "qatranslator-je-appplan"
-    },
     "cosmosDB": {
       // "name": "qatranslator-je-cosmosdb"
       "name": "qatranslator-kc-cosmosdb"
@@ -243,24 +239,6 @@
     },
     {
       "apiVersion": "2021-03-01",
-      "name": "[variables('app').planName]",
-      "type": "Microsoft.Web/serverfarms",
-      "location": "[resourceGroup().location]",
-      "kind": "",
-      "sku": {
-        "Name": "F1",
-        "Tier": "Free"
-      },
-      "properties": {
-        "name": "[variables('app').planName]",
-        "numberOfWorkers": "1",
-        "workerSize": "0",
-        "workerSizeId": "0",
-        "zoneRedundant": false
-      }
-    },
-    {
-      "apiVersion": "2021-03-01",
       "name": "[variables('functions').planName]",
       "type": "Microsoft.Web/serverfarms",
       "location": "[resourceGroup().location]",
@@ -314,73 +292,6 @@
         "Flow_Type": "Bluefield",
         "Request_Source": "rest",
         "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspaces').name)]"
-      }
-    },
-    {
-      "apiVersion": "2018-11-01",
-      "name": "[variables('app').name]",
-      "type": "Microsoft.Web/sites",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('microsoft.insights/components', variables('insights').name)]",
-        "[concat('Microsoft.Web/serverfarms/', variables('app').planName)]"
-      ],
-      "identity": {
-        "type": "SystemAssigned"
-      },
-      "properties": {
-        "clientAffinityEnabled": false,
-        "httpsOnly": true,
-        "name": "[variables('app').name]",
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('app').planName)]",
-        "siteConfig": {
-          "alwaysOn": false,
-          "appCommandLine": "npm install -g serve && serve -s build",
-          "appSettings": [
-            {
-              "name": "ApplicationInsightsAgent_EXTENSION_VERSION",
-              "value": "~3"
-            },
-            {
-              "name": "REACT_APP_API_URL",
-              "value": "[concat('https://', variables('apim').name, '.azure-api.net')]"
-            },
-            {
-              "name": "REACT_APP_AZURE_AD_SP_MSAL_CLIENT_ID",
-              "value": "[parameters('azureADSPMSALClientId')]"
-            },
-            {
-              "name": "REACT_APP_AZURE_AD_APP_REDIRECT_URI",
-              "value": "[concat('https://', variables('app').name, '.azurewebsites.net')]"
-            },
-            {
-              "name": "REACT_APP_AZURE_TENANT_ID",
-              "value": "[tenant().tenantId]"
-            },
-            {
-              "name": "REACT_APP_DEEPL_AUTH_KEY",
-              "value": "[parameters('deeplAuthKey')]"
-            },
-            {
-              "name": "WEBSITE_NODE_DEFAULT_VERSION",
-              "value": "~16"
-            },
-            {
-              "name": "XDT_MicrosoftApplicationInsights_Mode",
-              "value": "default"
-            }
-          ],
-          "ftpsState": "Disabled",
-          "metadata": [
-            {
-              "name": "CURRENT_STACK",
-              "value": "node"
-            }
-          ],
-          "nodeVersion": "~16",
-          "keyVaultReferenceIdentity": "SystemAssigned"
-        },
-        "virtualNetworkSubnetId": null
       }
     },
     {
@@ -451,7 +362,6 @@
       "type": "Microsoft.KeyVault/vaults",
       "dependsOn": [
         "[resourceId('Microsoft.ApiManagement/service', variables('apim').name)]",
-        "[resourceId('Microsoft.Web/sites', variables('app').name)]",
         "[resourceId('Microsoft.Web/sites', variables('functions').name)]"
       ],
       "properties": {
@@ -523,17 +433,6 @@
               "secrets": [
                 "Get",
                 "list"
-              ],
-              "certificates": []
-            }
-          },
-          {
-            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('app').name), '2018-11-01', 'Full').identity.principalId]",
-            "tenantId": "[tenant().tenantId]",
-            "permissions": {
-              "keys": [],
-              "secrets": [
-                "Get"
               ],
               "certificates": []
             }

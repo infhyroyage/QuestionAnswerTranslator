@@ -4,18 +4,16 @@
 
 ![architecture.drawio](architecture.drawio.svg)
 
-| リソース名                 | 概要                                                                       | workflow での CI/CD |
-| -------------------------- | -------------------------------------------------------------------------- | :-----------------: |
-| `qatranslator-je-app`      | React サーバーの App Service                                               |          o          |
-| `qatranslator-je-appplan`  | App Service のプラン                                                       |                     |
-| `qatranslator-je-apim`     | App Service/localhost からアクセスする API Management                      |          o          |
-| `qatranslator-je-func`     | API Management からアクセスする Functions                                  |          o          |
-| `qatranslator-je-funcplan` | Functions のプラン                                                         |                     |
-| `qatranslatorjesa`         | Functions から参照するストレージアカウント                                 |                     |
-| `qatranslator-kc-cosmosdb` | Functions からアクセスする Cosmos DB                                       |                     |
-| `qatranslator-je-insights` | App Service/API Management/Functions を一括で監視する Application Insights |                     |
-| `qatranslator-je-ws`       | Application Insights を分析する Workspaces                                 |                     |
-| `qatranslator-je-vault`    | 暗号鍵/シークレットを管理する Key Vault                                    |                     |
+| リソース名                 | 概要                                                           | workflow での CI/CD |
+| -------------------------- | -------------------------------------------------------------- | :-----------------: |
+| `qatranslator-je-apim`     | localhost からアクセスする API Management                      |          o          |
+| `qatranslator-je-func`     | API Management からアクセスする Functions                      |          o          |
+| `qatranslator-je-funcplan` | Functions のプラン                                             |                     |
+| `qatranslatorjesa`         | Functions から参照するストレージアカウント                     |                     |
+| `qatranslator-kc-cosmosdb` | Functions からアクセスする Cosmos DB                           |                     |
+| `qatranslator-je-insights` | API Management/Functions を一括で監視する Application Insights |                     |
+| `qatranslator-je-ws`       | Application Insights を分析する Workspaces                     |                     |
+| `qatranslator-je-vault`    | 暗号鍵/シークレットを管理する Key Vault                        |                     |
 
 ## 使用するバージョン
 
@@ -92,7 +90,6 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
    1. Create Azure Resources
    2. Deploy API Management
    3. Build and Deploy Azure Functions Application
-   4. Build and Deploy Azure App Service
 2. 以下の順で、Azure にデプロイ済の Cosmos DB に対して、手動インポート用のデータをインポートする。
    1. 手動インポート用の JSON を cosmosdb/data/manualImport.json に保存する。
    2. 以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
@@ -213,4 +210,4 @@ QuestionAnswerTranslator リポジトリのシークレットの削除につい�
 
 # TODO
 
-- React サーバーを App Service ではなく、Azure Container Instance および Azure Container Registory で構築してデプロイする。
+- React サーバーを Azure Container Instance および Azure Container Registory でデプロイする。
