@@ -1,0 +1,44 @@
+name: Build and Deploy Azure App Service
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/build-deploy-app.yaml
+      - app**
+
+env:
+  APP_NAME: qatranslator-je-app
+  NODE_VERSION: "16.17.0"
+
+jobs:
+  build-and-deploy-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Build Azure App Service
+        run: |
+          pushd app
+          cp ../package.json .
+          npm install --production
+          npm run app:build
+          popd
+
+      - name: Login Azure as Contributor
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_AD_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Deploy
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.APP_NAME }}
+          package: "./app"
