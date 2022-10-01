@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "app:build": "react-scripts build",
-    "app:start": "react-scripts start",
+    "app:start": "FORCE_COLOR=true react-scripts start | cat",
     "cosmosdb:manual": "ts-node cosmosdb/src/manualImport.ts",
     "functions:build": "tsc",
     "functions:start": "func start",
