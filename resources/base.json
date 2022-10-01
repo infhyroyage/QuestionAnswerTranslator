@@ -346,7 +346,7 @@
               "value": "[concat('https://', variables('apim').name, '.azure-api.net')]"
             },
             {
-              "name": "REACT_APP_AZURE_AD_APP_CLIENT_ID",
+              "name": "REACT_APP_AZURE_AD_SP_MSAL_CLIENT_ID",
               "value": "[parameters('azureADSPMSALClientId')]"
             },
             {
@@ -354,7 +354,7 @@
               "value": "[concat('https://', variables('app').name, '.azurewebsites.net')]"
             },
             {
-              "name": "REACT_APP_AZURE_AD_APP_TENANT_ID",
+              "name": "REACT_APP_AZURE_TENANT_ID",
               "value": "[tenant().tenantId]"
             },
             {
