@@ -3,8 +3,8 @@
  */
 export const config = {
   auth: {
-    clientId: `${process.env["REACT_APP_AZURE_AD_APP_CLIENT_ID"]}`,
-    authority: `https://login.microsoftonline.com/${process.env["REACT_APP_AZURE_AD_APP_TENANT_ID"]}`,
+    clientId: `${process.env["REACT_APP_AZURE_AD_SP_MSAL_CLIENT_ID"]}`,
+    authority: `https://login.microsoftonline.com/${process.env["REACT_APP_AZURE_TENANT_ID"]}`,
     // ログイン後のリダイレクト先
     redirectUri: `${process.env["REACT_APP_AZURE_AD_APP_REDIRECT_URI"]}`,
     // ログアウト後のリダイレクト先
@@ -30,6 +30,6 @@ export const loginScope = {
  */
 export const functionsScopes = {
   accessAsUser: [
-    `api://${process.env["REACT_APP_AZURE_AD_APP_CLIENT_ID"]}/access_as_user`,
+    `api://${process.env["REACT_APP_AZURE_AD_SP_MSAL_CLIENT_ID"]}/access_as_user`,
   ],
 };
