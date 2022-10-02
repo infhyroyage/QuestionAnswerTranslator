@@ -130,7 +130,7 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localh
 ### 構築手順
 
 1. Docker および Docker Compose をインストールする。
-2. 以下を記述したファイル`.env.local`を QuestionAnswerTranslator リポジトリの app ディレクトリ配下に保存する。
+2. 以下を記述したファイル`.env.local`を QuestionAnswerTranslator リポジトリの react ディレクトリ配下に保存する。
    ```
    REACT_APP_AZURE_AD_SP_MSAL_CLIENT_ID=(初期構築時にGitHubへ登録したシークレットAZURE_AD_SP_MSAL_CLIENT_IDの値)
    REACT_APP_AZURE_TENANT_ID=(初期構築時にGitHubへ登録したシークレットAZURE_TENANT_IDの値)
@@ -154,7 +154,7 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localh
    localfunctions    | [略] Worker process started and initialized.
    localfunctions    | [略] Host lock lease acquired by instance ID '(略)'.
    ```
-   なお、以前上記コマンドを実行したことがあり、`questionanswertranslator_localapp`および`questionanswertranslator_localfunctions`の Docker イメージが残ったままである場合は再ビルドせず、残った Docker イメージに対してそのまま Docker Compose で起動する。
+   なお、以前上記コマンドを実行したことがあり、`questionanswertranslator_localreact`および`questionanswertranslator_localfunctions`の Docker イメージが残ったままである場合は再ビルドせず、残った Docker イメージに対してそのまま Docker Compose で起動する。
 5. 4 とは別のターミナルで、以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
    ```bash
    npm run local:cosmosdbInit
@@ -165,7 +165,7 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localh
 localhost 環境構築後、React サーバーを再ビルドして localhost 環境にデプロイしたい場合、ターミナルを起動し以下を実行する。
 
 ```bash
-npm run local:appUpdate
+npm run local:reactUpdate
 ```
 
 ### 関数アプリアップデート手順
@@ -187,7 +187,7 @@ npm run local:destroy
 なお、localhost 環境構築時にビルドした Docker イメージを削除したい場合は、ターミナルを起動し以下を実行すればよい。
 
 ```bash
-docker image rm questionanswertranslator_localfunctions questionanswertranslator_localapp
+docker image rm questionanswertranslator_localfunctions questionanswertranslator_localreact
 ```
 
 ## 完全初期化

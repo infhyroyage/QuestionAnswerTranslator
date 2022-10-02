@@ -2,16 +2,16 @@
   "name": "questionanswertranslator",
   "version": "1.0.0",
   "scripts": {
-    "app:build": "react-scripts build",
-    "app:start": "FORCE_COLOR=true react-scripts start | cat",
     "cosmosdb:manual": "ts-node cosmosdb/src/manualImport.ts",
     "functions:build": "tsc",
     "functions:start": "func start",
     "local:create": "docker-compose up",
     "local:cosmosdbInit": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node cosmosdb/src/localImport.ts",
-    "local:appUpdate": "docker-compose up -d --no-deps --build localapp",
+    "local:destroy": "docker-compose down",
     "local:functionsUpdate": "docker-compose up -d --no-deps --build localfunctions",
-    "local:destroy": "docker-compose down"
+    "local:reactUpdate": "docker-compose up -d --no-deps --build localapp",
+    "react:build": "react-scripts build",
+    "react:start": "FORCE_COLOR=true react-scripts start | cat"
   },
   "repository": {
     "type": "git",

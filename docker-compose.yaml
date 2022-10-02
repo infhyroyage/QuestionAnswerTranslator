@@ -1,11 +1,11 @@
 version: "3"
 
 services:
-  localapp:
+  localreact:
     build:
       context: .
-      dockerfile: app/Dockerfile.local
-    container_name: localapp
+      dockerfile: react/Dockerfile.local
+    container_name: localreact
     tty: true
     ports:
       - 3000:3000
