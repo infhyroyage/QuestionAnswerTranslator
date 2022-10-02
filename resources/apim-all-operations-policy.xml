@@ -4,7 +4,7 @@
     <cors>
       <allowed-origins>
         <origin>http://localhost:3000</origin>
-        <origin>https://qatranslator-je-app.azurewebsites.net</origin>
+        <origin>https://qatranslator-je-appservice.azurewebsites.net</origin>
       </allowed-origins>
       <allowed-methods>
         <method>GET</method>
