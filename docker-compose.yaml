@@ -4,7 +4,7 @@ services:
   localapp:
     build:
       context: .
-      dockerfile: app/Dockerfile
+      dockerfile: app/Dockerfile.local
     container_name: localapp
     tty: true
     ports:
@@ -15,7 +15,7 @@ services:
   localfunctions:
     build:
       context: .
-      dockerfile: functions/Dockerfile
+      dockerfile: functions/Dockerfile.local
     container_name: localfunctions
     tty: true
     ports:
