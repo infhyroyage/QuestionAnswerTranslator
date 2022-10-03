@@ -83,6 +83,7 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
 | AZURE_SUBSCRIPTION_ID                 | サブスクリプション ID                                                     |
 | AZURE_TENANT_ID                       | ディレクトリ ID                                                           |
 | DEEPL_AUTH_KEY                        | DeepL API の認証キー                                                      |
+| GHCR_PAT_READ_PACKAGES                | read:packages を許可した GitHub の Personal Access Tokens                 |
 
 ## Azure リソース環境構築
 
