@@ -4,16 +4,18 @@
 
 ![architecture.drawio](architecture.drawio.svg)
 
-| リソース名                 | 概要                                                           | workflow での CI/CD |
-| -------------------------- | -------------------------------------------------------------- | :-----------------: |
-| `qatranslator-je-apim`     | localhost からアクセスする API Management                      |          o          |
-| `qatranslator-je-func`     | API Management からアクセスする Functions                      |          o          |
-| `qatranslator-je-funcplan` | Functions のプラン                                             |                     |
-| `qatranslatorjesa`         | Functions から参照するストレージアカウント                     |                     |
-| `qatranslator-kc-cosmosdb` | Functions からアクセスする Cosmos DB                           |                     |
-| `qatranslator-je-insights` | API Management/Functions を一括で監視する Application Insights |                     |
-| `qatranslator-je-ws`       | Application Insights を分析する Workspaces                     |                     |
-| `qatranslator-je-vault`    | 暗号鍵/シークレットを管理する Key Vault                        |                     |
+| リソース名                       | 概要                                                                       | workflow での CI/CD |
+| -------------------------------- | -------------------------------------------------------------------------- | :-----------------: |
+| `qatranslator-je-appservice`     | ユーザーからアクセスする App Service                                       |          o          |
+| `qatranslator-je-appserviceplan` | App Service のプラン                                                       |                     |
+| `qatranslator-je-apim`           | ユーザー/App Service からアクセスする API Management                       |          o          |
+| `qatranslator-je-func`           | API Management からアクセスする Functions                                  |          o          |
+| `qatranslator-je-funcplan`       | Functions のプラン                                                         |                     |
+| `qatranslatorjesa`               | Functions から参照するストレージアカウント                                 |                     |
+| `qatranslator-kc-cosmosdb`       | Functions からアクセスする Cosmos DB                                       |                     |
+| `qatranslator-je-insights`       | App Service/API Management/Functions を一括で監視する Application Insights |                     |
+| `qatranslator-je-ws`             | Application Insights を分析する Workspaces                                 |                     |
+| `qatranslator-je-vault`          | 暗号鍵/シークレットを管理する Key Vault                                    |                     |
 
 ## 使用するバージョン
 
@@ -50,7 +52,7 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
    - Supported account types : `Accounts in this organizational directory only`
    - Redirect URI : `Single-page application(SPA)`(左) と `http://localhost:3000`(右)
 2. QATranslator_MSAL の App Registration ブレードに遷移し、概要にある `Application (client) ID`の UUID を手元に控える。
-3. Authentication > Single-page application にある 「Add URI」を押下して、Redirect URIs にあるリストに`https://qatranslator-je-app.azurewebsites.net`を追加し、Save ボタンを押下する。
+3. Authentication > Single-page application にある 「Add URI」を押下して、Redirect URIs にあるリストに`https://qatranslator-je-appservice.azurewebsites.net`を追加し、Save ボタンを押下する。
 4. Expose an API > Application ID URI の右にある小さな文字「Set」を押下し、Application ID URI の入力欄に`api://{2で手元に控えたUUID}`が反映されていることを確認し、Save ボタンを押下する。
 5. Expose an API > Scopes defined by this API にある「Add a scope」を押下し、以下の項目を入力後、Save ボタンを押下する。
    - Scope name : `access_as_user`
@@ -90,6 +92,7 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
    1. Create Azure Resources
    2. Deploy API Management
    3. Build and Deploy Azure Functions Application
+   4. Build and Deploy App Service
 2. 以下の順で、Azure にデプロイ済の Cosmos DB に対して、手動インポート用のデータをインポートする。
    1. 手動インポート用の JSON を cosmosdb/data/manualImport.json に保存する。
    2. 以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
@@ -207,7 +210,3 @@ QuestionAnswerTranslator リポジトリのシークレットの削除につい�
     ```
     "{\"status\":\"Failed\",\"error\":{\"code\":\"ResourceOperationFailure\",\"message\":\"The resource operation completed with terminal provisioning state 'Failed'.\",\"details\":[{\"code\":\"ServiceUnavailable\",\"message\":\"Database account creation failed. Operation Id: 957e812a-4b5e-42e8-a81f-29fe7e3805e3, Error : Service is currently unavailable. More info: https://aka.ms/cosmosdb-tsg-service-unavailable\\r\\nActivityId: cca8475b-6d1c-45ae-ba4c-058b33247e7e, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0\"}]}}"
     ```
-
-# TODO
-
-- React サーバーを Azure Container Instance および Azure Container Registory でデプロイする。
