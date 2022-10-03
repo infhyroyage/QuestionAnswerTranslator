@@ -43,6 +43,7 @@ jobs:
 
   deploy-appservice:
     runs-on: ubuntu-latest
+    needs: build-ghcr
     steps:
       - name: Login Azure as Contributor
         uses: azure/login@v1
