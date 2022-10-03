@@ -330,7 +330,7 @@
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('microsoft.insights/components', variables('insights').name)]",
-        "[concat('Microsoft.Web/serverfarms', variables('appservice').planName)]"
+        "[resourceId('Microsoft.Web/serverfarms', variables('appservice').planName)]"
       ],
       "identity": {
         "type": "SystemAssigned"
