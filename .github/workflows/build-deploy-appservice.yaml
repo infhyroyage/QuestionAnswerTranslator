@@ -1,15 +1,15 @@
-name: Build and Deploy React Server
+name: Build and Deploy App Service
 
 on:
   push:
     branches:
       - main
     paths:
-      - .github/workflows/build-deploy-react.yaml
+      - .github/workflows/build-deploy-appservice.yaml
       - react**
 
 env:
-  ACI_NAME: qatranslator-je-aci
+  APP_SERVICE_NAME: qatranslator-je-appservice
   GHCR_IMAGE_NAME: react
   GHCR_REPOSITORY_NAME: qatranslator
 
@@ -33,7 +33,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Docker Build and Docker Push
         uses: docker/build-push-action@v3
         with:
           context: .
@@ -41,10 +41,16 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.actor }}/${{ env.GHCR_REPOSITORY_NAME }}/${{ env.GHCR_IMAGE_NAME }}:${{ github.sha	}}
 
-  # deploy-aci:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Login Azure as Contributor
-  #       uses: azure/login@v1
-  #       with:
-  #         creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+  deploy-appservice:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login Azure as Contributor
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Deploy App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.APP_SERVICE_NAME }}
+          images: ghcr.io/${{ github.actor }}/${{ env.GHCR_REPOSITORY_NAME }}/${{ env.GHCR_IMAGE_NAME }}:${{ github.sha	}}
