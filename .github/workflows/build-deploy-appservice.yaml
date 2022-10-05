@@ -9,12 +9,9 @@ on:
       - react**
 
 env:
-  APIM_NAME: qatranslator-je-apim
-  APIM_SUBSCRIPTION_NAME: subscriptions-functions
   APP_SERVICE_NAME: qatranslator-je-appservice
   GHCR_IMAGE_NAME: react
   GHCR_REPOSITORY_NAME: qatranslator
-  RESOURCE_GROUP: qatranslator-je
 
 jobs:
   build-ghcr:
@@ -39,7 +36,7 @@ jobs:
               -ServiceName "${{ env.APIM_NAME }}"
             $apimFunctionsSubscriptionKey = Get-AzApiManagementSubscriptionKey `
               -Context $apimContext `
-              -SubscriptionId "${{ env.APIM_SUBSCRIPTION_NAME }}"
+              -SubscriptionId "subscriptions-functions"
             $apimSubscriptionKey = $apimFunctionsSubscriptionKey.PrimaryKey
             Write-Output "::add-mask::${apimSubscriptionKey}"
             Write-Output "::set-output name=apim_subscription_key::${apimSubscriptionKey}"
