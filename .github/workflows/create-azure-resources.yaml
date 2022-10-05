@@ -43,7 +43,7 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
           template: ./resources/base.json
-          parameters: azureADSPContributorObjectId=${{ secrets.AZURE_AD_SP_CONTRIBUTOR_OBJECT_ID }} azureADGlobalAdminEmail=${{ secrets.AZURE_AD_GLOBAL_ADMIN_EMAIL }} azureADGlobalAdminObjectId=${{ secrets.AZURE_AD_GLOBAL_ADMIN_OBJECT_ID }} githubToken=${{ secrets.GHCR_PAT_READ_PACKAGES }} githubUsername=${{ github.actor }}
+          parameters: azureADSPContributorObjectId=${{ secrets.AZURE_AD_SP_CONTRIBUTOR_OBJECT_ID }} azureADGlobalAdminEmail=${{ secrets.AZURE_AD_GLOBAL_ADMIN_EMAIL }} azureADGlobalAdminObjectId=${{ secrets.AZURE_AD_GLOBAL_ADMIN_OBJECT_ID }} azureADSPMSALClientId=${{ secrets.AZURE_AD_SP_MSAL_CLIENT_ID }} deeplAuthKey=${{ secrets.DEEPL_AUTH_KEY }} githubToken=${{ secrets.GHCR_PAT_READ_PACKAGES }} githubUsername=${{ github.actor }}
 
   import-cosmosdb-items:
     runs-on: ubuntu-latest
