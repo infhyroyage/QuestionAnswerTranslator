@@ -12,3 +12,11 @@ FROM nginx:1.23.1
 
 COPY react/nginx.conf /etc/nginx
 COPY --from=build /home/node/react/build /usr/share/nginx/html
+
+ENV REACT_APP_API_URL=https://qatranslator-je-apim.azure-api.net \
+    REACT_APP_AZURE_AD_APP_REDIRECT_URI=https://qatranslator-je-appservice.azurewebsites.net
+
+RUN --mount=type=secret,id=REACT_APP_API_MANAGEMENT_SUBSCRIPTION_KEY cat /run/secrets/REACT_APP_API_MANAGEMENT_SUBSCRIPTION_KEY
+RUN --mount=type=secret,id=REACT_APP_AZURE_AD_SP_MSAL_CLIENT_ID cat /run/secrets/REACT_APP_AZURE_AD_SP_MSAL_CLIENT_ID
+RUN --mount=type=secret,id=REACT_APP_AZURE_TENANT_ID cat /run/secrets/REACT_APP_AZURE_TENANT_ID
+RUN --mount=type=secret,id=REACT_APP_DEEPL_AUTH_KEY cat /run/secrets/REACT_APP_DEEPL_AUTH_KEY
