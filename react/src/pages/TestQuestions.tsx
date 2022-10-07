@@ -169,6 +169,14 @@ export const TestQuestions: FC<{}> = () => {
       {correctIdx !== "" && (
         <div style={{ paddingTop: "28px" }}>
           <h2>{correctIdx !== selectedIdx && "不"}正解</h2>
+          <button
+            onClick={onClickNextQuestionButton}
+            style={{ marginTop: "7px" }}
+          >
+            {questionNumber === testLength
+              ? "結果"
+              : `問題${questionNumber + 1}へ`}
+          </button>
           {isNotTranslatedExplanations && (
             <TestTranslationErrorContent
               sentences={explanations}
@@ -180,14 +188,6 @@ export const TestQuestions: FC<{}> = () => {
             sentences={explanations}
             translatedSentences={translatedExplanations}
           />
-          <button
-            onClick={onClickNextQuestionButton}
-            style={{ marginTop: "14px" }}
-          >
-            {questionNumber === testLength
-              ? "結果"
-              : `問題${questionNumber + 1}へ`}
-          </button>
         </div>
       )}
     </AuthenticatedTemplate>
