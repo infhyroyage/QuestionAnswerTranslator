@@ -10,6 +10,7 @@ on:
 
 env:
   APIM_NAME: qatranslator-je-apim
+  APIM_APIS_NAME: apis-functions
   RESOURCE_GROUP: qatranslator-je
 
 jobs:
@@ -32,7 +33,7 @@ jobs:
             -n ${{ env.APIM_NAME }} \
             --path "api" \
             --specification-format OpenApi \
-            --api-id apis-functions \
+            --api-id ${{ env.APIM_APIS_NAME }} \
             --specification-path ./apim/swagger.yaml
 
       # healthcheckのAPIのポリシーは、Functions API全体に対するポリシーとは違い、
@@ -47,7 +48,7 @@ jobs:
               -ServiceName "${{ env.APIM_NAME }}"
             Set-AzApiManagementPolicy `
               -Context $apimContext `
-              -ApiId "apis-functions" `
+              -ApiId "${{ env.APIM_APIS_NAME }}" `
               -OperationId "get-healthcheck" `
               -PolicyFilePath "./apim/get-healthcheck-policy.xml"
           azPSVersion: latest
