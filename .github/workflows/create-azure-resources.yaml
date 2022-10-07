@@ -10,9 +10,13 @@ on:
       - resources**
 
 env:
+  APIM_APIS_NAME: apis-functions
   APIM_NAME: qatranslator-je-apim
+  APIM_SUBSCRIPTION_NAME: subscriptions-functions
   APP_SERVICE_NAME: qatranslator-je-appservice
   FUNCTIONS_NAME: qatranslator-je-func
+  GHCR_IMAGE_NAME: react
+  GHCR_REPOSITORY_NAME: qatranslator
   LOCATION: japaneast
   NODE_VERSION: "16.17.0"
   RESOURCE_GROUP: qatranslator-je
@@ -45,6 +49,52 @@ jobs:
           template: ./resources/base.json
           parameters: azureADSPContributorObjectId=${{ secrets.AZURE_AD_SP_CONTRIBUTOR_OBJECT_ID }} azureADGlobalAdminEmail=${{ secrets.AZURE_AD_GLOBAL_ADMIN_EMAIL }} azureADGlobalAdminObjectId=${{ secrets.AZURE_AD_GLOBAL_ADMIN_OBJECT_ID }} githubToken=${{ secrets.GHCR_PAT_READ_PACKAGES }} githubUsername=${{ github.actor }}
 
+  deploy-apim:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Login Azure as Contributor
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+          enable-AzPSSession: true
+
+      - name: Import Swagger into API Management
+        run: |
+          az apim api import \
+            -g ${{ env.RESOURCE_GROUP }} \
+            -n ${{ env.APIM_NAME }} \
+            --path "api" \
+            --specification-format OpenApi \
+            --api-id ${{ env.APIM_APIS_NAME }} \
+            --specification-path ./apim/swagger.yaml
+
+      # 従量課金のAPI Managementは、ARMテンプレートにポリシーを記述してデプロイできないため、
+      # PowershellにてFunctions API全体に対するポリシーを別途設定
+      # ただし、healthcheckのAPIのポリシーのみ、CORSチェック・JWTトークンチェックを迂回する独自ポリシーを設定
+      - name: Set API Management Policies
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $apimContext = New-AzApiManagementContext `
+              -ResourceGroupName "${{ env.RESOURCE_GROUP }}" `
+              -ServiceName "${{ env.APIM_NAME }}"
+            Set-AzApiManagementPolicy `
+              -Context $apimContext `
+              -ApiId "${{ env.APIM_APIS_NAME }}" `
+              -PolicyFilePath "./resources/apim-all-operations-policy.xml"
+            $apimContext = New-AzApiManagementContext `
+              -ResourceGroupName "${{ env.RESOURCE_GROUP }}" `
+              -ServiceName "${{ env.APIM_NAME }}"
+            Set-AzApiManagementPolicy `
+              -Context $apimContext `
+              -ApiId "${{ env.APIM_APIS_NAME }}" `
+              -OperationId "get-healthcheck" `
+              -PolicyFilePath "./resources/apim-get-healthcheck-policy.xml"
+          azPSVersion: latest
+
   import-cosmosdb-items:
     runs-on: ubuntu-latest
     needs: create-resources
@@ -66,6 +116,65 @@ jobs:
         run: |
           npm install
           npx ts-node cosmosdb/src/initialImport.ts
+
+  build-ghcr:
+    runs-on: ubuntu-latest
+    needs: create-resources
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Login Azure as Contributor
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+          enable-AzPSSession: true
+
+      - name: Get API Management Subscription Key
+        id: get_api_management_subscription_key
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $apimContext = New-AzApiManagementContext `
+              -ResourceGroupName "${{ env.RESOURCE_GROUP }}" `
+              -ServiceName "${{ env.APIM_NAME }}"
+            $apimFunctionsSubscriptionKey = Get-AzApiManagementSubscriptionKey `
+              -Context $apimContext `
+              -SubscriptionId "${{ env.APIM_SUBSCRIPTION_NAME }}"
+            $apimSubscriptionKey = $apimFunctionsSubscriptionKey.PrimaryKey
+            Write-Output "::add-mask::${apimSubscriptionKey}"
+            Write-Output "::set-output name=apim_subscription_key::${apimSubscriptionKey}"
+          azPSVersion: latest
+
+      - name: Replace Secure Environment Variables
+        run: |
+          sed -i \
+            -e 's/VALUE_OF_REACT_APP_API_MANAGEMENT_SUBSCRIPTION_KEY/${{ steps.get_api_management_subscription_key.outputs.apim_subscription_key }}/g' \
+            -e 's/VALUE_OF_REACT_APP_AZURE_AD_SP_MSAL_CLIENT_ID/${{ secrets.AZURE_AD_SP_MSAL_CLIENT_ID }}/g' \
+            -e 's/VALUE_OF_REACT_APP_AZURE_TENANT_ID/${{ secrets.AZURE_TENANT_ID }}/g' \
+            -e 's/VALUE_OF_REACT_APP_DEEPL_AUTH_KEY/${{ secrets.DEEPL_AUTH_KEY }}/g' \
+            react/.env.production
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker Build and Docker Push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: react/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.actor }}/${{ env.GHCR_REPOSITORY_NAME }}/${{ env.GHCR_IMAGE_NAME }}:${{ github.sha	}}
 
   set-appservice-appsettings:
     runs-on: ubuntu-latest
@@ -105,9 +214,24 @@ jobs:
             -n ${{ env.FUNCTIONS_NAME }} \
             --settings @resources/functions-appsettings-vault-secret.json
 
+  deploy-appservice:
+    runs-on: ubuntu-latest
+    needs: build-ghcr
+    steps:
+      - name: Login Azure as Contributor
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Deploy App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.APP_SERVICE_NAME }}
+          images: ghcr.io/${{ github.actor }}/${{ env.GHCR_REPOSITORY_NAME }}/${{ env.GHCR_IMAGE_NAME }}:${{ github.sha	}}
+
   # FunctionsにAzureWebJobsStorageのアプリケーション設定をせずにデプロイすると
   # InternalServerErrorとなってしまうデプロイ処理は、以下のJobに定義すること
-  create-resources-after-functions-appsettings:
+  connect-apim-2-functions:
     runs-on: ubuntu-latest
     needs: set-functions-appsettings
     steps:
@@ -126,19 +250,35 @@ jobs:
           scope: resourcegroup
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
-          template: ./resources/after-functions-appsettings.json
+          template: ./resources/connect-apim-2-functions.json
 
-      # 従量課金のAPI Managementは、ARMテンプレートにポリシーを記述してデプロイできないため、
-      # PowershellにてFunctions API全体に対するポリシーを別途設定
-      - name: Set API Management Policies
-        uses: azure/powershell@v1
+  build-and-deploy-functions-app:
+    runs-on: ubuntu-latest
+    needs: set-functions-appsettings
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Setup Node ${{ env.NODE_VERSION }} Environment
+        uses: actions/setup-node@v2
         with:
-          inlineScript: |
-            $apimContext = New-AzApiManagementContext `
-              -ResourceGroupName "${{ env.RESOURCE_GROUP }}" `
-              -ServiceName "${{ env.APIM_NAME }}"
-            Set-AzApiManagementPolicy `
-              -Context $apimContext `
-              -ApiId "apis-functions" `
-              -PolicyFilePath "./resources/apim-all-operations-policy.xml"
-          azPSVersion: latest
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Build Azure Functions Application
+        run: |
+          pushd functions
+          cp ../package.json .
+          npm install
+          npm run functions:build
+          popd
+
+      - name: Login Azure as Contributor
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Deploy Azure Functions Application
+        uses: Azure/functions-action@v1.4.7
+        with:
+          app-name: ${{ env.FUNCTIONS_NAME }}
+          package: functions
