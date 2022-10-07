@@ -9,9 +9,12 @@ on:
       - react**
 
 env:
+  APIM_NAME: qatranslator-je-apim
+  APIM_SUBSCRIPTION_NAME: subscriptions-functions
   APP_SERVICE_NAME: qatranslator-je-appservice
   GHCR_IMAGE_NAME: react
   GHCR_REPOSITORY_NAME: qatranslator
+  RESOURCE_GROUP: qatranslator-je
 
 jobs:
   build-ghcr:
@@ -19,6 +22,37 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@main
+
+      - name: Login Azure as Contributor
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+          enable-AzPSSession: true
+
+      - name: Get API Management Subscription Key
+        id: get_api_management_subscription_key
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $apimContext = New-AzApiManagementContext `
+              -ResourceGroupName "${{ env.RESOURCE_GROUP }}" `
+              -ServiceName "${{ env.APIM_NAME }}"
+            $apimFunctionsSubscriptionKey = Get-AzApiManagementSubscriptionKey `
+              -Context $apimContext `
+              -SubscriptionId "${{ env.APIM_SUBSCRIPTION_NAME }}"
+            $apimSubscriptionKey = $apimFunctionsSubscriptionKey.PrimaryKey
+            Write-Output "::add-mask::${apimSubscriptionKey}"
+            Write-Output "::set-output name=apim_subscription_key::${apimSubscriptionKey}"
+          azPSVersion: latest
+
+      - name: Replace Secure Environment Variables
+        run: |
+          sed -i \
+            -e 's/VALUE_OF_REACT_APP_API_MANAGEMENT_SUBSCRIPTION_KEY/${{ steps.get_api_management_subscription_key.outputs.apim_subscription_key }}/g' \
+            -e 's/VALUE_OF_REACT_APP_AZURE_AD_SP_MSAL_CLIENT_ID/${{ secrets.AZURE_AD_SP_MSAL_CLIENT_ID }}/g' \
+            -e 's/VALUE_OF_REACT_APP_AZURE_TENANT_ID/${{ secrets.AZURE_TENANT_ID }}/g' \
+            -e 's/VALUE_OF_REACT_APP_DEEPL_AUTH_KEY/${{ secrets.DEEPL_AUTH_KEY }}/g' \
+            react/.env.production
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
