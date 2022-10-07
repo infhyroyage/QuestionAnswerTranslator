@@ -527,7 +527,10 @@
             "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('functions').name), '2018-11-01', 'Full').identity.principalId]",
             "tenantId": "[tenant().tenantId]",
             "permissions": {
-              "keys": [],
+              "keys": [
+                "get",
+                "decrypt"
+              ],
               "secrets": [
                 "Get"
               ],
