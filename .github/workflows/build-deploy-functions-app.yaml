@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - .github/workflows/build-deploy-func-app.yaml
+      - .github/workflows/build-deploy-functions-app.yaml
       - functions**
 
 env:
@@ -13,7 +13,7 @@ env:
   NODE_VERSION: "16.17.0"
 
 jobs:
-  build-and-deploy-func-app:
+  build-and-deploy-functions-app:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
