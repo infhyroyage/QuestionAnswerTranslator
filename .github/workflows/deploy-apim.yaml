@@ -9,8 +9,8 @@ on:
       - apim**
 
 env:
-  APIM_NAME: qatranslator-je-apim
   APIM_APIS_NAME: apis-functions
+  APIM_NAME: qatranslator-je-apim
   RESOURCE_GROUP: qatranslator-je
 
 jobs:
