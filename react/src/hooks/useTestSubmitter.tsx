@@ -1,7 +1,7 @@
 import { useAccount, useMsal } from "@azure/msal-react";
 import { useState } from "react";
 import { accessFunctions } from "../services/functions";
-import { GetAnswer } from "../types/functions";
+import { GetQuestionAnswer } from "../types/functions";
 import { useParams } from "react-router-dom";
 
 export const useTestSubmitter = (
@@ -26,7 +26,7 @@ export const useTestSubmitter = (
     disableTestInputer();
 
     // 初回レンダリング時のみ[GET] /tests/{testId}/questions/{questionNumber}/answerを実行
-    const res: GetAnswer = await accessFunctions<GetAnswer>(
+    const res: GetQuestionAnswer = await accessFunctions<GetQuestionAnswer>(
       "GET",
       `/tests/${testId}/questions/${questionNumber}/answer`,
       instance,
