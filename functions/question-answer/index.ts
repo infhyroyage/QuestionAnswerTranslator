@@ -1,4 +1,4 @@
-import { SqlQuerySpec } from "@azure/cosmos";
+import { FeedResponse, SqlQuerySpec } from "@azure/cosmos";
 import { Context } from "@azure/functions";
 import { CryptographyClient } from "@azure/keyvault-keys";
 import { getReadOnlyContainer } from "../shared/cosmosDBWrapper";
@@ -6,6 +6,7 @@ import {
   createCryptographyClient,
   decryptNumberArrays2Strings,
 } from "../shared/vaultWrapper";
+import { GetQuestionAnswer } from "../types/response";
 
 const COSMOS_DB_DATABASE_NAME = "Users";
 const COSMOS_DB_CONTAINER_NAME = "Question";
@@ -26,13 +27,9 @@ export default async (context: Context): Promise<void> => {
     }
 
     // Cosmos DBのUsersデータベースのQuestionコンテナーから項目取得
-    type QueryEncryptedResult = {
+    type GetEncryptedQuestionAnswer = {
       correctIdx: number;
       explanations: number[][];
-    };
-    type QueryResult = {
-      correctIdx: number;
-      explanations: string[];
     };
     const query: SqlQuerySpec = {
       query:
@@ -42,11 +39,13 @@ export default async (context: Context): Promise<void> => {
         { name: "@number", value: questionNumber },
       ],
     };
-    const response = await getReadOnlyContainer(
+    const response: FeedResponse<
+      GetEncryptedQuestionAnswer | GetQuestionAnswer
+    > = await getReadOnlyContainer(
       COSMOS_DB_DATABASE_NAME,
       COSMOS_DB_CONTAINER_NAME
     )
-      .items.query<QueryEncryptedResult | QueryResult>(query)
+      .items.query<GetEncryptedQuestionAnswer | GetQuestionAnswer>(query)
       .fetchAll();
     console.dir(response, { depth: null });
     if (response.resources.length === 0) {
@@ -59,21 +58,22 @@ export default async (context: Context): Promise<void> => {
       throw new Error("Not Unique Question");
     }
 
-    let result: QueryResult;
+    let result: GetQuestionAnswer;
     if (process.env["COSMOSDB_URI"] === "https://localcosmosdb:8081") {
-      result = response.resources[0] as QueryResult;
+      result = response.resources[0] as GetQuestionAnswer;
     } else {
       const cryptographyClient: CryptographyClient =
         await createCryptographyClient(VAULT_CRYPTOGRAPHY_KEY_NAME);
 
       // explanationsの復号
       const decryptExplanations: string[] = await decryptNumberArrays2Strings(
-        (response.resources[0] as QueryEncryptedResult).explanations,
+        (response.resources[0] as GetEncryptedQuestionAnswer).explanations,
         cryptographyClient
       );
 
       result = {
-        correctIdx: (response.resources[0] as QueryEncryptedResult).correctIdx,
+        correctIdx: (response.resources[0] as GetEncryptedQuestionAnswer)
+          .correctIdx,
         explanations: decryptExplanations,
       };
     }

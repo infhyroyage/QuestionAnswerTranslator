@@ -1,4 +1,4 @@
-import { SqlQuerySpec } from "@azure/cosmos";
+import { FeedResponse, SqlQuerySpec } from "@azure/cosmos";
 import { Context } from "@azure/functions";
 import { CryptographyClient } from "@azure/keyvault-keys";
 import { getReadOnlyContainer } from "../shared/cosmosDBWrapper";
@@ -6,6 +6,7 @@ import {
   createCryptographyClient,
   decryptNumberArrays2Strings,
 } from "../shared/vaultWrapper";
+import { GetQuestion } from "../types/response";
 
 const COSMOS_DB_DATABASE_NAME = "Users";
 const COSMOS_DB_CONTAINER_NAME = "Question";
@@ -26,13 +27,9 @@ export default async (context: Context): Promise<void> => {
     }
 
     // Cosmos DBのUsersデータベースのQuestionコンテナーから項目取得
-    type QueryEncryptedResult = {
+    type GetEncryptedQuestion = {
       subjects: number[][];
       choices: number[][];
-    };
-    type QueryResult = {
-      subjects: string[];
-      choices: string[];
     };
     const query: SqlQuerySpec = {
       query:
@@ -42,12 +39,13 @@ export default async (context: Context): Promise<void> => {
         { name: "@number", value: questionNumber },
       ],
     };
-    const response = await getReadOnlyContainer(
-      COSMOS_DB_DATABASE_NAME,
-      COSMOS_DB_CONTAINER_NAME
-    )
-      .items.query<QueryEncryptedResult | QueryResult>(query)
-      .fetchAll();
+    const response: FeedResponse<GetQuestion | GetEncryptedQuestion> =
+      await getReadOnlyContainer(
+        COSMOS_DB_DATABASE_NAME,
+        COSMOS_DB_CONTAINER_NAME
+      )
+        .items.query<GetEncryptedQuestion | GetQuestion>(query)
+        .fetchAll();
     console.dir(response, { depth: null });
     if (response.resources.length === 0) {
       context.res = {
@@ -60,25 +58,25 @@ export default async (context: Context): Promise<void> => {
     }
 
     // 非localhost環境のみ、暗号化された項目値を復号
-    let result: QueryResult;
+    let body: GetQuestion;
     if (process.env["COSMOSDB_URI"] === "https://localcosmosdb:8081") {
-      result = response.resources[0] as QueryResult;
+      body = response.resources[0] as GetQuestion;
     } else {
       const cryptographyClient: CryptographyClient =
         await createCryptographyClient(VAULT_CRYPTOGRAPHY_KEY_NAME);
 
       // subjectsの復号
       const decryptedSubjects: string[] = await decryptNumberArrays2Strings(
-        (response.resources[0] as QueryEncryptedResult).subjects,
+        (response.resources[0] as GetEncryptedQuestion).subjects,
         cryptographyClient
       );
       // choicesの復号
       const decryptedChoices: string[] = await decryptNumberArrays2Strings(
-        (response.resources[0] as QueryEncryptedResult).choices,
+        (response.resources[0] as GetEncryptedQuestion).choices,
         cryptographyClient
       );
 
-      result = {
+      body = {
         subjects: decryptedSubjects,
         choices: decryptedChoices,
       };
@@ -86,7 +84,7 @@ export default async (context: Context): Promise<void> => {
 
     context.res = {
       status: 200,
-      body: JSON.stringify(result),
+      body: JSON.stringify(body),
     };
   } catch (e) {
     console.error(e);

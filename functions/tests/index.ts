@@ -1,3 +1,4 @@
+import { FeedResponse } from "@azure/cosmos";
 import { Context } from "@azure/functions";
 import { getReadOnlyContainer } from "../shared/cosmosDBWrapper";
 import { Test } from "../types/cosmosDB";
@@ -9,17 +10,17 @@ const COSMOS_DB_CONTAINER_NAME = "Test";
 export default async (context: Context): Promise<void> => {
   try {
     // Cosmos DBのUsersデータベースのTestコンテナーから全項目取得
-    const response = await getReadOnlyContainer(
+    const response: FeedResponse<Test> = await getReadOnlyContainer(
       COSMOS_DB_DATABASE_NAME,
       COSMOS_DB_CONTAINER_NAME
     )
       .items.readAll<Test>()
       .fetchAll();
-    const items = response.resources;
+    const items: Test[] = response.resources;
     console.log({ items });
 
     // 各項目をcourseName単位でまとめるようにレスポンス整形
-    const body = items.reduce((prev: GetTests, item: Test) => {
+    const body: GetTests = items.reduce((prev: GetTests, item: Test) => {
       const tmpItem = {
         id: item.id,
         test: item.testName,
