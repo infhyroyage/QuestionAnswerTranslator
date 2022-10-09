@@ -4,8 +4,3 @@ export type Test = {
   testName: string;
   length: number;
 };
-
-export type ServiceTagDiscoveryAPI = {
-  id: string;
-  changeNumber: number;
-};
