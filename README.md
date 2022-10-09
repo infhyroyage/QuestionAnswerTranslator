@@ -207,3 +207,13 @@ QuestionAnswerTranslator リポジトリのシークレットの削除につい�
     ```
     "{\"status\":\"Failed\",\"error\":{\"code\":\"ResourceOperationFailure\",\"message\":\"The resource operation completed with terminal provisioning state 'Failed'.\",\"details\":[{\"code\":\"ServiceUnavailable\",\"message\":\"Database account creation failed. Operation Id: 957e812a-4b5e-42e8-a81f-29fe7e3805e3, Error : Service is currently unavailable. More info: https://aka.ms/cosmosdb-tsg-service-unavailable\\r\\nActivityId: cca8475b-6d1c-45ae-ba4c-058b33247e7e, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0\"}]}}"
     ```
+
+# TODO
+
+- 解説文に含まれている MSLearn 参照先 URL を別々に分離
+  - 上記 URL は複数個存在する場合がある。
+- 問題文、回答の一部の文章をのみ翻訳しないオプション追加
+- 複数個の回答が存在する問題をサポート
+- 問題文の途中で画像ファイルが存在する問題をサポート
+  - 画像ファイルは `https://img-c.udemycdn.com/redactor/raw/quiz_question/(画像ファイル名).jpg`で公開されているため、その URL を参照するのみ。
+  - 画像ファイルは複数個存在する場合がある。
