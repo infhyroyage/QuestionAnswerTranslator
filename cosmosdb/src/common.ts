@@ -201,10 +201,13 @@ export const createManualImportData = async (
   manualImportJson: unknown,
   cosmosClient: CosmosClient
 ): Promise<Data> => {
-  // Cosmos DB格納済の手動インポート用JSONに対応する全項目を取得
+  // Cosmos DB格納済の手動インポート用JSONに対応する全項目のIDを取得
   const insertedManualImportJson: Data = await fetchInsertedImportJson(
-    manualImportJson,
+    { Users: { Question: [] } },
     cosmosClient
+  );
+  const insertedIds: string[] = insertedManualImportJson.Users.Question.map(
+    (item: Item) => item.id
   );
 
   // testName→testIdの変換器を作成
@@ -214,19 +217,11 @@ export const createManualImportData = async (
 
   // Cosmos DB未格納の全項目のみ抽出し、全項目にid、testIdカラムをそれぞれ付加
   return Object.keys(manualImportJson).reduce(
-    (prevInitData: Data, databaseName: string) => {
-      prevInitData[databaseName] = Object.keys(
-        manualImportJson[databaseName]
-      ).reduce((prevInitDatabaseData: DatabaseData, containerName: string) => {
-        const insertedIds: string[] = insertedManualImportJson[databaseName][
-          containerName
-        ].map((item: Item) => item.id);
+    (prevInitData: Data, testName: string) => {
+      const testId: string = testName2TestId[testName];
 
-        const nonInsertedItems: Item[] = manualImportJson[databaseName][
-          containerName
-        ].reduce((prevNonInsertedItems: Item[], item: Item) => {
-          const testId: string = testName2TestId[item.testName];
-
+      const nonInsertedItems: Item[] = manualImportJson[testName].reduce(
+        (prevNonInsertedItems: Item[], item: Item) => {
           if (!insertedIds.includes(`${testId}_${item.number}`)) {
             prevNonInsertedItems.push({
               ...item,
@@ -234,19 +229,16 @@ export const createManualImportData = async (
               testId,
             });
           }
-
           return prevNonInsertedItems;
-        }, []);
+        },
+        []
+      );
+      prevInitData.Users.Question =
+        prevInitData.Users.Question.concat(nonInsertedItems);
 
-        if (nonInsertedItems.length) {
-          prevInitDatabaseData[containerName] = nonInsertedItems;
-        }
-
-        return prevInitDatabaseData;
-      }, {});
       return prevInitData;
     },
-    {}
+    { Users: { Question: [] } }
   );
 };
 
