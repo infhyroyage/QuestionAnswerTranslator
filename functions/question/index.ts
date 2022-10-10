@@ -6,6 +6,7 @@ import {
   createCryptographyClient,
   decryptNumberArrays2Strings,
 } from "../shared/vaultWrapper";
+import { EscapeTranslatedIdxes, Question } from "../types/cosmosDB";
 import { GetQuestion } from "../types/response";
 
 const COSMOS_DB_DATABASE_NAME = "Users";
@@ -27,24 +28,31 @@ export default async (context: Context): Promise<void> => {
     }
 
     // Cosmos DBのUsersデータベースのQuestionコンテナーから項目取得
-    type GetEncryptedQuestion = {
-      subjects: number[][];
-      choices: number[][];
+    // QueryQuestion : localhost環境(平文のまま)
+    // QueryEncryptedQuestion : 非localhost環境(暗号化済)
+    type QueryQuestion = {
+      subjects: string[];
+      choices: string[];
+      escapeTranslatedIdxes?: EscapeTranslatedIdxes;
     };
+    type QueryEncryptedQuestion = Pick<
+      Question,
+      "subjects" | "choices" | "escapeTranslatedIdxes"
+    >;
     const query: SqlQuerySpec = {
       query:
-        "SELECT c.subjects, c.choices FROM c WHERE c.testId = @testId AND c.number = @number",
+        "SELECT c.subjects, c.choices, c.escapeTranslatedIdxes FROM c WHERE c.testId = @testId AND c.number = @number",
       parameters: [
         { name: "@testId", value: testId },
         { name: "@number", value: questionNumber },
       ],
     };
-    const response: FeedResponse<GetQuestion | GetEncryptedQuestion> =
+    const response: FeedResponse<QueryQuestion | QueryEncryptedQuestion> =
       await getReadOnlyContainer(
         COSMOS_DB_DATABASE_NAME,
         COSMOS_DB_CONTAINER_NAME
       )
-        .items.query<GetEncryptedQuestion | GetQuestion>(query)
+        .items.query<QueryQuestion | QueryEncryptedQuestion>(query)
         .fetchAll();
     console.dir(response, { depth: null });
     if (response.resources.length === 0) {
@@ -57,28 +65,65 @@ export default async (context: Context): Promise<void> => {
       throw new Error("Not Unique Question");
     }
 
-    // 非localhost環境のみ、暗号化された項目値を復号
     let body: GetQuestion;
     if (process.env["COSMOSDB_URI"] === "https://localcosmosdb:8081") {
-      body = response.resources[0] as GetQuestion;
+      // localhost環境
+      const result: QueryQuestion = response.resources[0] as QueryQuestion;
+
+      body = {
+        subjects: result.subjects.map((subject: string, idx: number) => {
+          return {
+            sentence: subject,
+            isEscapedTranslation:
+              result.escapeTranslatedIdxes &&
+              result.escapeTranslatedIdxes.subjects &&
+              result.escapeTranslatedIdxes.subjects.includes(idx),
+          };
+        }),
+        choices: result.choices.map((choice: string, idx: number) => {
+          return {
+            sentence: choice,
+            isEscapedTranslation:
+              result.escapeTranslatedIdxes &&
+              result.escapeTranslatedIdxes.choices &&
+              result.escapeTranslatedIdxes.choices.includes(idx),
+          };
+        }),
+      };
     } else {
+      // 非localhost環境のため、暗号化されたsubjects/choicesを復号
+      const encryptedResult: QueryEncryptedQuestion = response
+        .resources[0] as QueryEncryptedQuestion;
       const cryptographyClient: CryptographyClient =
         await createCryptographyClient(VAULT_CRYPTOGRAPHY_KEY_NAME);
-
-      // subjectsの復号
       const decryptedSubjects: string[] = await decryptNumberArrays2Strings(
-        (response.resources[0] as GetEncryptedQuestion).subjects,
+        encryptedResult.subjects,
         cryptographyClient
       );
-      // choicesの復号
       const decryptedChoices: string[] = await decryptNumberArrays2Strings(
-        (response.resources[0] as GetEncryptedQuestion).choices,
+        encryptedResult.choices,
         cryptographyClient
       );
 
       body = {
-        subjects: decryptedSubjects,
-        choices: decryptedChoices,
+        subjects: decryptedSubjects.map((subject: string, idx: number) => {
+          return {
+            sentence: subject,
+            isEscapedTranslation:
+              encryptedResult.escapeTranslatedIdxes &&
+              encryptedResult.escapeTranslatedIdxes.subjects &&
+              encryptedResult.escapeTranslatedIdxes.subjects.includes(idx),
+          };
+        }),
+        choices: decryptedChoices.map((choice: string, idx: number) => {
+          return {
+            sentence: choice,
+            isEscapedTranslation:
+              encryptedResult.escapeTranslatedIdxes &&
+              encryptedResult.escapeTranslatedIdxes.choices &&
+              encryptedResult.escapeTranslatedIdxes.choices.includes(idx),
+          };
+        }),
       };
     }
 

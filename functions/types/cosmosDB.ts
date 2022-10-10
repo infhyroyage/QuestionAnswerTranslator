@@ -1,3 +1,8 @@
+export type EscapeTranslatedIdxes = {
+  subjects?: number[];
+  choices?: number[];
+  explanations?: number[];
+};
 export type Question = {
   id: string;
   number: number;
@@ -5,6 +10,7 @@ export type Question = {
   choices: number[][];
   correctIdx: number;
   explanations: number[][];
+  escapeTranslatedIdxes?: EscapeTranslatedIdxes;
   references?: string[];
   testId: string;
 };

@@ -6,6 +6,7 @@ import {
   createCryptographyClient,
   decryptNumberArrays2Strings,
 } from "../shared/vaultWrapper";
+import { EscapeTranslatedIdxes, Question } from "../types/cosmosDB";
 import { GetQuestionAnswer } from "../types/response";
 
 const COSMOS_DB_DATABASE_NAME = "Users";
@@ -27,26 +28,33 @@ export default async (context: Context): Promise<void> => {
     }
 
     // Cosmos DBのUsersデータベースのQuestionコンテナーから項目取得
-    type GetEncryptedQuestionAnswer = {
+    // QueryQuestionAnswer : localhost環境(平文のまま)
+    // QueryEncryptedQuestionAnswer : 非localhost環境(暗号化済)
+    type QueryQuestionAnswer = {
       correctIdx: number;
-      explanations: number[][];
+      explanations: string[];
+      escapeTranslatedIdxes?: EscapeTranslatedIdxes;
       references?: string[];
     };
+    type QueryEncryptedQuestionAnswer = Pick<
+      Question,
+      "correctIdx" | "explanations" | "escapeTranslatedIdxes" | "references"
+    >;
     const query: SqlQuerySpec = {
       query:
-        "SELECT c.correctIdx, c.explanations, c.references FROM c WHERE c.testId = @testId AND c.number = @number",
+        "SELECT c.correctIdx, c.explanations, c.escapeTranslatedIdxes, c.references FROM c WHERE c.testId = @testId AND c.number = @number",
       parameters: [
         { name: "@testId", value: testId },
         { name: "@number", value: questionNumber },
       ],
     };
     const response: FeedResponse<
-      GetEncryptedQuestionAnswer | GetQuestionAnswer
+      QueryQuestionAnswer | QueryEncryptedQuestionAnswer
     > = await getReadOnlyContainer(
       COSMOS_DB_DATABASE_NAME,
       COSMOS_DB_CONTAINER_NAME
     )
-      .items.query<GetEncryptedQuestionAnswer | GetQuestionAnswer>(query)
+      .items.query<QueryQuestionAnswer | QueryEncryptedQuestionAnswer>(query)
       .fetchAll();
     console.dir(response, { depth: null });
     if (response.resources.length === 0) {
@@ -59,14 +67,30 @@ export default async (context: Context): Promise<void> => {
       throw new Error("Not Unique Question");
     }
 
-    let result: GetQuestionAnswer;
+    let body: GetQuestionAnswer;
     if (process.env["COSMOSDB_URI"] === "https://localcosmosdb:8081") {
-      result = response.resources[0] as GetQuestionAnswer;
-    } else {
-      const encryptedResult: GetEncryptedQuestionAnswer = response
-        .resources[0] as GetEncryptedQuestionAnswer;
+      // localhost環境
+      const result = response.resources[0] as QueryQuestionAnswer;
 
-      // explanationsの復号
+      body = {
+        correctIdx: result.correctIdx,
+        explanations: result.explanations.map(
+          (explanation: string, idx: number) => {
+            return {
+              sentence: explanation,
+              isEscapedTranslation:
+                result.escapeTranslatedIdxes &&
+                result.escapeTranslatedIdxes.explanations &&
+                result.escapeTranslatedIdxes.explanations.includes(idx),
+            };
+          }
+        ),
+        references: result.references || [],
+      };
+    } else {
+      // 非localhost環境のため、暗号化されたexplanationsを復号
+      const encryptedResult: QueryEncryptedQuestionAnswer = response
+        .resources[0] as QueryEncryptedQuestionAnswer;
       const cryptographyClient: CryptographyClient =
         await createCryptographyClient(VAULT_CRYPTOGRAPHY_KEY_NAME);
       const decryptExplanations: string[] = await decryptNumberArrays2Strings(
@@ -74,19 +98,28 @@ export default async (context: Context): Promise<void> => {
         cryptographyClient
       );
 
-      result = {
+      body = {
         correctIdx: encryptedResult.correctIdx,
-        explanations: decryptExplanations,
-        references: encryptedResult.references,
+        explanations: decryptExplanations.map(
+          (explanation: string, idx: number) => {
+            return {
+              sentence: explanation,
+              isEscapedTranslation:
+                encryptedResult.escapeTranslatedIdxes &&
+                encryptedResult.escapeTranslatedIdxes.explanations &&
+                encryptedResult.escapeTranslatedIdxes.explanations.includes(
+                  idx
+                ),
+            };
+          }
+        ),
+        references: encryptedResult.references || [],
       };
-    }
-    if (!result.references) {
-      result.references = [];
     }
 
     context.res = {
       status: 200,
-      body: JSON.stringify(result),
+      body: JSON.stringify(body),
     };
   } catch (e) {
     console.error(e);

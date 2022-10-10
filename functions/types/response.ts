@@ -1,15 +1,20 @@
+export type Sentence = {
+  sentence: string;
+  isEscapedTranslation: boolean;
+};
+
 export type GetHealthcheck = {
   message: "OK";
 };
 
 export type GetQuestion = {
-  subjects: string[];
-  choices: string[];
+  subjects: Sentence[];
+  choices: Sentence[];
 };
 
 export type GetQuestionAnswer = {
   correctIdx: number;
-  explanations: string[];
+  explanations: Sentence[];
   references: string[];
 };
 
