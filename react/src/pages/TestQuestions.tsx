@@ -56,6 +56,7 @@ export const TestQuestions: FC<{}> = () => {
   const {
     correctIdx,
     explanations,
+    references,
     initializeTestSubmitter,
     onClickSubmitButton,
   } = useTestSubmitter(questionNumber, disableTestInputer);
@@ -177,6 +178,7 @@ export const TestQuestions: FC<{}> = () => {
               ? "結果"
               : `問題${questionNumber + 1}へ`}
           </button>
+          <h3>解説</h3>
           {isNotTranslatedExplanations && (
             <TestTranslationErrorContent
               sentences={explanations}
@@ -188,6 +190,18 @@ export const TestQuestions: FC<{}> = () => {
             sentences={explanations}
             translatedSentences={translatedExplanations}
           />
+          {references.length && (
+            <>
+              <h3>参照</h3>
+              <ul>
+                {references.map((reference: string, idx: number) => (
+                  <li key={idx}>
+                    <a href={reference}>{reference}</a>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </div>
       )}
     </AuthenticatedTemplate>

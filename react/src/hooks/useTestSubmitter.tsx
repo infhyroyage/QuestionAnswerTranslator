@@ -10,6 +10,7 @@ export const useTestSubmitter = (
 ) => {
   const [correctIdx, setCorrectIdx] = useState<string>("");
   const [explanations, setExplanations] = useState<string[]>([]);
+  const [references, setReferences] = useState<string[]>([]);
 
   const { instance, accounts } = useMsal();
   const accountInfo = useAccount(accounts[0] || {});
@@ -19,6 +20,7 @@ export const useTestSubmitter = (
   const initializeTestSubmitter = () => {
     setCorrectIdx("");
     setExplanations([]);
+    setReferences([]);
   };
 
   const onClickSubmitButton = async () => {
@@ -33,13 +35,15 @@ export const useTestSubmitter = (
       accountInfo
     );
 
-    setExplanations(res.explanations);
     setCorrectIdx(`${res.correctIdx}`);
+    setExplanations(res.explanations);
+    setReferences(res.references);
   };
 
   return {
     correctIdx,
     explanations,
+    references,
     initializeTestSubmitter,
     onClickSubmitButton,
   };
