@@ -5,6 +5,7 @@ export type Question = {
   choices: number[][];
   correctIdx: number;
   explanations: number[][];
+  references: string[];
   testId: string;
 };
 

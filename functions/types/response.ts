@@ -10,6 +10,7 @@ export type GetQuestion = {
 export type GetQuestionAnswer = {
   correctIdx: number;
   explanations: string[];
+  references: string[];
 };
 
 export type GetTests = {

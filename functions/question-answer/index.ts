@@ -30,10 +30,11 @@ export default async (context: Context): Promise<void> => {
     type GetEncryptedQuestionAnswer = {
       correctIdx: number;
       explanations: number[][];
+      references: string[];
     };
     const query: SqlQuerySpec = {
       query:
-        "SELECT c.correctIdx, c.explanations FROM c WHERE c.testId = @testId AND c.number = @number",
+        "SELECT c.correctIdx, c.explanations, c.references FROM c WHERE c.testId = @testId AND c.number = @number",
       parameters: [
         { name: "@testId", value: testId },
         { name: "@number", value: questionNumber },
@@ -62,19 +63,21 @@ export default async (context: Context): Promise<void> => {
     if (process.env["COSMOSDB_URI"] === "https://localcosmosdb:8081") {
       result = response.resources[0] as GetQuestionAnswer;
     } else {
-      const cryptographyClient: CryptographyClient =
-        await createCryptographyClient(VAULT_CRYPTOGRAPHY_KEY_NAME);
+      const encryptedResult: GetEncryptedQuestionAnswer = response
+        .resources[0] as GetEncryptedQuestionAnswer;
 
       // explanationsの復号
+      const cryptographyClient: CryptographyClient =
+        await createCryptographyClient(VAULT_CRYPTOGRAPHY_KEY_NAME);
       const decryptExplanations: string[] = await decryptNumberArrays2Strings(
-        (response.resources[0] as GetEncryptedQuestionAnswer).explanations,
+        encryptedResult.explanations,
         cryptographyClient
       );
 
       result = {
-        correctIdx: (response.resources[0] as GetEncryptedQuestionAnswer)
-          .correctIdx,
+        correctIdx: encryptedResult.correctIdx,
         explanations: decryptExplanations,
+        references: encryptedResult.references,
       };
     }
 
