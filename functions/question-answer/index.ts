@@ -30,7 +30,7 @@ export default async (context: Context): Promise<void> => {
     type GetEncryptedQuestionAnswer = {
       correctIdx: number;
       explanations: number[][];
-      references: string[];
+      references?: string[];
     };
     const query: SqlQuerySpec = {
       query:
@@ -79,6 +79,9 @@ export default async (context: Context): Promise<void> => {
         explanations: decryptExplanations,
         references: encryptedResult.references,
       };
+    }
+    if (!result.references) {
+      result.references = [];
     }
 
     context.res = {
