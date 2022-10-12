@@ -1,5 +1,6 @@
 import { ChangeEvent, FC, memo } from "react";
 import { NOT_TRANSLATION_MSG } from "../services/deepl";
+import { Sentence } from "../types/functions";
 import { TestChoiceContentProps } from "../types/props";
 
 export const TestChoiceContent: FC<TestChoiceContentProps> = memo(
@@ -15,7 +16,7 @@ export const TestChoiceContent: FC<TestChoiceContentProps> = memo(
 
     return (
       <>
-        {choices.map((choice: string, idx: number) => {
+        {choices.map((choice: Sentence, idx: number) => {
           const fontWeight =
             correctIdx !== "" && correctIdx === `${idx}` ? "bold" : "normal";
           const color =
@@ -37,7 +38,7 @@ export const TestChoiceContent: FC<TestChoiceContentProps> = memo(
                 style={{ marginRight: "14px" }}
               />
               <div onClick={() => onChangeRadioButtonInner(`${idx}`)}>
-                <p style={{ fontWeight, color }}>{choice}</p>
+                <p style={{ fontWeight, color }}>{choice.sentence}</p>
                 <p style={{ fontWeight, color, fontSize: "14px" }}>
                   {translatedChoices
                     ? translatedChoices[idx]

@@ -1,5 +1,7 @@
+import { Sentence } from "./functions";
+
 export type TestChoiceContentProps = {
-  choices: string[];
+  choices: Sentence[];
   translatedChoices: string[] | undefined;
   selectedIdx: string;
   correctIdx: string;
@@ -8,12 +10,12 @@ export type TestChoiceContentProps = {
 };
 
 export type TestSentenceContentProps = {
-  sentences: string[];
+  sentences: Sentence[];
   translatedSentences: string[] | undefined;
 };
 
 export type TestTranslationErrorContentProps = {
-  sentences: string[];
+  sentences: Sentence[];
   setTranslatedSentences: React.Dispatch<
     React.SetStateAction<string[] | undefined>
   >;

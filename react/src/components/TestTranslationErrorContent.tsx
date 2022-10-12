@@ -12,7 +12,7 @@ export const TestTranslationErrorContent: FC<TestTranslationErrorContentProps> =
       setTranslatedSentences([]);
 
       try {
-        const translatedSentences = await translate(sentences);
+        const translatedSentences: string[] = await translate(sentences);
         setTranslatedSentences(translatedSentences);
       } catch (e) {
         setTranslatedSentences(undefined);

@@ -9,15 +9,15 @@ import { useNextQuestionButton } from "../hooks/useNextQuestionButton";
 import { useTestSubmitter } from "../hooks/useTestSubmitter";
 import { translate } from "../services/deepl";
 import { accessFunctions } from "../services/functions";
-import { GetQuestion } from "../types/functions";
+import { GetQuestion, Sentence } from "../types/functions";
 import { TestState } from "../types/state";
 
 const INIT_GET_QESTION_RES = { subjects: [], choices: [] };
 
-const concatSentences = (sentences: string[]) =>
+const concatSentences = (sentences: Sentence[]) =>
   sentences.reduce(
-    (prev: string, sentence: string) =>
-      prev === "" ? `${prev} ${sentence}` : sentence,
+    (prev: string, sentence: Sentence) =>
+      prev === "" ? `${prev} ${sentence.sentence}` : sentence.sentence,
     ""
   );
 
@@ -73,8 +73,12 @@ export const TestQuestions: FC<{}> = () => {
   const onClickNextQuestionButton = useNextQuestionButton(
     questionNumber,
     concatSentences(getQuestionRes.subjects),
-    getQuestionRes.choices[Number(selectedIdx)],
-    getQuestionRes.choices[Number(correctIdx)],
+    selectedIdx === ""
+      ? ""
+      : getQuestionRes.choices[Number(selectedIdx)].sentence,
+    correctIdx === ""
+      ? ""
+      : getQuestionRes.choices[Number(correctIdx)].sentence,
     updateNextQuestion
   );
 
@@ -99,7 +103,7 @@ export const TestQuestions: FC<{}> = () => {
         // subjects、choicesそれぞれの文字列に対してDeepL翻訳を計2回行わず、
         // subjects、choicesの順で配列を作成した文字列に対してDeepL翻訳を1回のみ行う
         try {
-          const translatedQuestions = await translate([
+          const translatedQuestions: string[] = await translate([
             ...getQuestionRes.subjects,
             ...getQuestionRes.choices,
           ]);
@@ -196,7 +200,13 @@ export const TestQuestions: FC<{}> = () => {
               <ul>
                 {references.map((reference: string, idx: number) => (
                   <li key={idx}>
-                    <a href={reference}>{reference}</a>
+                    <a
+                      href={reference}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {reference}
+                    </a>
                   </li>
                 ))}
               </ul>

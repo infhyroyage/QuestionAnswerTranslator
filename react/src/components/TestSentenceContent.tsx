@@ -1,5 +1,6 @@
 import { FC, memo } from "react";
 import { NOT_TRANSLATION_MSG } from "../services/deepl";
+import { Sentence } from "../types/functions";
 import { TestSentenceContentProps } from "../types/props";
 
 export const TestSentenceContent: FC<TestSentenceContentProps> = memo(
@@ -8,9 +9,9 @@ export const TestSentenceContent: FC<TestSentenceContentProps> = memo(
 
     return (
       <>
-        {sentences.map((subject: string, idx: number) => (
+        {sentences.map((subject: Sentence, idx: number) => (
           <div key={idx} style={{ paddingBottom: "7px" }}>
-            <p>{subject}</p>
+            <p>{subject.sentence}</p>
             <p style={{ fontSize: "14px" }}>
               {translatedSentences
                 ? translatedSentences[idx]

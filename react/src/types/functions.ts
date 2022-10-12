@@ -1,12 +1,6 @@
-export type GetQuestion = {
-  subjects: string[];
-  choices: string[];
-};
-
-export type GetQuestionAnswer = {
-  correctIdx: number;
-  explanations: string[];
-  references: string[];
+export type Sentence = {
+  sentence: string;
+  isEscapedTranslation: boolean;
 };
 
 export type Test = {
@@ -14,6 +8,18 @@ export type Test = {
   test: string;
   length: number;
 };
+
+export type GetQuestion = {
+  subjects: Sentence[];
+  choices: Sentence[];
+};
+
+export type GetQuestionAnswer = {
+  correctIdx: number;
+  explanations: Sentence[];
+  references: string[];
+};
+
 export type GetTests = {
   [course: string]: Test[];
 };

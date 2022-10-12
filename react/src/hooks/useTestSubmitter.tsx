@@ -1,7 +1,7 @@
 import { useAccount, useMsal } from "@azure/msal-react";
 import { useState } from "react";
 import { accessFunctions } from "../services/functions";
-import { GetQuestionAnswer } from "../types/functions";
+import { GetQuestionAnswer, Sentence } from "../types/functions";
 import { useParams } from "react-router-dom";
 
 export const useTestSubmitter = (
@@ -9,7 +9,7 @@ export const useTestSubmitter = (
   disableTestInputer: () => void
 ) => {
   const [correctIdx, setCorrectIdx] = useState<string>("");
-  const [explanations, setExplanations] = useState<string[]>([]);
+  const [explanations, setExplanations] = useState<Sentence[]>([]);
   const [references, setReferences] = useState<string[]>([]);
 
   const { instance, accounts } = useMsal();
