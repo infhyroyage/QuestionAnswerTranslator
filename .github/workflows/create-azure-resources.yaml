@@ -253,7 +253,7 @@ jobs:
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
           template: ./resources/connect-apim-2-functions.json
 
-  build-and-deploy-functions-app:
+  build-artifacts:
     runs-on: ubuntu-latest
     needs: set-functions-appsettings
     steps:
@@ -273,6 +273,35 @@ jobs:
           npm run functions:build
           popd
 
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: qatranslator-func
+          path: |
+            functions/*/*.js
+            functions/host.json
+            functions/local.settings.json
+            functions/package.json
+            !functions/node_modules
+            !functions/types
+
+  deploy-functions-app:
+    runs-on: ubuntu-latest
+    needs: build-artifacts
+    steps:
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: qatranslator-func
+
+      - name: Setup Node ${{ env.NODE_VERSION }} Environment
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Build Azure Functions Application
+        run: npm install --production
+
       - name: Login Azure as Contributor
         uses: azure/login@v1
         with:
@@ -282,4 +311,4 @@ jobs:
         uses: Azure/functions-action@v1.4.7
         with:
           app-name: ${{ env.FUNCTIONS_NAME }}
-          package: functions
+          package: .
