@@ -8,7 +8,7 @@ export type Question = {
   number: number;
   subjects: number[][];
   choices: number[][];
-  correctIdx: number;
+  correctIdxes: number[];
   explanations: number[][];
   escapeTranslatedIdxes?: EscapeTranslatedIdxes;
   references?: string[];

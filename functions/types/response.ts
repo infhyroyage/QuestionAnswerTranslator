@@ -10,10 +10,11 @@ export type GetHealthcheck = {
 export type GetQuestion = {
   subjects: Sentence[];
   choices: Sentence[];
+  isCorrectedMulti: boolean;
 };
 
 export type GetQuestionAnswer = {
-  correctIdx: number;
+  correctIdxes: number[];
   explanations: Sentence[];
   references: string[];
 };

@@ -31,18 +31,18 @@ export default async (context: Context): Promise<void> => {
     // QueryQuestionAnswer : localhost環境(平文のまま)
     // QueryEncryptedQuestionAnswer : 非localhost環境(暗号化済)
     type QueryQuestionAnswer = {
-      correctIdx: number;
+      correctIdxes: number[];
       explanations: string[];
       escapeTranslatedIdxes?: EscapeTranslatedIdxes;
       references?: string[];
     };
     type QueryEncryptedQuestionAnswer = Pick<
       Question,
-      "correctIdx" | "explanations" | "escapeTranslatedIdxes" | "references"
+      "correctIdxes" | "explanations" | "escapeTranslatedIdxes" | "references"
     >;
     const query: SqlQuerySpec = {
       query:
-        "SELECT c.correctIdx, c.explanations, c.escapeTranslatedIdxes, c.references FROM c WHERE c.testId = @testId AND c.number = @number",
+        "SELECT c.correctIdxes, c.explanations, c.escapeTranslatedIdxes, c.references FROM c WHERE c.testId = @testId AND c.number = @number",
       parameters: [
         { name: "@testId", value: testId },
         { name: "@number", value: questionNumber },
@@ -73,7 +73,7 @@ export default async (context: Context): Promise<void> => {
       const result = response.resources[0] as QueryQuestionAnswer;
 
       body = {
-        correctIdx: result.correctIdx,
+        correctIdxes: result.correctIdxes,
         explanations: result.explanations.map(
           (explanation: string, idx: number) => {
             return {
@@ -99,7 +99,7 @@ export default async (context: Context): Promise<void> => {
       );
 
       body = {
-        correctIdx: encryptedResult.correctIdx,
+        correctIdxes: encryptedResult.correctIdxes,
         explanations: decryptExplanations.map(
           (explanation: string, idx: number) => {
             return {

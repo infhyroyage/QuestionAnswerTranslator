@@ -33,15 +33,16 @@ export default async (context: Context): Promise<void> => {
     type QueryQuestion = {
       subjects: string[];
       choices: string[];
+      correctIdxes: number[];
       escapeTranslatedIdxes?: EscapeTranslatedIdxes;
     };
     type QueryEncryptedQuestion = Pick<
       Question,
-      "subjects" | "choices" | "escapeTranslatedIdxes"
+      "subjects" | "choices" | "correctIdxes" | "escapeTranslatedIdxes"
     >;
     const query: SqlQuerySpec = {
       query:
-        "SELECT c.subjects, c.choices, c.escapeTranslatedIdxes FROM c WHERE c.testId = @testId AND c.number = @number",
+        "SELECT c.subjects, c.choices, c.correctIdxes, c.escapeTranslatedIdxes FROM c WHERE c.testId = @testId AND c.number = @number",
       parameters: [
         { name: "@testId", value: testId },
         { name: "@number", value: questionNumber },
@@ -89,6 +90,7 @@ export default async (context: Context): Promise<void> => {
               result.escapeTranslatedIdxes.choices.includes(idx),
           };
         }),
+        isCorrectedMulti: result.correctIdxes.length > 1,
       };
     } else {
       // 非localhost環境のため、暗号化されたsubjects/choicesを復号
@@ -124,6 +126,7 @@ export default async (context: Context): Promise<void> => {
               encryptedResult.escapeTranslatedIdxes.choices.includes(idx),
           };
         }),
+        isCorrectedMulti: encryptedResult.correctIdxes.length > 1,
       };
     }
 
