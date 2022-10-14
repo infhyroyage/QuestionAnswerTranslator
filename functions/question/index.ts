@@ -6,7 +6,7 @@ import {
   createCryptographyClient,
   decryptNumberArrays2Strings,
 } from "../shared/vaultWrapper";
-import { EscapeTranslatedIdxes, Question } from "../types/cosmosDB";
+import { Choice, Question, Subject } from "../types/cosmosDB";
 import { GetQuestion } from "../types/response";
 
 const COSMOS_DB_DATABASE_NAME = "Users";
@@ -28,15 +28,7 @@ export default async (context: Context): Promise<void> => {
     }
 
     // Cosmos DBのUsersデータベースのQuestionコンテナーから項目取得
-    // QueryQuestion : localhost環境(平文のまま)
-    // QueryEncryptedQuestion : 非localhost環境(暗号化済)
-    type QueryQuestion = {
-      subjects: string[];
-      choices: string[];
-      correctIdxes: number[];
-      escapeTranslatedIdxes?: EscapeTranslatedIdxes;
-    };
-    type QueryEncryptedQuestion = Pick<
+    type QueryQuestion = Pick<
       Question,
       "subjects" | "choices" | "correctIdxes" | "escapeTranslatedIdxes"
     >;
@@ -48,13 +40,12 @@ export default async (context: Context): Promise<void> => {
         { name: "@number", value: questionNumber },
       ],
     };
-    const response: FeedResponse<QueryQuestion | QueryEncryptedQuestion> =
-      await getReadOnlyContainer(
-        COSMOS_DB_DATABASE_NAME,
-        COSMOS_DB_CONTAINER_NAME
-      )
-        .items.query<QueryQuestion | QueryEncryptedQuestion>(query)
-        .fetchAll();
+    const response: FeedResponse<QueryQuestion> = await getReadOnlyContainer(
+      COSMOS_DB_DATABASE_NAME,
+      COSMOS_DB_CONTAINER_NAME
+    )
+      .items.query<QueryQuestion>(query)
+      .fetchAll();
     console.dir(response, { depth: null });
     if (response.resources.length === 0) {
       context.res = {
@@ -65,71 +56,49 @@ export default async (context: Context): Promise<void> => {
     } else if (response.resources.length > 1) {
       throw new Error("Not Unique Question");
     }
+    const result: QueryQuestion = response.resources[0];
 
-    let body: GetQuestion;
+    let subjects: Subject[];
+    let choices: Choice[];
     if (process.env["COSMOSDB_URI"] === "https://localcosmosdb:8081") {
-      // localhost環境
-      const result: QueryQuestion = response.resources[0] as QueryQuestion;
-
-      body = {
-        subjects: result.subjects.map((subject: string, idx: number) => {
-          return {
-            sentence: subject,
-            isEscapedTranslation:
-              result.escapeTranslatedIdxes &&
-              result.escapeTranslatedIdxes.subjects &&
-              result.escapeTranslatedIdxes.subjects.includes(idx),
-          };
-        }),
-        choices: result.choices.map((choice: string, idx: number) => {
-          return {
-            sentence: choice,
-            isEscapedTranslation:
-              result.escapeTranslatedIdxes &&
-              result.escapeTranslatedIdxes.choices &&
-              result.escapeTranslatedIdxes.choices.includes(idx),
-          };
-        }),
-        isCorrectedMulti: result.correctIdxes.length > 1,
-      };
+      // localhost環境のため、そのままsubjects/choicesを取得
+      subjects = result.subjects;
+      choices = result.choices;
     } else {
-      // 非localhost環境のため、暗号化されたsubjects/choicesを復号
-      const encryptedResult: QueryEncryptedQuestion = response
-        .resources[0] as QueryEncryptedQuestion;
+      // 非localhost環境のため、暗号化されたsubjects/choicesを復号して取得
       const cryptographyClient: CryptographyClient =
         await createCryptographyClient(VAULT_CRYPTOGRAPHY_KEY_NAME);
-      const decryptedSubjects: string[] = await decryptNumberArrays2Strings(
-        encryptedResult.subjects,
+      subjects = await decryptNumberArrays2Strings(
+        result.subjects as number[][],
         cryptographyClient
       );
-      const decryptedChoices: string[] = await decryptNumberArrays2Strings(
-        encryptedResult.choices,
+      choices = await decryptNumberArrays2Strings(
+        result.choices as number[][],
         cryptographyClient
       );
-
-      body = {
-        subjects: decryptedSubjects.map((subject: string, idx: number) => {
-          return {
-            sentence: subject,
-            isEscapedTranslation:
-              encryptedResult.escapeTranslatedIdxes &&
-              encryptedResult.escapeTranslatedIdxes.subjects &&
-              encryptedResult.escapeTranslatedIdxes.subjects.includes(idx),
-          };
-        }),
-        choices: decryptedChoices.map((choice: string, idx: number) => {
-          return {
-            sentence: choice,
-            isEscapedTranslation:
-              encryptedResult.escapeTranslatedIdxes &&
-              encryptedResult.escapeTranslatedIdxes.choices &&
-              encryptedResult.escapeTranslatedIdxes.choices.includes(idx),
-          };
-        }),
-        isCorrectedMulti: encryptedResult.correctIdxes.length > 1,
-      };
     }
 
+    const body: GetQuestion = {
+      subjects: subjects.map((subject: string, idx: number) => {
+        return {
+          sentence: subject,
+          isEscapedTranslation:
+            result.escapeTranslatedIdxes &&
+            result.escapeTranslatedIdxes.subjects &&
+            result.escapeTranslatedIdxes.subjects.includes(idx),
+        };
+      }),
+      choices: choices.map((choice: string, idx: number) => {
+        return {
+          sentence: choice,
+          isEscapedTranslation:
+            result.escapeTranslatedIdxes &&
+            result.escapeTranslatedIdxes.choices &&
+            result.escapeTranslatedIdxes.choices.includes(idx),
+        };
+      }),
+      isCorrectedMulti: result.correctIdxes.length > 1,
+    };
     context.res = {
       status: 200,
       body: JSON.stringify(body),
