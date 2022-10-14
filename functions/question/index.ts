@@ -30,11 +30,15 @@ export default async (context: Context): Promise<void> => {
     // Cosmos DBのUsersデータベースのQuestionコンテナーから項目取得
     type QueryQuestion = Pick<
       Question,
-      "subjects" | "choices" | "correctIdxes" | "escapeTranslatedIdxes"
+      | "subjects"
+      | "choices"
+      | "correctIdxes"
+      | "indicateImgIdxes"
+      | "escapeTranslatedIdxes"
     >;
     const query: SqlQuerySpec = {
       query:
-        "SELECT c.subjects, c.choices, c.correctIdxes, c.escapeTranslatedIdxes FROM c WHERE c.testId = @testId AND c.number = @number",
+        "SELECT c.subjects, c.choices, c.correctIdxes, c.indicateImgIdxes, c.escapeTranslatedIdxes FROM c WHERE c.testId = @testId AND c.number = @number",
       parameters: [
         { name: "@testId", value: testId },
         { name: "@number", value: questionNumber },
@@ -82,6 +86,10 @@ export default async (context: Context): Promise<void> => {
       subjects: subjects.map((subject: string, idx: number) => {
         return {
           sentence: subject,
+          isIndicatedImg:
+            result.indicateImgIdxes &&
+            result.indicateImgIdxes.subjects &&
+            result.indicateImgIdxes.subjects.includes(idx),
           isEscapedTranslation:
             result.escapeTranslatedIdxes &&
             result.escapeTranslatedIdxes.subjects &&
@@ -91,6 +99,7 @@ export default async (context: Context): Promise<void> => {
       choices: choices.map((choice: string, idx: number) => {
         return {
           sentence: choice,
+          isIndicatedImg: false,
           isEscapedTranslation:
             result.escapeTranslatedIdxes &&
             result.escapeTranslatedIdxes.choices &&

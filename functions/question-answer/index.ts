@@ -80,6 +80,7 @@ export default async (context: Context): Promise<void> => {
       explanations: explanations.map((explanation: string, idx: number) => {
         return {
           sentence: explanation,
+          isIndicatedImg: false,
           isEscapedTranslation:
             result.escapeTranslatedIdxes &&
             result.escapeTranslatedIdxes.explanations &&
