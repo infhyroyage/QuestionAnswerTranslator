@@ -2,9 +2,10 @@ import { Sentence } from "./functions";
 
 export type TestChoiceContentProps = {
   choices: Sentence[];
+  isCorrectedMulti: boolean;
   translatedChoices: string[] | undefined;
-  selectedIdx: string;
-  correctIdx: string;
+  selectedIdxes: string[];
+  correctIdxes: number[];
   isDisabledRadioButtons: boolean;
   onChangeRadioButtonInner: (idx: string) => void;
 };

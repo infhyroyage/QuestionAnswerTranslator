@@ -1,14 +1,14 @@
 import { useState } from "react";
 
 export const useTestInputer = () => {
-  const [selectedIdx, setSelectedIdx] = useState<string>("");
+  const [selectedIdxes, setSelectedIdxes] = useState<string[]>([]);
   const [isDisabledRadioButtons, setIsDisabledRadioButtons] =
     useState<boolean>(false);
   const [isDisabledSubmitButton, setIsDisabledSubmitButton] =
     useState<boolean>(true);
 
   const initializeTestInputer = () => {
-    setSelectedIdx("");
+    setSelectedIdxes([]);
     setIsDisabledSubmitButton(true);
     setIsDisabledRadioButtons(false);
   };
@@ -23,11 +23,11 @@ export const useTestInputer = () => {
     if (isDisabledRadioButtons) return;
 
     setIsDisabledSubmitButton(false);
-    setSelectedIdx(idx);
+    setSelectedIdxes([idx]);
   };
 
   return {
-    selectedIdx,
+    selectedIdxes,
     isDisabledRadioButtons,
     isDisabledSubmitButton,
     initializeTestInputer,

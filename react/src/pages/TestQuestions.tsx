@@ -12,7 +12,11 @@ import { accessFunctions } from "../services/functions";
 import { GetQuestion, Sentence } from "../types/functions";
 import { TestState } from "../types/state";
 
-const INIT_GET_QESTION_RES = { subjects: [], choices: [] };
+const INIT_GET_QESTION_RES = {
+  subjects: [],
+  choices: [],
+  isCorrectedMulti: false,
+};
 
 const concatSentences = (sentences: Sentence[]) =>
   sentences.reduce(
@@ -45,7 +49,7 @@ export const TestQuestions: FC<{}> = () => {
   const { testId } = useParams();
 
   const {
-    selectedIdx,
+    selectedIdxes,
     isDisabledRadioButtons,
     isDisabledSubmitButton,
     initializeTestInputer,
@@ -54,7 +58,7 @@ export const TestQuestions: FC<{}> = () => {
   } = useTestInputer();
 
   const {
-    correctIdx,
+    correctIdxes,
     explanations,
     references,
     initializeTestSubmitter,
@@ -73,12 +77,12 @@ export const TestQuestions: FC<{}> = () => {
   const onClickNextQuestionButton = useNextQuestionButton(
     questionNumber,
     concatSentences(getQuestionRes.subjects),
-    selectedIdx === ""
-      ? ""
-      : getQuestionRes.choices[Number(selectedIdx)].sentence,
-    correctIdx === ""
-      ? ""
-      : getQuestionRes.choices[Number(correctIdx)].sentence,
+    selectedIdxes.length > 0
+      ? getQuestionRes.choices[Number(selectedIdxes[0])].sentence
+      : "",
+    correctIdxes.length > 0
+      ? getQuestionRes.choices[correctIdxes[0]].sentence
+      : "",
     updateNextQuestion
   );
 
@@ -154,12 +158,13 @@ export const TestQuestions: FC<{}> = () => {
       <div>
         <TestChoiceContent
           choices={getQuestionRes.choices}
+          isCorrectedMulti={getQuestionRes.isCorrectedMulti}
           translatedChoices={
             translatedQuestions &&
             translatedQuestions.slice(getQuestionRes.subjects.length)
           }
-          selectedIdx={selectedIdx}
-          correctIdx={correctIdx}
+          selectedIdxes={selectedIdxes}
+          correctIdxes={correctIdxes}
           isDisabledRadioButtons={isDisabledRadioButtons}
           onChangeRadioButtonInner={onChangeRadioButtonInner}
         />
@@ -171,9 +176,9 @@ export const TestQuestions: FC<{}> = () => {
           回答
         </button>
       </div>
-      {correctIdx !== "" && (
+      {correctIdxes.length > 0 && (
         <div style={{ paddingTop: "28px" }}>
-          <h2>{correctIdx !== selectedIdx && "不"}正解</h2>
+          <h2>{`${correctIdxes[0]}` !== selectedIdxes[0] && "不"}正解</h2>
           <button
             onClick={onClickNextQuestionButton}
             style={{ marginTop: "7px" }}

@@ -7,9 +7,10 @@ export const TestChoiceContent: FC<TestChoiceContentProps> = memo(
   (props: TestChoiceContentProps) => {
     const {
       choices,
+      isCorrectedMulti, // TODO 複数選択問題はラジオボタンではなくチェックボックスにする
       translatedChoices,
-      selectedIdx,
-      correctIdx,
+      selectedIdxes,
+      correctIdxes,
       isDisabledRadioButtons,
       onChangeRadioButtonInner,
     } = props;
@@ -18,11 +19,13 @@ export const TestChoiceContent: FC<TestChoiceContentProps> = memo(
       <>
         {choices.map((choice: Sentence, idx: number) => {
           const fontWeight =
-            correctIdx !== "" && correctIdx === `${idx}` ? "bold" : "normal";
+            correctIdxes.length > 0 && correctIdxes[0] === idx
+              ? "bold"
+              : "normal";
           const color =
-            correctIdx !== "" &&
-            correctIdx !== selectedIdx &&
-            selectedIdx === `${idx}`
+            correctIdxes.length > 0 &&
+            `${correctIdxes[0]}` !== selectedIdxes[0] &&
+            selectedIdxes[0] === `${idx}`
               ? "red"
               : "black";
           return (
@@ -33,7 +36,7 @@ export const TestChoiceContent: FC<TestChoiceContentProps> = memo(
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   onChangeRadioButtonInner(e.target.value)
                 }
-                checked={selectedIdx === `${idx}`}
+                checked={selectedIdxes[0] === `${idx}`}
                 disabled={isDisabledRadioButtons}
                 style={{ marginRight: "14px" }}
               />

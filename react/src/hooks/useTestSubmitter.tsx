@@ -8,7 +8,7 @@ export const useTestSubmitter = (
   questionNumber: number,
   disableTestInputer: () => void
 ) => {
-  const [correctIdx, setCorrectIdx] = useState<string>("");
+  const [correctIdxes, setCorrectIdxes] = useState<number[]>([]);
   const [explanations, setExplanations] = useState<Sentence[]>([]);
   const [references, setReferences] = useState<string[]>([]);
 
@@ -18,7 +18,7 @@ export const useTestSubmitter = (
   const { testId } = useParams();
 
   const initializeTestSubmitter = () => {
-    setCorrectIdx("");
+    setCorrectIdxes([]);
     setExplanations([]);
     setReferences([]);
   };
@@ -35,13 +35,13 @@ export const useTestSubmitter = (
       accountInfo
     );
 
-    setCorrectIdx(`${res.correctIdx}`);
+    setCorrectIdxes(res.correctIdxes);
     setExplanations(res.explanations);
     setReferences(res.references);
   };
 
   return {
-    correctIdx,
+    correctIdxes,
     explanations,
     references,
     initializeTestSubmitter,
