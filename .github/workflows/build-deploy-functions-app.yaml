@@ -13,7 +13,7 @@ env:
   NODE_VERSION: "16.17.0"
 
 jobs:
-  build-and-deploy-functions-app:
+  build-artifacts:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,9 +27,39 @@ jobs:
       - name: Build Azure Functions Application
         run: |
           pushd functions
-          cp ../package.json .
+          cp ../package*.json .
           npm install
           npm run functions:build
+          popd
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: qatranslator-func
+          path: |
+            functions/*/*.js
+            functions/package*.json
+            functions/host.json
+            functions/local.settings.json
+
+  deploy-functions-app:
+    runs-on: ubuntu-latest
+    needs: build-artifacts
+    steps:
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: qatranslator-func
+
+      - name: Setup Node ${{ env.NODE_VERSION }} Environment
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Build Azure Functions Application
+        run: |
+          pushd functions
+          npm install --production
           popd
 
       - name: Login Azure as Contributor

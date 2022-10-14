@@ -1,4 +1,4 @@
 *.js.map
 *.ts
 tsconfig.json
-Dockerfile
+Dockerfile.local

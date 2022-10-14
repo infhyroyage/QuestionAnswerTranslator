@@ -14,5 +14,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/question-answer/index.js"
+  "scriptFile": "./index.js"
 }
