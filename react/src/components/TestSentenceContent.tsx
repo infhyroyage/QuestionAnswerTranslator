@@ -9,14 +9,23 @@ export const TestSentenceContent: FC<TestSentenceContentProps> = memo(
 
     return (
       <>
-        {sentences.map((subject: Sentence, idx: number) => (
+        {sentences.map((sentence: Sentence, idx: number) => (
           <div key={idx} style={{ paddingBottom: "7px" }}>
-            <p>{subject.sentence}</p>
-            <p style={{ fontSize: "14px" }}>
-              {translatedSentences
-                ? translatedSentences[idx]
-                : NOT_TRANSLATION_MSG}
-            </p>
+            {sentence.isIndicatedImg ? (
+              <img
+                src={sentence.sentence}
+                alt={`${idx + 1}th Sentence Picture`}
+              />
+            ) : (
+              <>
+                <p>{sentence.sentence}</p>
+                <p style={{ fontSize: "14px" }}>
+                  {translatedSentences
+                    ? translatedSentences[idx]
+                    : NOT_TRANSLATION_MSG}
+                </p>
+              </>
+            )}
           </div>
         ))}
       </>

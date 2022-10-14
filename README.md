@@ -210,7 +210,4 @@ QuestionAnswerTranslator リポジトリのシークレットの削除につい�
 
 # TODO
 
-- 問題文の途中で画像ファイルが存在する問題をサポート
-  - 画像ファイルは `https://img-c.udemycdn.com/redactor/raw/quiz_question/(画像ファイル名).jpg`で公開されているため、その URL を参照するのみ。
-  - 画像ファイルは複数個存在する場合がある。
 - 複数個の回答が存在する問題をサポート

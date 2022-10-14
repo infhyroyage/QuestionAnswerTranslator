@@ -19,11 +19,11 @@ export const translate = async (sentences: Sentence[]): Promise<string[]> => {
     throw new Error("Unset REACT_APP_DEEPL_AUTH_KEY");
   }
 
-  // 翻訳エスケープOFFの場合のみ翻訳
+  // 画像URL以外or翻訳エスケープOFFの場合のみ翻訳
   let translatedSentences: string[];
   const text: string[] = sentences.reduce(
     (prevText: string[], sentence: Sentence) => {
-      if (!sentence.isEscapedTranslation) {
+      if (!sentence.isIndicatedImg && !sentence.isEscapedTranslation) {
         prevText.push(sentence.sentence);
       }
       return prevText;
@@ -53,12 +53,13 @@ export const translate = async (sentences: Sentence[]): Promise<string[]> => {
     translatedSentences = [];
   }
 
+  // 画像URLor翻訳エスケープONの場合は、そのまま英語の文字列を返す
   // 翻訳エスケープOFFの場合は、翻訳した日本語の文字列を返す
-  // 翻訳エスケープONの場合は、そのまま英語の文字列を返す
   return sentences.map((sentence: Sentence) => {
-    const translatedSentence: string | undefined = sentence.isEscapedTranslation
-      ? sentence.sentence
-      : translatedSentences.shift();
+    const translatedSentence: string | undefined =
+      sentence.isIndicatedImg || sentence.isEscapedTranslation
+        ? sentence.sentence
+        : translatedSentences.shift();
 
     // 内部矛盾エラーチェック
     if (!translatedSentence) throw new Error("Invalid sentences");

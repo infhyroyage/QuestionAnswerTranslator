@@ -1,5 +1,6 @@
 export type Sentence = {
   sentence: string;
+  isIndicatedImg: boolean;
   isEscapedTranslation: boolean;
 };
 

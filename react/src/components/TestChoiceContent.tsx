@@ -41,12 +41,21 @@ export const TestChoiceContent: FC<TestChoiceContentProps> = memo(
                 style={{ marginRight: "14px" }}
               />
               <div onClick={() => onChangeRadioButtonInner(`${idx}`)}>
-                <p style={{ fontWeight, color }}>{choice.sentence}</p>
-                <p style={{ fontWeight, color, fontSize: "14px" }}>
-                  {translatedChoices
-                    ? translatedChoices[idx]
-                    : NOT_TRANSLATION_MSG}
-                </p>
+                {choice.isIndicatedImg ? (
+                  <img
+                    src={choice.sentence}
+                    alt={`${idx + 1}th Choice Picture`}
+                  />
+                ) : (
+                  <>
+                    <p style={{ fontWeight, color }}>{choice.sentence}</p>
+                    <p style={{ fontWeight, color, fontSize: "14px" }}>
+                      {translatedChoices
+                        ? translatedChoices[idx]
+                        : NOT_TRANSLATION_MSG}
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           );
