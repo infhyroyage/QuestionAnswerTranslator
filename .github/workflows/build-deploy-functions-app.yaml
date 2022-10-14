@@ -38,9 +38,11 @@ jobs:
           name: qatranslator-func
           path: |
             functions/*/*.js
-            functions/package*.json
             functions/host.json
             functions/local.settings.json
+            functions/package*.json
+            !functions/node_modules
+            !functions/types
 
   deploy-functions-app:
     runs-on: ubuntu-latest
@@ -57,10 +59,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Build Azure Functions Application
-        run: |
-          pushd functions
-          npm install --production
-          popd
+        run: npm install --production
 
       - name: Login Azure as Contributor
         uses: azure/login@v1
@@ -71,4 +70,4 @@ jobs:
         uses: Azure/functions-action@v1.4.7
         with:
           app-name: ${{ env.FUNCTIONS_NAME }}
-          package: functions
+          package: .
