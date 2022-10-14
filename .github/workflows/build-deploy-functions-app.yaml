@@ -27,7 +27,7 @@ jobs:
       - name: Build Azure Functions Application
         run: |
           pushd functions
-          cp ../package*.json .
+          cp ../package.json .
           npm install
           npm run functions:build
           popd
@@ -40,7 +40,7 @@ jobs:
             functions/*/*.js
             functions/host.json
             functions/local.settings.json
-            functions/package*.json
+            functions/package.json
             !functions/node_modules
             !functions/types
 
