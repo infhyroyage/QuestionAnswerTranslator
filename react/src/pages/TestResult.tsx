@@ -16,7 +16,9 @@ export const TestResult: FC<{}> = () => {
         {(
           (100.0 *
             answerProgress.filter(
-              (answer: Answer) => answer.choice === answer.correctChoice
+              (answer: Answer) =>
+                answer.choiceSentences.toString() ===
+                answer.correctChoiceSentences.toString()
             ).length) /
           testLength
         ).toFixed(1)}
@@ -26,7 +28,9 @@ export const TestResult: FC<{}> = () => {
         (全{testLength}問中
         {
           answerProgress.filter(
-            (answer: Answer) => answer.choice === answer.correctChoice
+            (answer: Answer) =>
+              answer.choiceSentences.toString() ===
+              answer.correctChoiceSentences.toString()
           ).length
         }
         問正解)
@@ -38,16 +42,45 @@ export const TestResult: FC<{}> = () => {
           <div key={`result_${idx}`} style={{ paddingBottom: "7px" }}>
             <h4
               style={{
-                color: answer.choice === answer.correctChoice ? "black" : "red",
+                color:
+                  answer.choiceSentences.toString() ===
+                  answer.correctChoiceSentences.toString()
+                    ? "black"
+                    : "red",
               }}
             >
-              問題{idx + 1} ({answer.choice !== answer.correctChoice && "不"}
+              問題{idx + 1} (
+              {answer.choiceSentences.toString() !==
+                answer.correctChoiceSentences.toString() && "不"}
               正解)
             </h4>
-            <p>{answer.subject}</p>
+            <p>{answer.subjectConcatSentence}</p>
             <ul>
-              <li>選択肢：{answer.choice}</li>
-              <li>回答：{answer.correctChoice}</li>
+              <li>選択肢</li>
+              <ul>
+                {answer.choiceSentences.map(
+                  (choiceSentence: string, choiceSentenceIdx: number) => (
+                    <li key={`choiceSentences_${choiceSentenceIdx}`}>
+                      {choiceSentence}
+                    </li>
+                  )
+                )}
+              </ul>
+              <li>回答</li>
+              <ul>
+                {answer.correctChoiceSentences.map(
+                  (
+                    correctChoiceSentence: string,
+                    correctChoiceSentenceIdx: number
+                  ) => (
+                    <li
+                      key={`correctChoiceSentences_${correctChoiceSentenceIdx}`}
+                    >
+                      {correctChoiceSentence}
+                    </li>
+                  )
+                )}
+              </ul>
             </ul>
           </div>
         ))}

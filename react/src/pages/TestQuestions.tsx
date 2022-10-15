@@ -9,7 +9,7 @@ import { useNextQuestionButton } from "../hooks/useNextQuestionButton";
 import { useTestSubmitter } from "../hooks/useTestSubmitter";
 import { translate } from "../services/deepl";
 import { accessFunctions } from "../services/functions";
-import { GetQuestion, Sentence } from "../types/functions";
+import { GetQuestion } from "../types/functions";
 import { TestState } from "../types/state";
 
 const INIT_GET_QESTION_RES = {
@@ -17,13 +17,6 @@ const INIT_GET_QESTION_RES = {
   choices: [],
   isCorrectedMulti: false,
 };
-
-const concatSentences = (sentences: Sentence[]) =>
-  sentences.reduce(
-    (prev: string, sentence: Sentence) =>
-      prev === "" ? `${prev} ${sentence.sentence}` : sentence.sentence,
-    ""
-  );
 
 export const TestQuestions: FC<{}> = () => {
   const [questionNumber, setQuestionNumber] = useState<number>(1);
@@ -50,11 +43,11 @@ export const TestQuestions: FC<{}> = () => {
 
   const {
     selectedIdxes,
-    isDisabledRadioButtons,
+    isDisabledChoiceInput,
     isDisabledSubmitButton,
     initializeTestInputer,
     disableTestInputer,
-    onChangeRadioButtonInner,
+    onChangeChoiceInput,
   } = useTestInputer();
 
   const {
@@ -76,13 +69,9 @@ export const TestQuestions: FC<{}> = () => {
 
   const onClickNextQuestionButton = useNextQuestionButton(
     questionNumber,
-    concatSentences(getQuestionRes.subjects),
-    selectedIdxes.length > 0
-      ? getQuestionRes.choices[Number(selectedIdxes[0])].sentence
-      : "",
-    correctIdxes.length > 0
-      ? getQuestionRes.choices[correctIdxes[0]].sentence
-      : "",
+    getQuestionRes,
+    selectedIdxes,
+    correctIdxes,
     updateNextQuestion
   );
 
@@ -165,8 +154,8 @@ export const TestQuestions: FC<{}> = () => {
           }
           selectedIdxes={selectedIdxes}
           correctIdxes={correctIdxes}
-          isDisabledRadioButtons={isDisabledRadioButtons}
-          onChangeRadioButtonInner={onChangeRadioButtonInner}
+          isDisabledChoiceInput={isDisabledChoiceInput}
+          onChangeChoiceInput={onChangeChoiceInput}
         />
         <button
           onClick={onClickSubmitButton}
@@ -178,7 +167,9 @@ export const TestQuestions: FC<{}> = () => {
       </div>
       {correctIdxes.length > 0 && (
         <div style={{ paddingTop: "28px" }}>
-          <h2>{correctIdxes[0] !== selectedIdxes[0] && "不"}正解</h2>
+          <h2>
+            {correctIdxes.toString() !== selectedIdxes.toString() && "不"}正解
+          </h2>
           <button
             onClick={onClickNextQuestionButton}
             style={{ marginTop: "7px" }}

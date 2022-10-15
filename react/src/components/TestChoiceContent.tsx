@@ -7,40 +7,45 @@ export const TestChoiceContent: FC<TestChoiceContentProps> = memo(
   (props: TestChoiceContentProps) => {
     const {
       choices,
-      isCorrectedMulti, // TODO 複数選択問題はラジオボタンではなくチェックボックスにする
+      isCorrectedMulti,
       translatedChoices,
       selectedIdxes,
       correctIdxes,
-      isDisabledRadioButtons,
-      onChangeRadioButtonInner,
+      isDisabledChoiceInput,
+      onChangeChoiceInput,
     } = props;
 
     return (
       <>
         {choices.map((choice: Sentence, idx: number) => {
+          // 未回答の場合、すべての選択肢は黒字
+          // 回答して正解した場合、正解の選択肢は黒太字、それ以外の選択肢は黒字
+          // 回答して不正解の場合、正解の選択肢は黒太字、誤って選択した選択肢は赤字、それ以外の選択肢は黒字
           const fontWeight =
-            correctIdxes.length > 0 && correctIdxes[0] === idx
+            correctIdxes.length > 0 && correctIdxes.includes(idx)
               ? "bold"
               : "normal";
           const color =
             correctIdxes.length > 0 &&
-            correctIdxes[0] !== selectedIdxes[0] &&
-            selectedIdxes[0] === idx
+            correctIdxes.toString() !== selectedIdxes.toString() &&
+            selectedIdxes.includes(idx) &&
+            !correctIdxes.includes(idx)
               ? "red"
               : "black";
+
           return (
             <div key={`choice_${idx}`} style={{ display: "flex" }}>
               <input
-                type="radio"
+                type={isCorrectedMulti ? "checkbox" : "radio"}
                 value={idx}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  onChangeRadioButtonInner(Number(e.target.value))
+                  onChangeChoiceInput(Number(e.target.value), isCorrectedMulti)
                 }
-                checked={selectedIdxes[0] === idx}
-                disabled={isDisabledRadioButtons}
+                checked={selectedIdxes.includes(idx)}
+                disabled={isDisabledChoiceInput}
                 style={{ marginRight: "14px" }}
               />
-              <div onClick={() => onChangeRadioButtonInner(idx)}>
+              <div onClick={() => onChangeChoiceInput(idx, isCorrectedMulti)}>
                 {choice.isIndicatedImg ? (
                   <img
                     src={choice.sentence}

@@ -6,8 +6,8 @@ export type TestChoiceContentProps = {
   translatedChoices: string[] | undefined;
   selectedIdxes: number[];
   correctIdxes: number[];
-  isDisabledRadioButtons: boolean;
-  onChangeRadioButtonInner: (idx: number) => void;
+  isDisabledChoiceInput: boolean;
+  onChangeChoiceInput: (idx: number, isCorrectedMulti: boolean) => void;
 };
 
 export type TestSentenceContentProps = {

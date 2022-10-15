@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { GetQuestion, Sentence } from "../types/functions";
 import { Answer, TestResultState, TestState } from "../types/state";
 
 export const useNextQuestionButton = (
   questionNumber: number,
-  subject: string,
-  choice: string,
-  correctChoice: string,
+  getQuestionRes: GetQuestion,
+  selectedIdxes: number[],
+  correctIdxes: number[],
   questionUpdater: () => void
 ) => {
   const [answerProgress, setAnswerProgress] = useState<Answer[]>([]);
@@ -20,7 +21,24 @@ export const useNextQuestionButton = (
 
   const onClickNextQuestionButton = async () => {
     // 回答結果を更新
-    const answer: Answer = { subject, choice, correctChoice };
+    const subjectConcatSentence: string = getQuestionRes.subjects.reduce(
+      (prevSubjectConcatSentence: string, subject: Sentence) =>
+        prevSubjectConcatSentence === ""
+          ? `${prevSubjectConcatSentence} ${subject.sentence}`
+          : subject.sentence,
+      ""
+    );
+    const choiceSentences: string[] = selectedIdxes.map(
+      (selectedIdx: number) => getQuestionRes.choices[selectedIdx].sentence
+    );
+    const correctChoiceSentences: string[] = correctIdxes.map(
+      (correctIdx: number) => getQuestionRes.choices[correctIdx].sentence
+    );
+    const answer: Answer = {
+      subjectConcatSentence,
+      choiceSentences,
+      correctChoiceSentences,
+    };
     const updatedAnswerProgress = [...answerProgress, answer];
 
     if (questionNumber === testLength) {

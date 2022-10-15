@@ -207,7 +207,3 @@ QuestionAnswerTranslator リポジトリのシークレットの削除につい�
     ```
     "{\"status\":\"Failed\",\"error\":{\"code\":\"ResourceOperationFailure\",\"message\":\"The resource operation completed with terminal provisioning state 'Failed'.\",\"details\":[{\"code\":\"ServiceUnavailable\",\"message\":\"Database account creation failed. Operation Id: 957e812a-4b5e-42e8-a81f-29fe7e3805e3, Error : Service is currently unavailable. More info: https://aka.ms/cosmosdb-tsg-service-unavailable\\r\\nActivityId: cca8475b-6d1c-45ae-ba4c-058b33247e7e, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0, Microsoft.Azure.Documents.Common/2.14.0\"}]}}"
     ```
-
-# TODO
-
-- 複数個の回答が存在する問題をサポート
