@@ -178,7 +178,7 @@ export const TestQuestions: FC<{}> = () => {
       </div>
       {correctIdxes.length > 0 && (
         <div style={{ paddingTop: "28px" }}>
-          <h2>{`${correctIdxes[0]}` !== selectedIdxes[0] && "不"}正解</h2>
+          <h2>{correctIdxes[0] !== selectedIdxes[0] && "不"}正解</h2>
           <button
             onClick={onClickNextQuestionButton}
             style={{ marginTop: "7px" }}

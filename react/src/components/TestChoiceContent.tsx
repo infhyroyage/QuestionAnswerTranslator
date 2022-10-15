@@ -24,23 +24,23 @@ export const TestChoiceContent: FC<TestChoiceContentProps> = memo(
               : "normal";
           const color =
             correctIdxes.length > 0 &&
-            `${correctIdxes[0]}` !== selectedIdxes[0] &&
-            selectedIdxes[0] === `${idx}`
+            correctIdxes[0] !== selectedIdxes[0] &&
+            selectedIdxes[0] === idx
               ? "red"
               : "black";
           return (
             <div key={`choice_${idx}`} style={{ display: "flex" }}>
               <input
                 type="radio"
-                value={`${idx}`}
+                value={idx}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  onChangeRadioButtonInner(e.target.value)
+                  onChangeRadioButtonInner(Number(e.target.value))
                 }
-                checked={selectedIdxes[0] === `${idx}`}
+                checked={selectedIdxes[0] === idx}
                 disabled={isDisabledRadioButtons}
                 style={{ marginRight: "14px" }}
               />
-              <div onClick={() => onChangeRadioButtonInner(`${idx}`)}>
+              <div onClick={() => onChangeRadioButtonInner(idx)}>
                 {choice.isIndicatedImg ? (
                   <img
                     src={choice.sentence}

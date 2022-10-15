@@ -4,10 +4,10 @@ export type TestChoiceContentProps = {
   choices: Sentence[];
   isCorrectedMulti: boolean;
   translatedChoices: string[] | undefined;
-  selectedIdxes: string[];
+  selectedIdxes: number[];
   correctIdxes: number[];
   isDisabledRadioButtons: boolean;
-  onChangeRadioButtonInner: (idx: string) => void;
+  onChangeRadioButtonInner: (idx: number) => void;
 };
 
 export type TestSentenceContentProps = {

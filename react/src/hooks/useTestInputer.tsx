@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 export const useTestInputer = () => {
-  const [selectedIdxes, setSelectedIdxes] = useState<string[]>([]);
+  const [selectedIdxes, setSelectedIdxes] = useState<number[]>([]);
   const [isDisabledRadioButtons, setIsDisabledRadioButtons] =
     useState<boolean>(false);
   const [isDisabledSubmitButton, setIsDisabledSubmitButton] =
@@ -18,7 +18,7 @@ export const useTestInputer = () => {
     setIsDisabledRadioButtons(true);
   };
 
-  const onChangeRadioButtonInner = (idx: string) => {
+  const onChangeRadioButtonInner = (idx: number) => {
     // 回答済の場合はNOP
     if (isDisabledRadioButtons) return;
 
