@@ -49,7 +49,7 @@ const main = async () => {
               // ・subjects
               // ・choices
               // ・explanations
-              // ・incorrectChoicesExplanationsの各非null要素(Optional)
+              // ・incorrectChoicesExplanationsの各非空文字要素(Optional)
               if (databaseName === "Users" && containerName === "Question") {
                 encryptedItem.subjects = await encryptStrings2NumberArrays(
                   item.subjects,
