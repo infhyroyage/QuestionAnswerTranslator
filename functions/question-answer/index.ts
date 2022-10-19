@@ -6,8 +6,13 @@ import {
   createCryptographyClient,
   decryptNumberArrays2Strings,
 } from "../shared/vaultWrapper";
-import { Explanation, Question } from "../types/cosmosDB";
-import { GetQuestionAnswer } from "../types/response";
+import {
+  Explanation,
+  IncorrectChoiceExplanation,
+  IncorrectChoiceExplanations,
+  Question,
+} from "../types/cosmosDB";
+import { GetQuestionAnswer, IncorrectChoices } from "../types/response";
 
 const COSMOS_DB_DATABASE_NAME = "Users";
 const COSMOS_DB_CONTAINER_NAME = "Question";
@@ -32,11 +37,15 @@ export default async (context: Context): Promise<void> => {
     // QueryEncryptedQuestionAnswer : 非localhost環境(暗号化済)
     type QueryQuestionAnswer = Pick<
       Question,
-      "correctIdxes" | "explanations" | "escapeTranslatedIdxes" | "references"
+      | "correctIdxes"
+      | "explanations"
+      | "incorrectChoicesExplanations"
+      | "escapeTranslatedIdxes"
+      | "references"
     >;
     const query: SqlQuerySpec = {
       query:
-        "SELECT c.correctIdxes, c.explanations, c.escapeTranslatedIdxes, c.references FROM c WHERE c.testId = @testId AND c.number = @number",
+        "SELECT c.correctIdxes, c.explanations, c.incorrectChoicesExplanations, c.escapeTranslatedIdxes, c.references FROM c WHERE c.testId = @testId AND c.number = @number",
       parameters: [
         { name: "@testId", value: testId },
         { name: "@number", value: questionNumber },
@@ -62,31 +71,86 @@ export default async (context: Context): Promise<void> => {
     const result: QueryQuestionAnswer = response.resources[0];
 
     let explanations: Explanation[];
+    let incorrectChoicesExplanations: IncorrectChoiceExplanations[] | undefined;
     if (process.env["COSMOSDB_URI"] === "https://localcosmosdb:8081") {
-      // localhost環境のため、そのままexplanationsを取得
+      // localhost環境のため、そのままexplanations/incorrectChoiceExplanationsを取得
       explanations = result.explanations;
+      incorrectChoicesExplanations = result.incorrectChoicesExplanations;
     } else {
-      // 非localhost環境のため、暗号化されたexplanationsを復号して取得
+      // 非localhost環境のため、暗号化されたexplanations/incorrectChoiceExplanationsの各要素を復号して取得
       const cryptographyClient: CryptographyClient =
         await createCryptographyClient(VAULT_CRYPTOGRAPHY_KEY_NAME);
       explanations = await decryptNumberArrays2Strings(
         result.explanations as number[][],
         cryptographyClient
       );
+      if (result.incorrectChoicesExplanations) {
+        incorrectChoicesExplanations = [];
+        for (const incorrectChoiceExplanations of result.incorrectChoicesExplanations) {
+          if (incorrectChoiceExplanations) {
+            const decryptedIncorrectChoiceExplanations: string[] =
+              await decryptNumberArrays2Strings(
+                incorrectChoiceExplanations as number[][],
+                cryptographyClient
+              );
+            incorrectChoicesExplanations.push(
+              decryptedIncorrectChoiceExplanations
+            );
+          } else {
+            incorrectChoicesExplanations.push(null);
+          }
+        }
+      } else {
+        incorrectChoicesExplanations = undefined;
+      }
     }
+
+    // 不正解の選択肢の説明文のレスポンス組立て
+    const incorrectChoices: IncorrectChoices =
+      incorrectChoicesExplanations.reduce(
+        (
+          prevIncorrectChoices: IncorrectChoices,
+          incorrectChoiceExplanations: IncorrectChoiceExplanations,
+          choiceIdx: number
+        ) => {
+          if (incorrectChoiceExplanations) {
+            prevIncorrectChoices[choiceIdx] = incorrectChoiceExplanations.map(
+              (
+                IncorrectChoiceExplanation: IncorrectChoiceExplanation,
+                idx: number
+              ) => {
+                return {
+                  sentence: IncorrectChoiceExplanation as string,
+                  isEscapedTranslation:
+                    result.escapeTranslatedIdxes &&
+                    result.escapeTranslatedIdxes.incorrectChoicesExplanations &&
+                    result.escapeTranslatedIdxes.incorrectChoicesExplanations[
+                      choiceIdx
+                    ].includes(idx),
+                };
+              }
+            );
+          }
+          return prevIncorrectChoices;
+        },
+        {}
+      );
 
     const body: GetQuestionAnswer = {
       correctIdxes: result.correctIdxes,
-      explanations: explanations.map((explanation: string, idx: number) => {
-        return {
-          sentence: explanation,
-          isIndicatedImg: false,
-          isEscapedTranslation:
-            result.escapeTranslatedIdxes &&
-            result.escapeTranslatedIdxes.explanations &&
-            result.escapeTranslatedIdxes.explanations.includes(idx),
-        };
-      }),
+      explanations: {
+        overall: explanations.map((explanation: string, idx: number) => {
+          return {
+            sentence: explanation,
+            isIndicatedImg: false,
+            isEscapedTranslation:
+              result.escapeTranslatedIdxes &&
+              result.escapeTranslatedIdxes.explanations &&
+              result.escapeTranslatedIdxes.explanations.includes(idx),
+          };
+        }),
+        incorrectChoices,
+      },
       references: result.references || [],
     };
     context.res = {
