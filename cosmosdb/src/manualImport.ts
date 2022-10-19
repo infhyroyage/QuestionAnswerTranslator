@@ -49,7 +49,7 @@ const main = async () => {
               // ・subjects
               // ・choices
               // ・explanations
-              // ・incorrectChoiceExplanations(Optional)
+              // ・incorrectChoicesExplanationsの各非null要素(Optional)
               if (databaseName === "Users" && containerName === "Question") {
                 encryptedItem.subjects = await encryptStrings2NumberArrays(
                   item.subjects,
@@ -63,11 +63,28 @@ const main = async () => {
                   item.explanations,
                   cryptographyClient
                 );
-                if (item.incorrectChoiceExplanations) {
+                if (item.incorrectChoicesExplanations) {
                   encryptedItem.incorrectChoiceExplanations =
-                    await encryptStrings2NumberArrays(
-                      item.incorrectChoiceExplanations,
-                      cryptographyClient
+                    item.incorrectChoicesExplanations.reduce(
+                      async (
+                        prevIncorrectChoicesExplanations: (number[][] | null)[],
+                        incorrectChoiceExplanations: string[] | null
+                      ) => {
+                        if (incorrectChoiceExplanations) {
+                          const encryptedIncorrectChoiceExplanations: number[][] =
+                            await encryptStrings2NumberArrays(
+                              incorrectChoiceExplanations,
+                              cryptographyClient
+                            );
+                          prevIncorrectChoicesExplanations.push(
+                            encryptedIncorrectChoiceExplanations
+                          );
+                        } else {
+                          prevIncorrectChoicesExplanations.push(null);
+                        }
+                        return prevIncorrectChoicesExplanations;
+                      },
+                      []
                     );
                 }
               }
