@@ -70,7 +70,9 @@ const main = async () => {
                         prevIncorrectChoicesExplanations: (number[][] | "")[],
                         incorrectChoiceExplanations: string[] | ""
                       ) => {
-                        if (incorrectChoiceExplanations) {
+                        if (incorrectChoiceExplanations === "") {
+                          prevIncorrectChoicesExplanations.push("");
+                        } else {
                           const encryptedIncorrectChoiceExplanations: number[][] =
                             await encryptStrings2NumberArrays(
                               incorrectChoiceExplanations,
@@ -79,8 +81,6 @@ const main = async () => {
                           prevIncorrectChoicesExplanations.push(
                             encryptedIncorrectChoiceExplanations
                           );
-                        } else {
-                          prevIncorrectChoicesExplanations.push("");
                         }
                         return prevIncorrectChoicesExplanations;
                       },
