@@ -49,6 +49,7 @@ const main = async () => {
               // ・subjects
               // ・choices
               // ・explanations
+              // ・incorrectChoiceExplanations(Optional)
               if (databaseName === "Users" && containerName === "Question") {
                 encryptedItem.subjects = await encryptStrings2NumberArrays(
                   item.subjects,
@@ -62,6 +63,13 @@ const main = async () => {
                   item.explanations,
                   cryptographyClient
                 );
+                if (item.incorrectChoiceExplanations) {
+                  encryptedItem.incorrectChoiceExplanations =
+                    await encryptStrings2NumberArrays(
+                      item.incorrectChoiceExplanations,
+                      cryptographyClient
+                    );
+                }
               }
 
               return encryptedItem;
