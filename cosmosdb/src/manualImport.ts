@@ -67,8 +67,8 @@ const main = async () => {
                   encryptedItem.incorrectChoiceExplanations =
                     item.incorrectChoicesExplanations.reduce(
                       async (
-                        prevIncorrectChoicesExplanations: (number[][] | null)[],
-                        incorrectChoiceExplanations: string[] | null
+                        prevIncorrectChoicesExplanations: (number[][] | "")[],
+                        incorrectChoiceExplanations: string[] | ""
                       ) => {
                         if (incorrectChoiceExplanations) {
                           const encryptedIncorrectChoiceExplanations: number[][] =
@@ -80,7 +80,7 @@ const main = async () => {
                             encryptedIncorrectChoiceExplanations
                           );
                         } else {
-                          prevIncorrectChoicesExplanations.push(null);
+                          prevIncorrectChoicesExplanations.push("");
                         }
                         return prevIncorrectChoicesExplanations;
                       },
