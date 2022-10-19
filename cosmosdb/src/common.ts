@@ -16,7 +16,13 @@ import {
 } from "@azure/keyvault-keys";
 import { SecretClient } from "@azure/keyvault-secrets";
 import { v4 as uuidv4 } from "uuid";
-import { Item, Data, DatabaseData, TestName2TestId } from "../types/common";
+import {
+  Item,
+  Data,
+  DatabaseData,
+  CourseAndTestName2TestId,
+  TestName2TestId,
+} from "../types/common";
 
 const COSMOSDB_URI =
   "https://qatranslator-kc-cosmosdb.documents.azure.com:443/";
@@ -107,30 +113,42 @@ const fetchInsertedImportJson = async (
 };
 
 /**
- * 手動インポートデータのtestNameからtestIdへ変換するための変換器を作成する
+ * 手動インポートデータのcourseName&testNameからtestIdへ変換するための変換器を作成する
  * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
- * @returns {Promise<TestName2TestId>} 変換器のPromise
+ * @returns {Promise<CourseAndTestName2TestId>} 変換器のPromise
  */
-const createTestName2TestId = async (
+const createCourseAndTestName2TestId = async (
   cosmosClient: CosmosClient
-): Promise<TestName2TestId> => {
-  // UsersテータベースのTestコンテナーの全id、testNameをquery
+): Promise<CourseAndTestName2TestId> => {
+  // UsersテータベースのTestコンテナーの全id、courseName、testNameをquery
   const query: SqlQuerySpec = {
-    query: "SELECT c.id, c.testName FROM c",
+    query: "SELECT c.id, c.courseName, c.testName FROM c",
   };
-  type QueryResult = { id: string; testName: string };
+  type QueryResult = { id: string; courseName: string; testName: string };
   const res: FeedResponse<QueryResult> = await cosmosClient
     .database("Users")
     .container("Test")
     .items.query<QueryResult>(query)
     .fetchAll();
 
-  const testName2TestId: TestName2TestId = {};
-  res.resources.map(
-    (resource: QueryResult) =>
-      (testName2TestId[resource.testName] = resource.id)
+  return res.resources.reduce(
+    (
+      prevCourseAndTestName2TestId: CourseAndTestName2TestId,
+      resource: QueryResult
+    ) => {
+      if (prevCourseAndTestName2TestId[resource.courseName]) {
+        prevCourseAndTestName2TestId[resource.courseName][resource.testName] =
+          resource.id;
+      } else {
+        const testName2TestId: TestName2TestId = {};
+        testName2TestId[resource.testName] = resource.id;
+        prevCourseAndTestName2TestId[resource.courseName] = testName2TestId;
+      }
+
+      return prevCourseAndTestName2TestId;
+    },
+    {}
   );
-  return testName2TestId;
 };
 
 /**
@@ -210,31 +228,41 @@ export const createManualImportData = async (
     (item: Item) => item.id
   );
 
-  // testName→testIdの変換器を作成
-  const testName2TestId: TestName2TestId = await createTestName2TestId(
-    cosmosClient
-  );
+  // courseName&testName→testIdの変換器を作成
+  const courseAndTestName2TestId: CourseAndTestName2TestId =
+    await createCourseAndTestName2TestId(cosmosClient);
 
   // Cosmos DB未格納の全項目のみ抽出し、全項目にid、testIdカラムをそれぞれ付加
   return Object.keys(manualImportJson).reduce(
-    (prevInitData: Data, testName: string) => {
-      const testId: string = testName2TestId[testName];
+    (prevInitData: Data, courseName: string) => {
+      const nonInsertedItemsPerCourse: Item[] = Object.keys(
+        manualImportJson[courseName]
+      ).reduce((prevInsertedItemsPerTest: Item[], testName: string) => {
+        const testId: string = courseAndTestName2TestId[courseName][testName];
 
-      const nonInsertedItems: Item[] = manualImportJson[testName].reduce(
-        (prevNonInsertedItems: Item[], item: Item) => {
+        const nonInsertedItemsPerTest: Item[] = manualImportJson[courseName][
+          testName
+        ].reduce((prevInsertedItems: Item[], item: Item) => {
           if (!insertedIds.includes(`${testId}_${item.number}`)) {
-            prevNonInsertedItems.push({
+            prevInsertedItems.push({
               ...item,
               id: `${testId}_${item.number}`,
               testId,
             });
           }
-          return prevNonInsertedItems;
-        },
-        []
+          return prevInsertedItems;
+        }, []);
+
+        prevInsertedItemsPerTest = prevInsertedItemsPerTest.concat(
+          nonInsertedItemsPerTest
+        );
+
+        return prevInsertedItemsPerTest;
+      }, []);
+
+      prevInitData.Users.Question = prevInitData.Users.Question.concat(
+        nonInsertedItemsPerCourse
       );
-      prevInitData.Users.Question =
-        prevInitData.Users.Question.concat(nonInsertedItems);
 
       return prevInitData;
     },

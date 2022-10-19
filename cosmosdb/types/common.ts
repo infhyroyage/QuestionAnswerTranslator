@@ -12,3 +12,6 @@ export type Data = {
 export type TestName2TestId = {
   [testName: string]: string;
 };
+export type CourseAndTestName2TestId = {
+  [courseName: string]: TestName2TestId;
+};
