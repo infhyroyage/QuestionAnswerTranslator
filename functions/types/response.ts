@@ -4,7 +4,7 @@ export type Sentence = {
   isEscapedTranslation: boolean;
 };
 export type IncorrectChoices = {
-  [choiceIdx: number]: Omit<Sentence, "isIndicatedImg">[];
+  [choiceIdx: number]: Sentence[];
 };
 export type ExplanationSentences = {
   overall: Sentence[];

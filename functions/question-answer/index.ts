@@ -121,6 +121,7 @@ export default async (context: Context): Promise<void> => {
               ) => {
                 return {
                   sentence: IncorrectChoiceExplanation as string,
+                  isIndicatedImg: false,
                   isEscapedTranslation:
                     result.escapeTranslatedIdxes &&
                     result.escapeTranslatedIdxes.incorrectChoicesExplanations &&
