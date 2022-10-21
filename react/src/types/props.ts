@@ -1,4 +1,4 @@
-import { Sentence } from "./functions";
+import { IncorrectChoices, Sentence } from "./functions";
 
 export type TestChoiceContentProps = {
   choices: Sentence[];
@@ -8,6 +8,13 @@ export type TestChoiceContentProps = {
   correctIdxes: number[];
   isDisabledChoiceInput: boolean;
   onChangeChoiceInput: (idx: number, isCorrectedMulti: boolean) => void;
+};
+
+export type TestExplanationIncorrectChoiceContentProps = {
+  choices: Sentence[];
+  translatedChoices: string[] | undefined;
+  incorrectChoices: IncorrectChoices;
+  translatedIncorrectChoices: string[] | undefined;
 };
 
 export type TestSentenceContentProps = {

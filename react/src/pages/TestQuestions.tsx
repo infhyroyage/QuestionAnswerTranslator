@@ -2,6 +2,7 @@ import { AuthenticatedTemplate, useAccount, useMsal } from "@azure/msal-react";
 import { FC, useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { TestChoiceContent } from "../components/TestChoiceContent";
+import { TestExplanationIncorrectChoiceContent } from "../components/TestExplanationIncorrectChoiceContent";
 import { TestSentenceContent } from "../components/TestSentenceContent";
 import { TestTranslationErrorContent } from "../components/TestTranslationErrorContent";
 import { useTestInputer } from "../hooks/useTestInputer";
@@ -217,6 +218,22 @@ export const TestQuestions: FC<{}> = () => {
               )
             }
           />
+          {Object.keys(explanationSentences.incorrectChoices).length && (
+            <TestExplanationIncorrectChoiceContent
+              choices={getQuestionRes.choices}
+              translatedChoices={
+                translatedQuestions &&
+                translatedQuestions.slice(getQuestionRes.subjects.length)
+              }
+              incorrectChoices={explanationSentences.incorrectChoices}
+              translatedIncorrectChoices={
+                translatedExplanations &&
+                translatedExplanations.slice(
+                  explanationSentences.overall.length
+                )
+              }
+            />
+          )}
           {references.length && (
             <>
               <h3>参照</h3>
