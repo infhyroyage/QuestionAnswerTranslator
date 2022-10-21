@@ -1,15 +1,18 @@
 import { useAccount, useMsal } from "@azure/msal-react";
 import { useState } from "react";
 import { accessFunctions } from "../services/functions";
-import { GetQuestionAnswer, Sentence } from "../types/functions";
+import { ExplanationSentences, GetQuestionAnswer } from "../types/functions";
 import { useParams } from "react-router-dom";
+
+const INIT_EXPLANATION_SENTENCES = { overall: [], incorrectChoices: {} };
 
 export const useTestSubmitter = (
   questionNumber: number,
   disableTestInputer: () => void
 ) => {
   const [correctIdxes, setCorrectIdxes] = useState<number[]>([]);
-  const [explanations, setExplanations] = useState<Sentence[]>([]);
+  const [explanationSentences, setExplanationSentences] =
+    useState<ExplanationSentences>(INIT_EXPLANATION_SENTENCES);
   const [references, setReferences] = useState<string[]>([]);
 
   const { instance, accounts } = useMsal();
@@ -19,7 +22,7 @@ export const useTestSubmitter = (
 
   const initializeTestSubmitter = () => {
     setCorrectIdxes([]);
-    setExplanations([]);
+    setExplanationSentences(INIT_EXPLANATION_SENTENCES);
     setReferences([]);
   };
 
@@ -36,13 +39,13 @@ export const useTestSubmitter = (
     );
 
     setCorrectIdxes(res.correctIdxes);
-    setExplanations(res.explanations);
+    setExplanationSentences(res.explanations);
     setReferences(res.references);
   };
 
   return {
     correctIdxes,
-    explanations,
+    explanationSentences,
     references,
     initializeTestSubmitter,
     onClickSubmitButton,

@@ -9,7 +9,7 @@ import { useNextQuestionButton } from "../hooks/useNextQuestionButton";
 import { useTestSubmitter } from "../hooks/useTestSubmitter";
 import { translate } from "../services/deepl";
 import { accessFunctions } from "../services/functions";
-import { GetQuestion } from "../types/functions";
+import { GetQuestion, Sentence } from "../types/functions";
 import { TestState } from "../types/state";
 
 const INIT_GET_QESTION_RES = {
@@ -52,7 +52,7 @@ export const TestQuestions: FC<{}> = () => {
 
   const {
     correctIdxes,
-    explanations,
+    explanationSentences,
     references,
     initializeTestSubmitter,
     onClickSubmitButton,
@@ -93,14 +93,15 @@ export const TestQuestions: FC<{}> = () => {
     getQuestionRes.subjects.length &&
       getQuestionRes.choices.length &&
       (async () => {
-        // subjects、choicesそれぞれの文字列に対してDeepL翻訳を計2回行わず、
+        // subjects、choicesそれぞれの文字列に対してDeepL翻訳を複数回行わず、
         // subjects、choicesの順で配列を作成した文字列に対してDeepL翻訳を1回のみ行う
+        const sentences: Sentence[] = [
+          ...getQuestionRes.subjects,
+          ...getQuestionRes.choices,
+        ];
         try {
-          const translatedQuestions: string[] = await translate([
-            ...getQuestionRes.subjects,
-            ...getQuestionRes.choices,
-          ]);
-          setTranslatedQuestions(translatedQuestions);
+          const translatedStrings: string[] = await translate(sentences);
+          setTranslatedQuestions(translatedStrings);
         } catch (e) {
           setTranslatedQuestions(undefined);
           setIsNotTranslatedQuestions(true);
@@ -110,17 +111,29 @@ export const TestQuestions: FC<{}> = () => {
 
   // [GET] /tests/{testId}/questions/{questionNumber}/answer実行直後のみ翻訳
   useEffect(() => {
-    explanations.length &&
+    explanationSentences.overall.length &&
+      Object.keys(explanationSentences.incorrectChoices).length &&
       (async () => {
+        // overall、incorrectChoices内のそれぞれの文字列に対してDeepL翻訳を複数回行わず、
+        // overall、incorrectChoices内の順で配列を作成した文字列に対してDeepL翻訳を1回のみ行う
+        const sentences: Sentence[] = Object.keys(
+          explanationSentences.incorrectChoices
+        ).reduce(
+          (prevSentences: Sentence[], choiceIdx: string) =>
+            prevSentences.concat(
+              explanationSentences.incorrectChoices[Number(choiceIdx)]
+            ),
+          [...explanationSentences.overall]
+        );
         try {
-          const translatedSentences = await translate(explanations);
-          setTranslatedExplanations(translatedSentences);
+          const translatedStrings: string[] = await translate(sentences);
+          setTranslatedExplanations(translatedStrings);
         } catch (e) {
           setTranslatedExplanations(undefined);
           setIsNotTranslatedExplanations(true);
         }
       })();
-  }, [explanations]);
+  }, [explanationSentences]);
 
   return (
     <AuthenticatedTemplate>
@@ -181,14 +194,28 @@ export const TestQuestions: FC<{}> = () => {
           <h3>解説</h3>
           {isNotTranslatedExplanations && (
             <TestTranslationErrorContent
-              sentences={explanations}
+              sentences={Object.keys(
+                explanationSentences.incorrectChoices
+              ).reduce(
+                (prevSentences: Sentence[], choiceIdx: string) =>
+                  prevSentences.concat(
+                    explanationSentences.incorrectChoices[Number(choiceIdx)]
+                  ),
+                [...explanationSentences.overall]
+              )}
               setTranslatedSentences={setTranslatedExplanations}
               setIsNotTranslatedSentences={setIsNotTranslatedExplanations}
             />
           )}
           <TestSentenceContent
-            sentences={explanations}
-            translatedSentences={translatedExplanations}
+            sentences={explanationSentences.overall}
+            translatedSentences={
+              translatedExplanations &&
+              translatedExplanations.slice(
+                0,
+                explanationSentences.overall.length
+              )
+            }
           />
           {references.length && (
             <>

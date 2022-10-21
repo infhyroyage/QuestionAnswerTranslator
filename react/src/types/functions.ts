@@ -3,6 +3,13 @@ export type Sentence = {
   isIndicatedImg: boolean;
   isEscapedTranslation: boolean;
 };
+export type IncorrectChoices = {
+  [choiceIdx: number]: Sentence[];
+};
+export type ExplanationSentences = {
+  overall: Sentence[];
+  incorrectChoices: IncorrectChoices;
+};
 
 export type Test = {
   id: string;
@@ -18,7 +25,7 @@ export type GetQuestion = {
 
 export type GetQuestionAnswer = {
   correctIdxes: number[];
-  explanations: Sentence[];
+  explanations: ExplanationSentences;
   references: string[];
 };
 
