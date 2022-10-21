@@ -106,36 +106,38 @@ export default async (context: Context): Promise<void> => {
     }
 
     // 不正解の選択肢の説明文のレスポンス組立て
-    const incorrectChoices: IncorrectChoices =
-      incorrectChoicesExplanations.reduce(
-        (
-          prevIncorrectChoices: IncorrectChoices,
-          incorrectChoiceExplanations: IncorrectChoiceExplanations,
-          choiceIdx: number
-        ) => {
-          if (incorrectChoiceExplanations) {
-            prevIncorrectChoices[choiceIdx] = incorrectChoiceExplanations.map(
-              (
-                IncorrectChoiceExplanation: IncorrectChoiceExplanation,
-                idx: number
-              ) => {
-                return {
-                  sentence: IncorrectChoiceExplanation as string,
-                  isIndicatedImg: false,
-                  isEscapedTranslation:
-                    result.escapeTranslatedIdxes &&
-                    result.escapeTranslatedIdxes.incorrectChoicesExplanations &&
-                    result.escapeTranslatedIdxes.incorrectChoicesExplanations[
-                      choiceIdx
-                    ].includes(idx),
-                };
-              }
-            );
-          }
-          return prevIncorrectChoices;
-        },
-        {}
-      );
+    const incorrectChoices: IncorrectChoices = incorrectChoicesExplanations
+      ? incorrectChoicesExplanations.reduce(
+          (
+            prevIncorrectChoices: IncorrectChoices,
+            incorrectChoiceExplanations: IncorrectChoiceExplanations,
+            choiceIdx: number
+          ) => {
+            if (incorrectChoiceExplanations) {
+              prevIncorrectChoices[choiceIdx] = incorrectChoiceExplanations.map(
+                (
+                  IncorrectChoiceExplanation: IncorrectChoiceExplanation,
+                  idx: number
+                ) => {
+                  return {
+                    sentence: IncorrectChoiceExplanation as string,
+                    isIndicatedImg: false,
+                    isEscapedTranslation:
+                      result.escapeTranslatedIdxes &&
+                      result.escapeTranslatedIdxes
+                        .incorrectChoicesExplanations &&
+                      result.escapeTranslatedIdxes.incorrectChoicesExplanations[
+                        choiceIdx
+                      ].includes(idx),
+                  };
+                }
+              );
+            }
+            return prevIncorrectChoices;
+          },
+          {}
+        )
+      : {};
 
     const body: GetQuestionAnswer = {
       correctIdxes: result.correctIdxes,
