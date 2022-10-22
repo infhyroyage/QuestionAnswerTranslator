@@ -32,6 +32,7 @@ Azure リソース/localhost に環境を構築する事前準備として、以
 1. サービスプリンシパルの作成
 2. Azure AD へのアプリケーションの登録
 3. QuestionAnswerTranslator リポジトリのシークレット設定
+4. 手動インポート用 JSON の作成
 
 ### 1. サービスプリンシパルの発行
 
@@ -85,14 +86,59 @@ MSAL を用いて Azure AD で認証認可を行うべく、Azure Portal > Azure
 | DEEPL_AUTH_KEY                        | DeepL API の認証キー                                                      |
 | GHCR_PAT_READ_PACKAGES                | read:packages を許可した GitHub の Personal Access Tokens                 |
 
+### 4. 手動インポート用 JSON の作成
+
+Cosmos DB に保存する文字列を、そのまま GitHub 上に管理するべきではないセキュリティ上の理由から、そのような文字列すべては JSON ファイル(以下、**手動インポート用 JSON**と呼ぶ)としてローカル管理する運用としている。
+手動インポート用 JSON は manualImport.json というファイル名で Azure リソース/localhost 環境構築前に用意しておく必要があり、ローカルで git clone した QuestionAnswerTranslator リポジトリの cosmosdb/data 配下に配置する。
+手動インポート用 JSON のフォーマットを以下に示す。
+
+```
+{
+  "コース名1": {
+    "テスト名1": [
+      {
+        "number": 1, // 問題番号(1スタート)
+        "subjects": ["問題文1", "https://xxx.com/yyy/zzz.png", "問題文2", ... ], // 問題文または画像URL
+        "choices": ["選択肢1", "選択肢2", ... ], // 選択肢
+        "correctIdxes": [0], // 回答の選択肢のインデックス(複数回答の場合は複数指定)
+        "explanations": ["解説文1", "解説文2", ... ], // 解説文
+        "incorrectChoicesExplanations": [["選択肢2の解説文1", "選択肢2の解説文2", ... ], null, ... ], // 不正解の選択肢の解説文(正解の選択肢はnull)
+        "indicateImgIdxes": { // 画像URLのインデックス
+          "subjects": [1]
+        },
+        "escapeTranslatedIdxes": { // 翻訳不必要な文字列のインデックス
+          "subjects": [0, ... ],
+          "choices": [1, ... ],
+          "explanations": [2, ... ],
+          "incorrectChoicesExplanations": [null, [0, ... ], ... ] // 正解の選択肢はnull
+        },
+        "references": ["https://xxx.com/yyy/zzz.html", ... ] // 解説URL
+      },
+      {
+        "number": 2,
+        :
+      },
+      :
+    ],
+    "テスト名2": [
+      :
+    ],
+    :
+  },
+  "コース名2": {
+    :
+  },
+  :
+}
+```
+
 ## Azure リソース環境構築
 
 ### 構築手順
 
 1. QuestionAnswerTranslator リポジトリの各 workflow をすべて有効化する。
 2. Create Azure Resources の workflow を手動で実行する。
-3. 手動インポート用の JSON を cosmosdb/data/manualImport.json に保存する。
-4. 以下のコマンドを実行して、Azure にデプロイ済の Cosmos DB に対し、手動インポート用のデータをインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+3. 以下のコマンドを実行して、Azure にデプロイ済の Cosmos DB に対し、手動インポート用のデータをインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
    ```bash
    npm run cosmosdb:manual
    ```
@@ -136,8 +182,7 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localh
    REACT_APP_AZURE_TENANT_ID=(初期構築時にGitHubへ登録したシークレットAZURE_TENANT_IDの値)
    REACT_APP_DEEPL_AUTH_KEY=(初期構築時にGitHubへ登録したシークレットDEEPL_AUTH_KEYの値)
    ```
-3. 手動インポート用の JSON を cosmosdb/data/manualImport.json に保存する。
-4. ターミナルを起動して以下を実行し、Docker Compose で Azure Functions・Cosmos DB・React サーバーを起動する。実行したターミナルはそのまま放置する。
+3. ターミナルを起動して以下を実行し、Docker Compose で Azure Functions・Cosmos DB・React サーバーを起動する。実行したターミナルはそのまま放置する。
    ```bash
    npm run local:create
    ```
@@ -155,7 +200,7 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localh
    localfunctions    | [略] Host lock lease acquired by instance ID '(略)'.
    ```
    なお、以前上記コマンドを実行したことがあり、`questionanswertranslator_localreact`および`questionanswertranslator_localfunctions`の Docker イメージが残ったままである場合は再ビルドせず、残った Docker イメージに対してそのまま Docker Compose で起動する。
-5. 4 とは別のターミナルで、以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+4. 3 とは別のターミナルで、以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
    ```bash
    npm run local:cosmosdbInit
    ```
