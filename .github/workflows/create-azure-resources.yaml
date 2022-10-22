@@ -279,6 +279,7 @@ jobs:
           name: qatranslator-func
           path: |
             functions/*/*.js
+            functions/*/function.json
             functions/host.json
             functions/local.settings.json
             functions/package.json
