@@ -10,7 +10,7 @@ export type EscapeTranslatedIdxes = {
   subjects?: number[];
   choices?: number[];
   explanations?: number[];
-  incorrectChoicesExplanations?: number[][];
+  incorrectChoicesExplanations?: (number[] | null)[];
 };
 export type Question = {
   id: string;
