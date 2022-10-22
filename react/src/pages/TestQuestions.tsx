@@ -113,7 +113,6 @@ export const TestQuestions: FC<{}> = () => {
   // [GET] /tests/{testId}/questions/{questionNumber}/answer実行直後のみ翻訳
   useEffect(() => {
     explanationSentences.overall.length &&
-      Object.keys(explanationSentences.incorrectChoices).length &&
       (async () => {
         // overall、incorrectChoices内のそれぞれの文字列に対してDeepL翻訳を複数回行わず、
         // overall、incorrectChoices内の順で配列を作成した文字列に対してDeepL翻訳を1回のみ行う
@@ -218,7 +217,7 @@ export const TestQuestions: FC<{}> = () => {
               )
             }
           />
-          {Object.keys(explanationSentences.incorrectChoices).length && (
+          {!!Object.keys(explanationSentences.incorrectChoices).length && (
             <TestExplanationIncorrectChoiceContent
               choices={getQuestionRes.choices}
               translatedChoices={
