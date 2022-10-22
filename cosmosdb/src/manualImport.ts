@@ -64,28 +64,21 @@ const main = async () => {
                   cryptographyClient
                 );
                 if (item.incorrectChoicesExplanations) {
-                  encryptedItem.incorrectChoiceExplanations =
-                    item.incorrectChoicesExplanations.reduce(
-                      async (
-                        prevIncorrectChoicesExplanations: (number[][] | null)[],
-                        incorrectChoiceExplanations: string[] | null
-                      ) => {
-                        if (incorrectChoiceExplanations) {
-                          const encryptedIncorrectChoiceExplanations: number[][] =
-                            await encryptStrings2NumberArrays(
-                              incorrectChoiceExplanations,
-                              cryptographyClient
-                            );
-                          prevIncorrectChoicesExplanations.push(
-                            encryptedIncorrectChoiceExplanations
-                          );
-                        } else {
-                          prevIncorrectChoicesExplanations.push(null);
-                        }
-                        return prevIncorrectChoicesExplanations;
-                      },
-                      []
-                    );
+                  encryptedItem.incorrectChoiceExplanations = [];
+                  for (const incorrectChoiceExplanations of item.incorrectChoicesExplanations) {
+                    if (incorrectChoiceExplanations) {
+                      const encryptedIncorrectChoiceExplanations: number[][] =
+                        await encryptStrings2NumberArrays(
+                          incorrectChoiceExplanations,
+                          cryptographyClient
+                        );
+                      encryptedItem.incorrectChoiceExplanations.push(
+                        encryptedIncorrectChoiceExplanations
+                      );
+                    } else {
+                      encryptedItem.incorrectChoiceExplanations.push(null);
+                    }
+                  }
                 }
               }
 
