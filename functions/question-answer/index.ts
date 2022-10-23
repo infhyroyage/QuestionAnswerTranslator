@@ -33,19 +33,18 @@ export default async (context: Context): Promise<void> => {
     }
 
     // Cosmos DBのUsersデータベースのQuestionコンテナーから項目取得
-    // QueryQuestionAnswer : localhost環境(平文のまま)
-    // QueryEncryptedQuestionAnswer : 非localhost環境(暗号化済)
     type QueryQuestionAnswer = Pick<
       Question,
       | "correctIdxes"
       | "explanations"
       | "incorrectChoicesExplanations"
+      | "indicateImgIdxes"
       | "escapeTranslatedIdxes"
       | "references"
     >;
     const query: SqlQuerySpec = {
       query:
-        "SELECT c.correctIdxes, c.explanations, c.incorrectChoicesExplanations, c.escapeTranslatedIdxes, c.references FROM c WHERE c.testId = @testId AND c.number = @number",
+        "SELECT c.correctIdxes, c.explanations, c.incorrectChoicesExplanations, c.indicateImgIdxes, c.escapeTranslatedIdxes, c.references FROM c WHERE c.testId = @testId AND c.number = @number",
       parameters: [
         { name: "@testId", value: testId },
         { name: "@number", value: questionNumber },
@@ -145,7 +144,10 @@ export default async (context: Context): Promise<void> => {
         overall: explanations.map((explanation: string, idx: number) => {
           return {
             sentence: explanation,
-            isIndicatedImg: false,
+            isIndicatedImg:
+              result.indicateImgIdxes &&
+              result.indicateImgIdxes.explanations &&
+              result.indicateImgIdxes.explanations.includes(idx),
             isEscapedTranslation:
               result.escapeTranslatedIdxes &&
               result.escapeTranslatedIdxes.explanations &&

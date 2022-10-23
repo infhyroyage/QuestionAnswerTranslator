@@ -5,6 +5,7 @@ export type IncorrectChoiceExplanation = number[] | string;
 export type IncorrectChoiceExplanations = IncorrectChoiceExplanation[] | null;
 export type IndicateImgIdxes = {
   subjects?: number[];
+  explanations?: number[];
 };
 export type EscapeTranslatedIdxes = {
   subjects?: number[];
