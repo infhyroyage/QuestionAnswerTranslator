@@ -34,8 +34,7 @@
       "planName": "qatranslator-je-appserviceplan"
     },
     "cosmosDB": {
-      // "name": "qatranslator-je-cosmosdb"
-      "name": "qatranslator-kc-cosmosdb"
+      "name": "qatranslator-je-cosmosdb"
     },
     "functions": {
       "name": "qatranslator-je-func",
@@ -184,8 +183,7 @@
       "kind": "GlobalDocumentDB",
       "type": "Microsoft.DocumentDb/databaseAccounts",
       "name": "[variables('cosmosDB').name]",
-      // "location": "[resourceGroup().location]",
-      "location": "koreacentral",
+      "location": "[resourceGroup().location]",
       "properties": {
         "backupPolicy": {
           "periodicModeProperties": {
@@ -213,10 +211,8 @@
         "locations": [
           {
             "failoverPriority": 0,
-            // "id": "[concat(variables('cosmosDB').name, '-', resourceGroup().location)]",
-            "id": "[concat(variables('cosmosDB').name, '-koreacentral')]",
-            // "locationName": "[resourceGroup().location]"
-            "locationName": "koreacentral"
+            "id": "[concat(variables('cosmosDB').name, '-', resourceGroup().location)]",
+            "locationName": "[resourceGroup().location]"
           }
         ],
         "virtualNetworkRules": []

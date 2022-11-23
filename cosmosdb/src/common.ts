@@ -25,7 +25,7 @@ import {
 } from "../types/common";
 
 const COSMOSDB_URI =
-  "https://qatranslator-kc-cosmosdb.documents.azure.com:443/";
+  "https://qatranslator-je-cosmosdb.documents.azure.com:443/";
 const VAULT_URL = "https://qatranslator-je-vault.vault.azure.net";
 const VAULT_CRYPTOGRAPHY_KEY_NAME = "manual-import-data";
 
