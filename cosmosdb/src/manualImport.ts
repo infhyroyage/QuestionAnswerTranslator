@@ -25,7 +25,7 @@ const main = async () => {
   await createDatabasesAndContainers(initData, cosmosClient);
   console.log("createDatabasesAndContainers: OK");
 
-  // 非localhost環境のみ、CosmosDBのデータベース・コンテナーごとに直列で、手動インポートデータの一部カラムを暗号化
+  // 非localhost環境のみ、CosmosDBのデータベース・コンテナー・項目ごとに直列で、手動インポートデータの一部カラムを暗号化
   const cryptographyClient: CryptographyClient =
     await createCryptographyClient();
   const encryptedInitData: Data = await Object.keys(initData).reduce(
@@ -38,54 +38,50 @@ const main = async () => {
           containerName: string
         ) => {
           const prevDatabaseData: DatabaseData = await prevContainerPromise;
+          prevDatabaseData[containerName] = [];
 
-          // 項目単位では並列で各カラムの暗号化を実行
-          const encryptPromises = initData[databaseName][containerName].map(
-            async (item: Item): Promise<Item> => {
-              const encryptedItem = deepcopy(item);
+          for (const item of initData[databaseName][containerName]) {
+            const encryptedItem: Item = deepcopy(item);
 
-              // UsersデータベースのQuestionコンテナーのCosmos DB未格納の項目において、
-              // 以下のカラムの各要素の値をstring型→Uint8Array型→number[]型として暗号化
-              // ・subjects
-              // ・choices
-              // ・explanations
-              // ・incorrectChoicesExplanationsの各非空文字要素(Optional)
-              if (databaseName === "Users" && containerName === "Question") {
-                encryptedItem.subjects = await encryptStrings2NumberArrays(
-                  item.subjects,
-                  cryptographyClient
-                );
-                encryptedItem.choices = await encryptStrings2NumberArrays(
-                  item.choices,
-                  cryptographyClient
-                );
-                encryptedItem.explanations = await encryptStrings2NumberArrays(
-                  item.explanations,
-                  cryptographyClient
-                );
-                if (item.incorrectChoicesExplanations) {
-                  encryptedItem.incorrectChoiceExplanations = [];
-                  for (const incorrectChoiceExplanations of item.incorrectChoicesExplanations) {
-                    if (incorrectChoiceExplanations) {
-                      const encryptedIncorrectChoiceExplanations: number[][] =
-                        await encryptStrings2NumberArrays(
-                          incorrectChoiceExplanations,
-                          cryptographyClient
-                        );
-                      encryptedItem.incorrectChoiceExplanations.push(
-                        encryptedIncorrectChoiceExplanations
+            // UsersデータベースのQuestionコンテナーのCosmos DB未格納の項目において、
+            // 以下のカラムの各要素の値をstring型→Uint8Array型→number[]型として暗号化
+            // ・subjects
+            // ・choices
+            // ・explanations
+            // ・incorrectChoicesExplanationsの各非空文字要素(Optional)
+            if (databaseName === "Users" && containerName === "Question") {
+              encryptedItem.subjects = await encryptStrings2NumberArrays(
+                item.subjects,
+                cryptographyClient
+              );
+              encryptedItem.choices = await encryptStrings2NumberArrays(
+                item.choices,
+                cryptographyClient
+              );
+              encryptedItem.explanations = await encryptStrings2NumberArrays(
+                item.explanations,
+                cryptographyClient
+              );
+              if (item.incorrectChoicesExplanations) {
+                encryptedItem.incorrectChoiceExplanations = [];
+                for (const incorrectChoiceExplanations of item.incorrectChoicesExplanations) {
+                  if (incorrectChoiceExplanations) {
+                    const encryptedIncorrectChoiceExplanations: number[][] =
+                      await encryptStrings2NumberArrays(
+                        incorrectChoiceExplanations,
+                        cryptographyClient
                       );
-                    } else {
-                      encryptedItem.incorrectChoiceExplanations.push(null);
-                    }
+                    encryptedItem.incorrectChoiceExplanations.push(
+                      encryptedIncorrectChoiceExplanations
+                    );
+                  } else {
+                    encryptedItem.incorrectChoiceExplanations.push(null);
                   }
                 }
               }
-
-              return encryptedItem;
             }
-          );
-          prevDatabaseData[containerName] = await Promise.all(encryptPromises);
+            prevDatabaseData[containerName].push(encryptedItem);
+          }
           console.log(
             `Database ${databaseName}, Container ${containerName}: Encryption OK`
           );
