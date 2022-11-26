@@ -63,7 +63,7 @@ const main = async () => {
                 cryptographyClient
               );
               if (item.incorrectChoicesExplanations) {
-                encryptedItem.incorrectChoiceExplanations = [];
+                encryptedItem.incorrectChoicesExplanations = [];
                 for (const incorrectChoiceExplanations of item.incorrectChoicesExplanations) {
                   if (incorrectChoiceExplanations) {
                     const encryptedIncorrectChoiceExplanations: number[][] =
@@ -71,11 +71,11 @@ const main = async () => {
                         incorrectChoiceExplanations,
                         cryptographyClient
                       );
-                    encryptedItem.incorrectChoiceExplanations.push(
+                    encryptedItem.incorrectChoicesExplanations.push(
                       encryptedIncorrectChoiceExplanations
                     );
                   } else {
-                    encryptedItem.incorrectChoiceExplanations.push(null);
+                    encryptedItem.incorrectChoicesExplanations.push(null);
                   }
                 }
               }
