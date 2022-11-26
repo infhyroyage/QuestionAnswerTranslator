@@ -42,7 +42,7 @@ jobs:
               -SubscriptionId "${{ env.APIM_SUBSCRIPTION_NAME }}"
             $apimSubscriptionKey = $apimFunctionsSubscriptionKey.PrimaryKey
             Write-Output "::add-mask::${apimSubscriptionKey}"
-            Write-Output "::set-output name=apim_subscription_key::${apimSubscriptionKey}"
+            Write-Output "apim_subscription_key=${apimSubscriptionKey}" >> $env:GITHUB_OUTPUT
           azPSVersion: latest
 
       - name: Replace Secure Environment Variables
