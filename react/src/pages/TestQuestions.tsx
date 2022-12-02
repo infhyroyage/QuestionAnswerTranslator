@@ -233,7 +233,7 @@ export const TestQuestions: FC<{}> = () => {
               }
             />
           )}
-          {references.length && (
+          {!!references.length && (
             <>
               <h3>参照</h3>
               <ul>
