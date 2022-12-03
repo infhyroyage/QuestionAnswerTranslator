@@ -8,7 +8,7 @@ import { TestTranslationErrorContent } from "../components/TestTranslationErrorC
 import { useTestInputer } from "../hooks/useTestInputer";
 import { useNextQuestionButton } from "../hooks/useNextQuestionButton";
 import { useTestSubmitter } from "../hooks/useTestSubmitter";
-import { translate } from "../services/deepl";
+import { translate } from "../services/translation";
 import { accessFunctions } from "../services/functions";
 import { GetQuestion, Sentence } from "../types/functions";
 import { TestState } from "../types/state";

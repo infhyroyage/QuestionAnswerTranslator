@@ -1,5 +1,5 @@
 import React, { FC, memo } from "react";
-import { NOT_TRANSLATION_MSG } from "../services/deepl";
+import { NOT_TRANSLATION_MSG } from "../services/translation";
 import { Sentence } from "../types/functions";
 import { TestExplanationIncorrectChoiceContentProps } from "../types/props";
 

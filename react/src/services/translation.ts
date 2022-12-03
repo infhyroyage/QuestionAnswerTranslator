@@ -1,6 +1,11 @@
 import axios, { AxiosResponse } from "axios";
 import { stringify } from "qs";
-import { DeepLResponse, DeepLTranslation } from "../types/translation";
+import {
+  CognitiveResponse,
+  CognitiveTranslation,
+  DeepLResponse,
+  DeepLTranslation,
+} from "../types/translation";
 import { Sentence } from "../types/functions";
 
 /**
@@ -16,7 +21,7 @@ export const NOT_TRANSLATION_MSG = "翻訳できませんでした";
 export const translate = async (sentences: Sentence[]): Promise<string[]> => {
   // 画像URL以外or翻訳エスケープOFFの場合のみ翻訳
   let translatedSentences: string[];
-  const text: string[] = sentences.reduce(
+  const texts: string[] = sentences.reduce(
     (prevText: string[], sentence: Sentence) => {
       if (!sentence.isIndicatedImg && !sentence.isEscapedTranslation) {
         prevText.push(sentence.sentence);
@@ -25,20 +30,19 @@ export const translate = async (sentences: Sentence[]): Promise<string[]> => {
     },
     []
   );
-  if (text.length) {
+  if (texts.length) {
     // DeepLで翻訳
-    // TODO: DeepL無料枠の上限500000文字を超過した場合は456エラーとなり、Azure Cognitiveで翻訳
-    const auth_key = process.env["REACT_APP_DEEPL_AUTH_KEY"];
-    if (!auth_key) {
+    const deepLAuthKey = process.env["REACT_APP_DEEPL_AUTH_KEY"];
+    if (!deepLAuthKey) {
       throw new Error("Unset REACT_APP_DEEPL_AUTH_KEY");
     }
-    const res: AxiosResponse<DeepLResponse, any> =
+    const deepLRes: AxiosResponse<DeepLResponse, any> =
       await axios.get<DeepLResponse>(
         "https://api-free.deepl.com/v2/translate",
         {
           params: {
-            auth_key,
-            text,
+            auth_key: deepLAuthKey,
+            text: texts,
             source_lang: "EN",
             target_lang: "JA",
             split_sentences: "0",
@@ -47,9 +51,42 @@ export const translate = async (sentences: Sentence[]): Promise<string[]> => {
             stringify(params, { arrayFormat: "repeat" }),
         }
       );
-    translatedSentences = res.data.translations.map(
-      (deepLTranslation: DeepLTranslation) => deepLTranslation.text
-    );
+    if (deepLRes.status !== 456) {
+      translatedSentences = deepLRes.data.translations.map(
+        (deepLTranslation: DeepLTranslation) => deepLTranslation.text
+      );
+    } else {
+      // TODO: Custom Hook化してGlobal Stateを用いて切り替え
+      // DeepL無料枠の上限500000文字を超過した場合は456エラーとなるため、Azure Translatorで翻訳
+      const cognitiveKey = process.env["REACT_APP_AZURE_COGNITIVE_KEY"];
+      if (!cognitiveKey) {
+        throw new Error("Unset REACT_APP_AZURE_COGNITIVE_KEY");
+      }
+      const cognitiveRes: AxiosResponse<CognitiveResponse, any> =
+        await axios.post<CognitiveResponse>(
+          "https://api.cognitive.microsofttranslator.com/translate",
+          {
+            headers: {
+              "Ocp-Apim-Subscription-Key": cognitiveKey,
+              "Ocp-Apim-Subscription-Region": "japaneast",
+              "Content-type": "application/json",
+            },
+            params: {
+              "api-version": "3.0",
+              from: "en",
+              to: "ja",
+            },
+            data: texts.map((text: string) => {
+              return { Text: text };
+            }),
+            responseType: "json",
+          }
+        );
+      translatedSentences = cognitiveRes.data.map(
+        (cognitiveTranslation: CognitiveTranslation) =>
+          cognitiveTranslation.translations[0].text
+      );
+    }
   } else {
     translatedSentences = [];
   }

@@ -1,5 +1,5 @@
 import { FC, memo } from "react";
-import { translate } from "../services/deepl";
+import { translate } from "../services/translation";
 import { TestTranslationErrorContentProps } from "../types/props";
 
 export const TestTranslationErrorContent: FC<TestTranslationErrorContentProps> =
