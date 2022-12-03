@@ -12,6 +12,7 @@ env:
   APIM_NAME: qatranslator-je-apim
   APIM_SUBSCRIPTION_NAME: subscriptions-functions
   APP_SERVICE_NAME: qatranslator-je-appservice
+  COGNITIVE_NAME: qatranslator-je-cognitive
   GHCR_IMAGE_NAME: react
   GHCR_REPOSITORY_NAME: qatranslator
   RESOURCE_GROUP: qatranslator-je
@@ -45,11 +46,22 @@ jobs:
             Write-Output "apim_subscription_key=${apimSubscriptionKey}" >> $env:GITHUB_OUTPUT
           azPSVersion: latest
 
+      - name: Get Cognitive Service Account Key
+        id: get_cognitive_key
+        run: |
+          cognitiveKey=(az cognitiveservices account keys list \
+            -g ${{ env.RESOURCE_GROUP }} \
+            -n ${{ env.COGNITIVE_NAME }} \
+            --query "key1" \
+            -o tsv)
+          echo "cognitive_key=${cognitiveKey}" >> $GITHUB_OUTPUT
+
       - name: Replace Secure Environment Variables
         run: |
           sed -i \
             -e 's/VALUE_OF_REACT_APP_API_MANAGEMENT_SUBSCRIPTION_KEY/${{ steps.get_api_management_subscription_key.outputs.apim_subscription_key }}/g' \
             -e 's/VALUE_OF_REACT_APP_AZURE_AD_SP_MSAL_CLIENT_ID/${{ secrets.AZURE_AD_SP_MSAL_CLIENT_ID }}/g' \
+            -e 's/VALUE_OF_REACT_APP_AZURE_COGNITIVE_KEY/${{ steps.get_cognitive_key.outputs.cognitive_key }}/g' \
             -e 's/VALUE_OF_REACT_APP_AZURE_TENANT_ID/${{ secrets.AZURE_TENANT_ID }}/g' \
             -e 's/VALUE_OF_REACT_APP_DEEPL_AUTH_KEY/${{ secrets.DEEPL_AUTH_KEY }}/g' \
             react/.env.production

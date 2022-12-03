@@ -1,24 +1,19 @@
 import axios, { AxiosResponse } from "axios";
 import { stringify } from "qs";
-import { DeepLResponse, Translation } from "../types/deepl";
+import { DeepLResponse, DeepLTranslation } from "../types/translation";
 import { Sentence } from "../types/functions";
 
 /**
- * DeepL翻訳エラー発生時のエラーメッセージ
+ * 翻訳エラー発生時のエラーメッセージ
  */
 export const NOT_TRANSLATION_MSG = "翻訳できませんでした";
 
 /**
- * 指定した英語の文字列群を、DeepL翻訳でそれぞれ日本語に翻訳する
+ * 指定した英語の文字列群を、DeepL翻訳/Azure Translatorでそれぞれ日本語に翻訳する
  * @param {Sentence[]} sentences 翻訳エスケープフラグを含んだ英語の文字列群
  * @returns {Promise<string[]>} 日本語(翻訳エスケープONの場合は英語)の文字列群
  */
 export const translate = async (sentences: Sentence[]): Promise<string[]> => {
-  const auth_key = process.env["REACT_APP_DEEPL_AUTH_KEY"];
-  if (!auth_key) {
-    throw new Error("Unset REACT_APP_DEEPL_AUTH_KEY");
-  }
-
   // 画像URL以外or翻訳エスケープOFFの場合のみ翻訳
   let translatedSentences: string[];
   const text: string[] = sentences.reduce(
@@ -31,6 +26,12 @@ export const translate = async (sentences: Sentence[]): Promise<string[]> => {
     []
   );
   if (text.length) {
+    // DeepLで翻訳
+    // TODO: DeepL無料枠の上限500000文字を超過した場合は456エラーとなり、Azure Cognitiveで翻訳
+    const auth_key = process.env["REACT_APP_DEEPL_AUTH_KEY"];
+    if (!auth_key) {
+      throw new Error("Unset REACT_APP_DEEPL_AUTH_KEY");
+    }
     const res: AxiosResponse<DeepLResponse, any> =
       await axios.get<DeepLResponse>(
         "https://api-free.deepl.com/v2/translate",
@@ -47,7 +48,7 @@ export const translate = async (sentences: Sentence[]): Promise<string[]> => {
         }
       );
     translatedSentences = res.data.translations.map(
-      (translation: Translation) => translation.text
+      (deepLTranslation: DeepLTranslation) => deepLTranslation.text
     );
   } else {
     translatedSentences = [];
