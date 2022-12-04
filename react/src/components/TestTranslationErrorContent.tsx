@@ -1,9 +1,16 @@
 import { FC, memo } from "react";
-import { translate } from "../services/translation";
+import { useRecoilState } from "recoil";
+import {
+  translateByCognitive,
+  translateByDeepL,
+} from "../services/translation";
+import { translation } from "../store/translation";
 import { TestTranslationErrorContentProps } from "../types/props";
 
 export const TestTranslationErrorContent: FC<TestTranslationErrorContentProps> =
   memo((props: TestTranslationErrorContentProps) => {
+    const [translatedState, setTranslatedState] = useRecoilState(translation);
+
     const { sentences, setTranslatedSentences, setIsNotTranslatedSentences } =
       props;
 
@@ -11,9 +18,24 @@ export const TestTranslationErrorContent: FC<TestTranslationErrorContentProps> =
       setIsNotTranslatedSentences(false);
       setTranslatedSentences([]);
 
+      let translationsByDeepL: string[] | undefined;
+      let translationsByCognitive: string[];
       try {
-        const translatedSentences: string[] = await translate(sentences);
-        setTranslatedSentences(translatedSentences);
+        if (translatedState.isTranslatedByAzureCognitive) {
+          translationsByCognitive = await translateByCognitive(sentences);
+          setTranslatedSentences(translationsByCognitive);
+        } else {
+          translationsByDeepL = await translateByDeepL(sentences);
+          if (translationsByDeepL === undefined) {
+            translationsByCognitive = await translateByCognitive(sentences);
+            setTranslatedSentences(translationsByCognitive);
+            setTranslatedState({
+              isTranslatedByAzureCognitive: true,
+            });
+          } else {
+            setTranslatedSentences(translationsByDeepL);
+          }
+        }
       } catch (e) {
         setTranslatedSentences(undefined);
         setIsNotTranslatedSentences(true);

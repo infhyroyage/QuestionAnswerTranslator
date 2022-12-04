@@ -8,10 +8,15 @@ import { TestTranslationErrorContent } from "../components/TestTranslationErrorC
 import { useTestInputer } from "../hooks/useTestInputer";
 import { useNextQuestionButton } from "../hooks/useNextQuestionButton";
 import { useTestSubmitter } from "../hooks/useTestSubmitter";
-import { translate } from "../services/translation";
+import {
+  translateByCognitive,
+  translateByDeepL,
+} from "../services/translation";
 import { accessFunctions } from "../services/functions";
+import { translation } from "../store/translation";
 import { GetQuestion, Sentence } from "../types/functions";
 import { TestState } from "../types/state";
+import { useRecoilState } from "recoil";
 
 const INIT_GET_QESTION_RES = {
   subjects: [],
@@ -33,6 +38,7 @@ export const TestQuestions: FC<{}> = () => {
     useState<boolean>(false);
   const [isNotTranslatedExplanations, setIsNotTranslatedExplanations] =
     useState<boolean>(false);
+  const [translatedState, setTranslatedState] = useRecoilState(translation);
 
   const { instance, accounts } = useMsal();
   const accountInfo = useAccount(accounts[0] || {});
@@ -94,15 +100,30 @@ export const TestQuestions: FC<{}> = () => {
     getQuestionRes.subjects.length &&
       getQuestionRes.choices.length &&
       (async () => {
-        // subjects、choicesそれぞれの文字列に対してDeepL翻訳を複数回行わず、
-        // subjects、choicesの順で配列を作成した文字列に対してDeepL翻訳を1回のみ行う
+        // subjects、choicesそれぞれの文字列に対して翻訳を複数回行わず、
+        // subjects、choicesの順で配列を作成した文字列に対して翻訳を1回のみ行う
         const sentences: Sentence[] = [
           ...getQuestionRes.subjects,
           ...getQuestionRes.choices,
         ];
+        let translationsByDeepL: string[] | undefined;
+        let translationsByCognitive: string[];
         try {
-          const translatedStrings: string[] = await translate(sentences);
-          setTranslatedQuestions(translatedStrings);
+          if (translatedState.isTranslatedByAzureCognitive) {
+            translationsByCognitive = await translateByCognitive(sentences);
+            setTranslatedQuestions(translationsByCognitive);
+          } else {
+            translationsByDeepL = await translateByDeepL(sentences);
+            if (translationsByDeepL === undefined) {
+              translationsByCognitive = await translateByCognitive(sentences);
+              setTranslatedQuestions(translationsByCognitive);
+              setTranslatedState({
+                isTranslatedByAzureCognitive: true,
+              });
+            } else {
+              setTranslatedQuestions(translationsByDeepL);
+            }
+          }
         } catch (e) {
           setTranslatedQuestions(undefined);
           setIsNotTranslatedQuestions(true);
@@ -114,8 +135,8 @@ export const TestQuestions: FC<{}> = () => {
   useEffect(() => {
     explanationSentences.overall.length &&
       (async () => {
-        // overall、incorrectChoices内のそれぞれの文字列に対してDeepL翻訳を複数回行わず、
-        // overall、incorrectChoices内の順で配列を作成した文字列に対してDeepL翻訳を1回のみ行う
+        // overall、incorrectChoices内のそれぞれの文字列に対して翻訳を複数回行わず、
+        // overall、incorrectChoices内の順で配列を作成した文字列に対して翻訳を1回のみ行う
         const sentences: Sentence[] = Object.keys(
           explanationSentences.incorrectChoices
         ).reduce(
@@ -125,9 +146,24 @@ export const TestQuestions: FC<{}> = () => {
             ),
           [...explanationSentences.overall]
         );
+        let translationsByDeepL: string[] | undefined;
+        let translationsByCognitive: string[];
         try {
-          const translatedStrings: string[] = await translate(sentences);
-          setTranslatedExplanations(translatedStrings);
+          if (translatedState.isTranslatedByAzureCognitive) {
+            translationsByCognitive = await translateByCognitive(sentences);
+            setTranslatedExplanations(translationsByCognitive);
+          } else {
+            translationsByDeepL = await translateByDeepL(sentences);
+            if (translationsByDeepL === undefined) {
+              translationsByCognitive = await translateByCognitive(sentences);
+              setTranslatedExplanations(translationsByCognitive);
+              setTranslatedState({
+                isTranslatedByAzureCognitive: true,
+              });
+            } else {
+              setTranslatedExplanations(translationsByDeepL);
+            }
+          }
         } catch (e) {
           setTranslatedExplanations(undefined);
           setIsNotTranslatedExplanations(true);
