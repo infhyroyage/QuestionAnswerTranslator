@@ -8,6 +8,7 @@
 | -------------------------------- | -------------------------------------------------------------------------- | :-----------------: |
 | `qatranslator-je-appservice`     | ユーザーからアクセスする App Service                                       |          o          |
 | `qatranslator-je-appserviceplan` | App Service のプラン                                                       |                     |
+| `qatranslator-je-cognitive`      | ユーザーから DeepL の無料枠を超過した場合のみアクセスする Translator       |                     |
 | `qatranslator-je-apim`           | ユーザー/App Service からアクセスする API Management                       |          o          |
 | `qatranslator-je-func`           | API Management からアクセスする Functions                                  |          o          |
 | `qatranslator-je-funcplan`       | Functions のプラン                                                         |                     |
@@ -180,6 +181,7 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localh
 2. 以下を記述したファイル`.env.local`を QuestionAnswerTranslator リポジトリの react ディレクトリ配下に保存する。
    ```
    REACT_APP_AZURE_AD_SP_MSAL_CLIENT_ID=(初期構築時にGitHubへ登録したシークレットAZURE_AD_SP_MSAL_CLIENT_IDの値)
+   REACT_APP_AZURE_COGNITIVE_KEY=(初期構築時にデプロイしたqatranslator-je-cognitiveのキー値)
    REACT_APP_AZURE_TENANT_ID=(初期構築時にGitHubへ登録したシークレットAZURE_TENANT_IDの値)
    REACT_APP_DEEPL_AUTH_KEY=(初期構築時にGitHubへ登録したシークレットDEEPL_AUTH_KEYの値)
    ```
