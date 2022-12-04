@@ -19,8 +19,7 @@ export const NOT_TRANSLATION_MSG = "翻訳できませんでした";
  * @returns {Promise<string[]>} 日本語(翻訳エスケープONの場合は英語)の文字列群
  */
 export const translate = async (sentences: Sentence[]): Promise<string[]> => {
-  // 画像URL以外or翻訳エスケープOFFの場合のみ翻訳
-  let translatedSentences: string[];
+  // 画像URLではない、かつ、翻訳エスケープOFFの場合のみ翻訳対象
   const texts: string[] = sentences.reduce(
     (prevText: string[], sentence: Sentence) => {
       if (!sentence.isIndicatedImg && !sentence.isEscapedTranslation) {
@@ -30,6 +29,8 @@ export const translate = async (sentences: Sentence[]): Promise<string[]> => {
     },
     []
   );
+
+  let translatedTexts: string[] = [];
   if (texts.length) {
     // DeepLで翻訳
     const deepLAuthKey = process.env["REACT_APP_DEEPL_AUTH_KEY"];
@@ -52,7 +53,7 @@ export const translate = async (sentences: Sentence[]): Promise<string[]> => {
         }
       );
     if (deepLRes.status !== 456) {
-      translatedSentences = deepLRes.data.translations.map(
+      translatedTexts = deepLRes.data.translations.map(
         (deepLTranslation: DeepLTranslation) => deepLTranslation.text
       );
     } else {
@@ -82,13 +83,11 @@ export const translate = async (sentences: Sentence[]): Promise<string[]> => {
             responseType: "json",
           }
         );
-      translatedSentences = cognitiveRes.data.map(
+      translatedTexts = cognitiveRes.data.map(
         (cognitiveTranslation: CognitiveTranslation) =>
           cognitiveTranslation.translations[0].text
       );
     }
-  } else {
-    translatedSentences = [];
   }
 
   // 画像URLor翻訳エスケープONの場合は、そのまま英語の文字列を返す
@@ -97,7 +96,7 @@ export const translate = async (sentences: Sentence[]): Promise<string[]> => {
     const translatedSentence: string | undefined =
       sentence.isIndicatedImg || sentence.isEscapedTranslation
         ? sentence.sentence
-        : translatedSentences.shift();
+        : translatedTexts.shift();
 
     // 内部矛盾エラーチェック
     if (!translatedSentence) throw new Error("Invalid sentences");
