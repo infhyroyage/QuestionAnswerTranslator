@@ -13,7 +13,7 @@ export const Router: FC<{}> = () => {
       <Route path="/" element={<LoginMyPage />} />
       <Route path="/tests/:testId" element={<TestReady />} />
       <Route path="/tests/:testId/questions" element={<TestQuestions />} />
-      <Route path="/tests/:testId/result" element={<TestResult />} />
+      <Route path="/tests/result" element={<TestResult />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

@@ -1,13 +1,20 @@
 import { useAccount, useMsal } from "@azure/msal-react";
 import { useState } from "react";
 import { accessFunctions } from "../services/functions";
-import { ExplanationSentences, GetQuestionAnswer } from "../types/functions";
+import {
+  ExplanationSentences,
+  GetQuestion,
+  GetQuestionAnswer,
+  Sentence,
+} from "../types/functions";
 import { useParams } from "react-router-dom";
+import { ProgressState } from "../types/state";
 
 const INIT_EXPLANATION_SENTENCES = { overall: [], incorrectChoices: {} };
 
 export const useTestSubmitter = (
-  questionNumber: number,
+  getQuestionRes: GetQuestion,
+  selectedIdxes: number[],
   disableTestInputer: () => void
 ) => {
   const [correctIdxes, setCorrectIdxes] = useState<number[]>([]);
@@ -31,12 +38,42 @@ export const useTestSubmitter = (
     disableTestInputer();
 
     // 初回レンダリング時のみ[GET] /tests/{testId}/questions/{questionNumber}/answerを実行
+    const progressState: ProgressState = JSON.parse(
+      localStorage.getItem("progress") as string
+    );
     const res: GetQuestionAnswer = await accessFunctions<GetQuestionAnswer>(
       "GET",
-      `/tests/${testId}/questions/${questionNumber}/answer`,
+      `/tests/${testId}/questions/${progressState.answers.length + 1}/answer`,
       instance,
       accountInfo
     );
+
+    // 回答結果を更新
+    const subjectConcatSentence: string = getQuestionRes.subjects.reduce(
+      (prevSubjectConcatSentence: string, subject: Sentence) =>
+        prevSubjectConcatSentence === ""
+          ? `${prevSubjectConcatSentence} ${subject.sentence}`
+          : subject.sentence,
+      ""
+    );
+    const choiceSentences: string[] = selectedIdxes.map(
+      (selectedIdx: number) => getQuestionRes.choices[selectedIdx].sentence
+    );
+    const correctChoiceSentences: string[] = correctIdxes.map(
+      (correctIdx: number) => getQuestionRes.choices[correctIdx].sentence
+    );
+    const updatedProgressState: ProgressState = {
+      ...progressState,
+      answers: [
+        ...progressState.answers,
+        {
+          subjectConcatSentence,
+          choiceSentences,
+          correctChoiceSentences,
+        },
+      ],
+    };
+    localStorage.setItem("progress", JSON.stringify(updatedProgressState));
 
     setCorrectIdxes(res.correctIdxes);
     setExplanationSentences(res.explanations);

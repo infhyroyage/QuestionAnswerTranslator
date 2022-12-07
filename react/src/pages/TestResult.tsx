@@ -1,12 +1,11 @@
 import { AuthenticatedTemplate } from "@azure/msal-react";
 import { FC } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Answer, TestResultState } from "../types/state";
+import { Answer, ProgressState } from "../types/state";
 
 export const TestResult: FC<{}> = () => {
   const location = useLocation();
-  const { testName, testLength, answerProgress } =
-    location.state as TestResultState;
+  const { testName, testLength, answers } = location.state as ProgressState;
 
   return (
     <AuthenticatedTemplate>
@@ -15,7 +14,7 @@ export const TestResult: FC<{}> = () => {
         正答率
         {(
           (100.0 *
-            answerProgress.filter(
+            answers.filter(
               (answer: Answer) =>
                 answer.choiceSentences.toString() ===
                 answer.correctChoiceSentences.toString()
@@ -27,7 +26,7 @@ export const TestResult: FC<{}> = () => {
       <p>
         (全{testLength}問中
         {
-          answerProgress.filter(
+          answers.filter(
             (answer: Answer) =>
               answer.choiceSentences.toString() ===
               answer.correctChoiceSentences.toString()
@@ -38,7 +37,7 @@ export const TestResult: FC<{}> = () => {
       <Link to="/">タイトルへ</Link>
       <div style={{ paddingTop: "28px" }}>
         <h2>回答詳細</h2>
-        {answerProgress.map((answer: Answer, idx: number) => (
+        {answers.map((answer: Answer, idx: number) => (
           <div key={`result_${idx}`} style={{ paddingBottom: "7px" }}>
             <h4
               style={{

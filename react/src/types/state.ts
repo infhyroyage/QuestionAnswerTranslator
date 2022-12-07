@@ -8,7 +8,7 @@ export type Answer = {
   choiceSentences: string[];
   correctChoiceSentences: string[];
 };
-
-export type TestResultState = TestState & {
-  answerProgress: Answer[];
+export type ProgressState = TestState & {
+  testId: string;
+  answers: Answer[];
 };

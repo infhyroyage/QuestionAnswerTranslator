@@ -10,14 +10,36 @@ export const TestReady: FC<{}> = () => {
   const { testId } = useParams();
 
   const navigate = useNavigate();
+
+  const progressStr: string | null = localStorage.getItem("progress");
+
+  const isResumed: boolean =
+    !!progressStr &&
+    JSON.parse(progressStr).testId === testId &&
+    JSON.parse(progressStr).answers.length > 0;
+
   const onClickStartButton = () => {
-    navigate(`/tests/${testId}/questions`, { state: location.state });
+    localStorage.setItem(
+      "progress",
+      progressStr && isResumed
+        ? progressStr
+        : JSON.stringify({
+            testId: `${testId}`,
+            testName,
+            testLength,
+            answers: [],
+          })
+    );
+    navigate(`/tests/${testId}/questions`);
   };
 
   return (
     <AuthenticatedTemplate>
       <h1>{testName}</h1>
       <h2>全{testLength}問</h2>
+      {isResumed && (
+        <p style={{ color: "red" }}>※最後に回答した問題の直後から開始します</p>
+      )}
       <button onClick={onClickStartButton} disabled={!testId}>
         開始
       </button>

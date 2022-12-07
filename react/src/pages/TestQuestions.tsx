@@ -1,12 +1,10 @@
 import { AuthenticatedTemplate, useAccount, useMsal } from "@azure/msal-react";
 import { FC, useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
 import { TestChoiceContent } from "../components/TestChoiceContent";
 import { TestExplanationIncorrectChoiceContent } from "../components/TestExplanationIncorrectChoiceContent";
 import { TestSentenceContent } from "../components/TestSentenceContent";
 import { TestTranslationErrorContent } from "../components/TestTranslationErrorContent";
 import { useTestInputer } from "../hooks/useTestInputer";
-import { useNextQuestionButton } from "../hooks/useNextQuestionButton";
 import { useTestSubmitter } from "../hooks/useTestSubmitter";
 import {
   translateByCognitive,
@@ -15,8 +13,9 @@ import {
 import { accessFunctions } from "../services/functions";
 import { translation } from "../store/translation";
 import { GetQuestion, Sentence } from "../types/functions";
-import { TestState } from "../types/state";
+import { ProgressState } from "../types/state";
 import { useRecoilState } from "recoil";
+import { useNavigate } from "react-router-dom";
 
 const INIT_GET_QESTION_RES = {
   subjects: [],
@@ -25,7 +24,15 @@ const INIT_GET_QESTION_RES = {
 };
 
 export const TestQuestions: FC<{}> = () => {
-  const [questionNumber, setQuestionNumber] = useState<number>(1);
+  const progressState: ProgressState = JSON.parse(
+    localStorage.getItem("progress") as string
+  );
+  const { testId, testName, testLength } = progressState;
+  const initialQuestionNumber = progressState.answers.length + 1;
+
+  const [questionNumber, setQuestionNumber] = useState<number>(
+    initialQuestionNumber
+  );
   const [getQuestionRes, setGetQuestionRes] =
     useState<GetQuestion>(INIT_GET_QESTION_RES);
   const [translatedQuestions, setTranslatedQuestions] = useState<
@@ -38,15 +45,13 @@ export const TestQuestions: FC<{}> = () => {
     useState<boolean>(false);
   const [isNotTranslatedExplanations, setIsNotTranslatedExplanations] =
     useState<boolean>(false);
+
   const [translatedState, setTranslatedState] = useRecoilState(translation);
 
   const { instance, accounts } = useMsal();
   const accountInfo = useAccount(accounts[0] || {});
 
-  const location = useLocation();
-  const { testName, testLength } = location.state as TestState;
-
-  const { testId } = useParams();
+  const navigate = useNavigate();
 
   const {
     selectedIdxes,
@@ -63,7 +68,7 @@ export const TestQuestions: FC<{}> = () => {
     references,
     initializeTestSubmitter,
     onClickSubmitButton,
-  } = useTestSubmitter(questionNumber, disableTestInputer);
+  } = useTestSubmitter(getQuestionRes, selectedIdxes, disableTestInputer);
 
   const updateNextQuestion = () => {
     initializeTestSubmitter();
@@ -73,14 +78,6 @@ export const TestQuestions: FC<{}> = () => {
     initializeTestInputer();
     setQuestionNumber(questionNumber + 1);
   };
-
-  const onClickNextQuestionButton = useNextQuestionButton(
-    questionNumber,
-    getQuestionRes,
-    selectedIdxes,
-    correctIdxes,
-    updateNextQuestion
-  );
 
   // 初回レンダリング時のみ[GET] /tests/{testId}/questions/{questionNumber}を実行
   useEffect(() => {
@@ -170,6 +167,20 @@ export const TestQuestions: FC<{}> = () => {
         }
       })();
   }, [explanationSentences]);
+
+  const onClickNextQuestionButton = async () => {
+    const state: ProgressState = JSON.parse(
+      localStorage.getItem("progress") as string
+    );
+    if (state.testLength === state.answers.length) {
+      // 結果へ遷移
+      localStorage.removeItem("progress");
+      navigate(`/tests/result`, { state });
+    } else {
+      // 次問題へ遷移
+      updateNextQuestion();
+    }
+  };
 
   return (
     <AuthenticatedTemplate>
