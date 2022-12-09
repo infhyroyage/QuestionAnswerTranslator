@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { stringify } from "qs";
 import {
   CognitiveResponse,
@@ -39,28 +39,37 @@ export const translateByDeepL = async (
 
   let translatedTexts: string[] = [];
   if (text.length) {
-    const res: AxiosResponse<DeepLResponse, any> =
-      await axios.get<DeepLResponse>(
-        "https://api-free.deepl.com/v2/translate",
-        {
-          params: {
-            auth_key,
-            text,
-            source_lang: "EN",
-            target_lang: "JA",
-            split_sentences: "0",
-          },
-          paramsSerializer: (params) =>
-            stringify(params, { arrayFormat: "repeat" }),
-        }
+    try {
+      const res: AxiosResponse<DeepLResponse, any> =
+        await axios.get<DeepLResponse>(
+          "https://api-free.deepl.com/v2/translate",
+          {
+            params: {
+              auth_key,
+              text,
+              source_lang: "EN",
+              target_lang: "JA",
+              split_sentences: "0",
+            },
+            paramsSerializer: (params) =>
+              stringify(params, { arrayFormat: "repeat" }),
+          }
+        );
+      translatedTexts = res.data.translations.map(
+        (deepLTranslation: DeepLTranslation) => deepLTranslation.text
       );
-
-    // DeepL無料枠の上限500000文字を超過した場合は456エラーとなるため、Azure Translatorで翻訳するよう切替え
-    if (res.status === 456) return undefined;
-
-    translatedTexts = res.data.translations.map(
-      (deepLTranslation: DeepLTranslation) => deepLTranslation.text
-    );
+    } catch (error) {
+      if (
+        axios.isAxiosError(error) &&
+        error.response &&
+        error.response.status === 456
+      ) {
+        // DeepL無料枠の上限500000文字を超過した場合は456エラーとなるため、Azure Translatorで翻訳するよう切替え
+        return undefined;
+      } else {
+        throw error;
+      }
+    }
   }
 
   // 画像URLor翻訳エスケープONの場合は、そのまま英語の文字列を返す
