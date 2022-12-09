@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
 import { stringify } from "qs";
 import {
   CognitiveResponse,
@@ -116,18 +116,18 @@ export const translateByCognitive = async (
     const cognitiveRes: AxiosResponse<CognitiveResponse, any> =
       await axios.post<CognitiveResponse>(
         "https://api.cognitive.microsofttranslator.com/translate",
+        data,
         {
           headers: {
             "Ocp-Apim-Subscription-Key": cognitiveKey,
             "Ocp-Apim-Subscription-Region": "japaneast",
-            "Content-type": "application/json",
+            "Content-Type": "application/json",
           },
           params: {
             "api-version": "3.0",
             from: "en",
-            to: "ja",
+            to: ["ja"],
           },
-          data,
           responseType: "json",
         }
       );
