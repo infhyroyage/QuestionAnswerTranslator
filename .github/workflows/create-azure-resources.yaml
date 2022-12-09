@@ -126,11 +126,13 @@ jobs:
       - name: Get Cognitive Service Account Key
         id: get_cognitive_key
         run: |
-          cognitiveKey=(az cognitiveservices account keys list \
-            -g ${{ env.RESOURCE_GROUP }} \
-            -n ${{ env.COGNITIVE_NAME }} \
-            --query "key1" \
-            -o tsv)
+          cognitiveKey=$( \
+            az cognitiveservices account keys list \
+              -g ${{ env.RESOURCE_GROUP }} \
+              -n ${{ env.COGNITIVE_NAME }} \
+              --query "key1" \
+              -o tsv \
+          )
           echo "cognitive_key=${cognitiveKey}" >> $GITHUB_OUTPUT
 
       - name: Replace Secure Environment Variables
