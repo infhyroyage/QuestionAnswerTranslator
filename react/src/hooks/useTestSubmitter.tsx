@@ -59,7 +59,7 @@ export const useTestSubmitter = (
     const choiceSentences: string[] = selectedIdxes.map(
       (selectedIdx: number) => getQuestionRes.choices[selectedIdx].sentence
     );
-    const correctChoiceSentences: string[] = correctIdxes.map(
+    const correctChoiceSentences: string[] = res.correctIdxes.map(
       (correctIdx: number) => getQuestionRes.choices[correctIdx].sentence
     );
     const updatedProgressState: ProgressState = {
