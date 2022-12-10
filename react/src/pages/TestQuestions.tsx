@@ -70,15 +70,6 @@ export const TestQuestions: FC<{}> = () => {
     onClickSubmitButton,
   } = useTestSubmitter(getQuestionRes, selectedIdxes, disableTestInputer);
 
-  const updateNextQuestion = () => {
-    initializeTestSubmitter();
-    setTranslatedQuestions([]);
-    setGetQuestionRes(INIT_GET_QESTION_RES);
-    setTranslatedExplanations([]);
-    initializeTestInputer();
-    setQuestionNumber(questionNumber + 1);
-  };
-
   // 初回レンダリング時のみ[GET] /tests/{testId}/questions/{questionNumber}を実行
   useEffect(() => {
     (async () => {
@@ -178,7 +169,12 @@ export const TestQuestions: FC<{}> = () => {
       navigate(`/tests/result`, { state });
     } else {
       // 次問題へ遷移
-      updateNextQuestion();
+      initializeTestSubmitter();
+      setTranslatedQuestions([]);
+      setGetQuestionRes(INIT_GET_QESTION_RES);
+      setTranslatedExplanations([]);
+      initializeTestInputer();
+      setQuestionNumber(questionNumber + 1);
     }
   };
 
