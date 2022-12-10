@@ -53,7 +53,6 @@ export const TestResult: FC<{}> = () => {
                 answer.correctChoiceSentences.toString() && "不"}
               正解)
             </h4>
-            <p>{answer.subjectConcatSentence}</p>
             <ul>
               <li>選択肢</li>
               <ul>

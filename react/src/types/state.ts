@@ -4,7 +4,6 @@ export type TestState = {
 };
 
 export type Answer = {
-  subjectConcatSentence: string;
   choiceSentences: string[];
   correctChoiceSentences: string[];
 };

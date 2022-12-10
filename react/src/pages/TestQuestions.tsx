@@ -68,7 +68,11 @@ export const TestQuestions: FC<{}> = () => {
     references,
     initializeTestSubmitter,
     onClickSubmitButton,
-  } = useTestSubmitter(getQuestionRes, selectedIdxes, disableTestInputer);
+  } = useTestSubmitter(
+    getQuestionRes.choices,
+    selectedIdxes,
+    disableTestInputer
+  );
 
   // 初回レンダリング時のみ[GET] /tests/{testId}/questions/{questionNumber}を実行
   useEffect(() => {

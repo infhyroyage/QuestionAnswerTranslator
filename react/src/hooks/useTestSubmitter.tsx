@@ -3,7 +3,6 @@ import { useState } from "react";
 import { accessFunctions } from "../services/functions";
 import {
   ExplanationSentences,
-  GetQuestion,
   GetQuestionAnswer,
   Sentence,
 } from "../types/functions";
@@ -13,7 +12,7 @@ import { ProgressState } from "../types/state";
 const INIT_EXPLANATION_SENTENCES = { overall: [], incorrectChoices: {} };
 
 export const useTestSubmitter = (
-  getQuestionRes: GetQuestion,
+  choices: Sentence[],
   selectedIdxes: number[],
   disableTestInputer: () => void
 ) => {
@@ -48,26 +47,18 @@ export const useTestSubmitter = (
       accountInfo
     );
 
-    // 回答結果を更新
-    const subjectConcatSentence: string = getQuestionRes.subjects.reduce(
-      (prevSubjectConcatSentence: string, subject: Sentence) =>
-        prevSubjectConcatSentence === ""
-          ? `${prevSubjectConcatSentence} ${subject.sentence}`
-          : subject.sentence,
-      ""
-    );
+    // 回答結果をLocal Storageに一時保存
     const choiceSentences: string[] = selectedIdxes.map(
-      (selectedIdx: number) => getQuestionRes.choices[selectedIdx].sentence
+      (selectedIdx: number) => choices[selectedIdx].sentence
     );
     const correctChoiceSentences: string[] = res.correctIdxes.map(
-      (correctIdx: number) => getQuestionRes.choices[correctIdx].sentence
+      (correctIdx: number) => choices[correctIdx].sentence
     );
     const updatedProgressState: ProgressState = {
       ...progressState,
       answers: [
         ...progressState.answers,
         {
-          subjectConcatSentence,
           choiceSentences,
           correctChoiceSentences,
         },
