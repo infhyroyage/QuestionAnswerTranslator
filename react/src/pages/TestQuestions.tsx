@@ -227,9 +227,11 @@ export const TestQuestions: FC<{}> = () => {
       </div>
       {correctIdxes.length > 0 && (
         <div style={{ paddingTop: "28px" }}>
-          <h2>
-            {correctIdxes.toString() !== selectedIdxes.toString() && "不"}正解
-          </h2>
+          {correctIdxes.toString() === selectedIdxes.toString() ? (
+            <h2>正解</h2>
+          ) : (
+            <h2 style={{ color: "red" }}>不正解</h2>
+          )}
           <button
             onClick={onClickNextQuestionButton}
             style={{ marginTop: "7px" }}
