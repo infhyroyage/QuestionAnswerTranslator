@@ -5,7 +5,7 @@
     "azureADSPContributorObjectId": {
       "type": "securestring"
     },
-    "azureADGlobalAdminEmail": {
+    "azureApimPublisherEmail": {
       "type": "string"
     },
     "azureADOwnerObjectId": {
@@ -88,7 +88,7 @@
           "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Protocols.Tls10": "false",
           "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Protocols.Tls11": "false"
         },
-        "publisherEmail": "[parameters('azureADGlobalAdminEmail')]",
+        "publisherEmail": "[parameters('azureApimPublisherEmail')]",
         "publisherName": "[variables('apim').orgName]"
       },
       "resources": [
