@@ -34,6 +34,17 @@ jobs:
         with:
           creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
+      - name: Get Azure AD Object ID Owned Contributor
+        id: get_azure_ad_owner_object_id
+        run: |
+          azureADOwnerObjectId=$( \
+            az ad app owner list \
+              --id ${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID  }} \
+              --query "[0].id" \
+              -o tsv \
+          )
+          echo "azure_ad_owner_object_id=${azureADOwnerObjectId}" >> $GITHUB_OUTPUT
+
       - name: Create Resource Group if Needed
         run: |
           az group create \
@@ -48,7 +59,7 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
           template: ./resources/base.json
-          parameters: azureADSPContributorObjectId=${{ secrets.AZURE_AD_SP_CONTRIBUTOR_OBJECT_ID }} azureADGlobalAdminEmail=${{ secrets.AZURE_AD_GLOBAL_ADMIN_EMAIL }} azureADGlobalAdminObjectId=${{ secrets.AZURE_AD_GLOBAL_ADMIN_OBJECT_ID }} githubToken=${{ secrets.GHCR_PAT_READ_PACKAGES }} githubUsername=${{ github.actor }}
+          parameters: azureADSPContributorObjectId=${{ secrets.AZURE_AD_SP_CONTRIBUTOR_OBJECT_ID }} azureADGlobalAdminEmail=${{ secrets.AZURE_AD_GLOBAL_ADMIN_EMAIL }} azureADOwnerObjectId=${{ steps.get_azure_ad_owner_object_id.outputs.azure_ad_owner_object_id }} githubToken=${{ secrets.GHCR_PAT_READ_PACKAGES }} githubUsername=${{ github.actor }}
 
   deploy-apim:
     runs-on: ubuntu-latest

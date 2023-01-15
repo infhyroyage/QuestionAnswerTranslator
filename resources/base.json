@@ -8,7 +8,7 @@
     "azureADGlobalAdminEmail": {
       "type": "string"
     },
-    "azureADGlobalAdminObjectId": {
+    "azureADOwnerObjectId": {
       "type": "securestring"
     },
     "githubToken": {
@@ -465,7 +465,7 @@
             }
           },
           {
-            "objectId": "[parameters('azureADGlobalAdminObjectId')]",
+            "objectId": "[parameters('azureADOwnerObjectId')]",
             "tenantId": "[tenant().tenantId]",
             "permissions": {
               "keys": [
