@@ -1,6 +1,5 @@
 import { CryptographyClient } from "@azure/keyvault-keys";
 import deepcopy from "deepcopy";
-import manualImportJson from "../data/manualImport.json";
 import { Data, DatabaseData, Item } from "../types/common";
 import {
   createDatabasesAndContainers,
@@ -13,19 +12,14 @@ import {
 
 const main = async () => {
   // 手動インポートデータ作成
-  const cosmosReadonlyClient = await generateCosmosClient(true);
+  const cosmosClient = await generateCosmosClient();
   const initData: Data = await createManualImportData(
     manualImportJson,
-    cosmosReadonlyClient
+    cosmosClient
   );
   console.log("createManualImportData: OK");
 
-  // 各データベース・コンテナー作成
-  const cosmosClient = await generateCosmosClient(false);
-  await createDatabasesAndContainers(initData, cosmosClient);
-  console.log("createDatabasesAndContainers: OK");
-
-  // 非localhost環境のみ、CosmosDBのデータベース・コンテナー・項目ごとに直列で、手動インポートデータの一部カラムを暗号化
+  // 非ローカル環境のみ、CosmosDBのデータベース・コンテナー・項目ごとに直列で、手動インポートデータの一部カラムを暗号化
   const cryptographyClient: CryptographyClient =
     await createCryptographyClient();
   const encryptedInitData: Data = await Object.keys(initData).reduce(
