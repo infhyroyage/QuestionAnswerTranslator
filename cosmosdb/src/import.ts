@@ -4,7 +4,7 @@ import {
   createDatabasesAndContainers,
   generateCosmosClient,
   createImportData,
-  importIntoTestContainer,
+  importTestItems,
   generateTestItems,
 } from "./common";
 
@@ -18,13 +18,13 @@ const main = async () => {
   await createDatabasesAndContainers(cosmosClient);
   console.log("createDatabasesAndContainers: OK");
 
-  // UsersテータベースのTestコンテナー未格納の項目を生成
+  // UsersテータベースのTestコンテナーの項目を生成
   const testItems: Test[] = await generateTestItems(importData, cosmosClient);
-  console.log("generateNonInsertedTestItems: OK");
+  console.log("generateTestItems: OK");
 
-  // UsersテータベースのTestコンテナー未格納の項目をインポート
-  await importIntoTestContainer(testItems, cosmosClient);
-  console.log("importIntoTestContainer: OK");
+  // UsersテータベースのTestコンテナーの項目をインポート
+  await importTestItems(testItems, cosmosClient);
+  console.log("importTestItems: OK");
 
   // 手動インポートデータ作成
   // const manualImportData: Data = await createManualImportData(

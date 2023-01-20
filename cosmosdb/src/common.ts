@@ -133,57 +133,54 @@ export const createDatabasesAndContainers = async (
 };
 
 /**
- * インポートデータからUsersテータベースのTestコンテナー未格納の項目を生成する
+ * インポートデータからUsersテータベースのTestコンテナーの項目を生成する
  * @param {ImportData} importData インポートデータ
  * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
- * @returns {Promise<Test[]>} UsersテータベースのTestコンテナー未格納の項目
+ * @returns {Promise<Test[]>} UsersテータベースのTestコンテナーの項目
  */
 export const generateTestItems = async (
   importData: ImportData,
   cosmosClient: CosmosClient
 ): Promise<Test[]> => {
-  type CourseAndTestName = Pick<Test, "courseName" | "testName">;
-
-  // UsersテータベースのTestコンテナーをquery
-  let insertedCourseAndTestNames: string[];
+  // UsersテータベースのTestコンテナーをreadAll
+  let insertedTestItems: Test[];
   try {
-    const query: SqlQuerySpec = {
-      query: "SELECT c.courseName, c.testName FROM c",
-    };
-    const res: FeedResponse<CourseAndTestName> = await cosmosClient
+    const res: FeedResponse<Test> = await cosmosClient
       .database("Users")
       .container("Test")
-      .items.query<CourseAndTestName>(query)
+      .items.readAll<Test>()
       .fetchAll();
-    insertedCourseAndTestNames = res.resources.map(
-      (item: CourseAndTestName) => `${item.courseName}_${item.testName}`
-    );
+    insertedTestItems = res.resources;
   } catch (e) {
     console.log("generateTestItems: Not Found Items");
-    insertedCourseAndTestNames = [];
+    insertedTestItems = [];
   }
 
   return Object.keys(importData).reduce(
     (prevTestItems: Test[], courseName: string) => {
-      const testItems: Test[] = Object.keys(importData[courseName])
-        .map((testName: string) => {
-          return { courseName, testName };
-        })
-        .filter(
-          // Cosmos DB格納済のコース名・テスト名の組合せは除外
-          (courseAndTestName: CourseAndTestName) =>
-            !insertedCourseAndTestNames.includes(
-              `${courseAndTestName.courseName}_${courseAndTestName.testName}`
-            )
-        )
-        .map((courseAndTestName: CourseAndTestName) => {
-          return {
-            ...courseAndTestName,
-            id: uuidv4(),
-            length: importData[courseName][courseAndTestName.testName].length,
-          };
-        });
-      return [...prevTestItems, ...testItems];
+      const innerTestItems: Test[] = Object.keys(importData[courseName]).reduce(
+        (prevInnerTestItems: Test[], testName: string) => {
+          // UsersテータベースのTestコンテナー格納済の場合は格納した項目、
+          // 未格納の場合はundefinedを取得
+          const foundTestItem: Test | undefined = insertedTestItems.find(
+            (item: Test) =>
+              item.courseName === courseName && item.testName === testName
+          );
+
+          return [
+            ...prevInnerTestItems,
+            foundTestItem || {
+              courseName,
+              testName,
+              id: uuidv4(),
+              length: importData[courseName][testName].length,
+            },
+          ];
+        },
+        []
+      );
+
+      return [...prevTestItems, ...innerTestItems];
     },
     []
   );
@@ -196,7 +193,7 @@ export const generateTestItems = async (
  * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
  * @returns {Promise<void>}
  */
-export const importIntoTestContainer = async (
+export const importTestItems = async (
   testItems: Test[],
   cosmosClient: CosmosClient
 ): Promise<void> => {
