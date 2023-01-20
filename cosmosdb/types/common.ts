@@ -116,22 +116,3 @@ export type Test = {
   testName: string;
   length: number;
 };
-
-export type TestName2TestId = {
-  [testName: string]: string;
-};
-export type CourseAndTestName2TestId = {
-  [courseName: string]: TestName2TestId;
-};
-
-// TODO 消す
-export type Item = {
-  id: string;
-  [key: string]: any;
-};
-export type DatabaseData = {
-  [testName: string]: Item[];
-};
-export type Data = {
-  [courseName: string]: DatabaseData;
-};

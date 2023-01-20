@@ -1,11 +1,13 @@
 import { CosmosClient } from "@azure/cosmos";
-import { ImportData, Test } from "../types/common";
+import { ImportData, Question, Test } from "../types/common";
 import {
   createDatabasesAndContainers,
   generateCosmosClient,
   createImportData,
   importTestItems,
   generateTestItems,
+  generateQuestionItems,
+  importQuestionItemsAndSleep,
 } from "./common";
 
 const main = async () => {
@@ -26,33 +28,22 @@ const main = async () => {
   await importTestItems(testItems, cosmosClient);
   console.log("importTestItems: OK");
 
-  // 手動インポートデータ作成
-  // const manualImportData: Data = await createManualImportData(
-  //   importData,
-  //   cosmosClient
-  // );
-  // console.log("createManualImportData: OK");
+  // UsersテータベースのQuestionコンテナーの項目を生成
+  const questionItems: Question[] = await generateQuestionItems(
+    importData,
+    cosmosClient,
+    testItems
+  );
+  console.log("generateQuestionItems: OK");
 
-  // 暗号化した手動インポートデータのUpsert
-  // 暫定でUpsert実行の合間に1秒間sleepする
-  // const responsesManualImport = await upsertAndSleepAllItems(
-  //   manualImportData,
-  //   cosmosClient,
-  //   1000
-  // );
-
-  // レスポンス正常性チェック
-  // const firstErrorResponseManualImport = responsesManualImport
-  //   .flat()
-  //   .find((res) => res.statusCode >= 400);
-  // if (firstErrorResponseManualImport) {
-  //   throw new Error(
-  //     `Status Code ${
-  //       firstErrorResponseManualImport.statusCode
-  //     }: ${JSON.stringify(firstErrorResponseManualImport.item)}`
-  //   );
-  // }
-  // console.log("Import Manual Import Data: OK");
+  // UsersテータベースのQuestionコンテナーの項目をインポート
+  // 暫定でsleepの秒数はローカル環境で1秒、非ローカル環境で3秒とする
+  await importQuestionItemsAndSleep(
+    questionItems,
+    cosmosClient,
+    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] ? 1000 : 3000
+  );
+  console.log("importQuestionItemsAndSleep: OK");
 };
 
 main().catch((e) => {

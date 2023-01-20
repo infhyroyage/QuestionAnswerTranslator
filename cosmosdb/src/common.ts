@@ -17,13 +17,10 @@ import deepcopy from "deepcopy";
 import { v4 as uuidv4 } from "uuid";
 import { importData } from "../data/importData";
 import {
-  Item,
-  Data,
-  DatabaseData,
-  CourseAndTestName2TestId,
-  TestName2TestId,
   ImportData,
   ImportDatabaseData,
+  ImportItem,
+  Question,
   Test,
 } from "../types/common";
 
@@ -45,7 +42,7 @@ export const createImportData = (): ImportData => {
   const extractedImportData: ImportData = {};
   switch (process.argv.length) {
     case 2:
-      // コマンドライン引数にコース名/テスト名を未指定
+      // コマンドライン引数にコース名・テスト名未指定
       return deepcopy(importData);
     case 3:
       // コース名のみをコマンドライン引数で指定
@@ -216,254 +213,13 @@ export const importTestItems = async (
     (res: OperationResponse) => res.statusCode >= 400
   );
   if (firstErrorRes) {
-    console.error(firstErrorRes.resourceBody);
-    throw new Error("Exists NG Bulk Upsert Response.");
+    throw new Error(
+      `Status Code ${firstErrorRes.statusCode}: ${JSON.stringify(
+        firstErrorRes.resourceBody
+      )}`
+    );
   }
 };
-
-/**
- * Cosmos DB格納済のインポートデータから抽出した項目を取得する
- * @param {ImportData} importData インポートデータ
- * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
- * @returns {Promise<Data>} Cosmos DB格納済の全項目を含むインポートデータのPromise
- */
-const fetchInsertedImportData = async (
-  importData: ImportData,
-  cosmosClient: CosmosClient
-): Promise<Data> => {
-  // コース名・テスト名単位にqueryを並列実行し、配列として格納
-  const readAllPromises: Promise<Item[][]>[] = Object.keys(importData).map(
-    async (courseName: string): Promise<Item[][]> => {
-      const readAllCoursesPromises: Promise<Item[]>[] = Object.keys(
-        importData[courseName]
-      ).map(async (testName: string): Promise<Item[]> => {
-        try {
-          // UsersテータベースのTestコンテナーのをquery
-          const query: SqlQuerySpec = {
-            query:
-              "SELECT * FROM c WHERE c.courseName = @courseName AND c.testName = @testName",
-            parameters: [
-              { name: "@courseName", value: courseName },
-              { name: "@testName", value: testName },
-            ],
-          };
-          const res: FeedResponse<Test> = await cosmosClient
-            .database("Users")
-            .container("Test")
-            .items.query<Test>(query)
-            .fetchAll();
-          return res.resources;
-        } catch (e) {
-          console.log(
-            `Database ${courseName}, Container ${testName}: Not Found Items`
-          );
-          return [];
-        }
-      });
-      return await Promise.all(readAllCoursesPromises);
-    }
-  );
-  const responses: Item[][][] = await Promise.all(readAllPromises);
-
-  // データベース、コンテナー単位の配列→objectに構造変換
-  return Object.keys(importData).reduce(
-    (nonInsertedData: Data, databaseName: string, databaseIdx: number) => {
-      nonInsertedData[databaseName] = Object.keys(
-        importData[databaseName]
-      ).reduce(
-        (
-          nonInsertedDatabaseData: DatabaseData,
-          containerName: string,
-          containerIdx: number
-        ) => {
-          nonInsertedDatabaseData[containerName] =
-            responses[databaseIdx][containerIdx];
-          return nonInsertedDatabaseData;
-        },
-        {}
-      );
-      return nonInsertedData;
-    },
-    {}
-  );
-};
-
-/**
- * 手動インポートデータのcourseName&testNameからtestIdへ変換するための変換器を作成する
- * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
- * @returns {Promise<CourseAndTestName2TestId>} 変換器のPromise
- */
-const createCourseAndTestName2TestId = async (
-  cosmosClient: CosmosClient
-): Promise<CourseAndTestName2TestId> => {
-  // UsersテータベースのTestコンテナーの全id、courseName、testNameをquery
-  const query: SqlQuerySpec = {
-    query: "SELECT c.id, c.courseName, c.testName FROM c",
-  };
-  type QueryResult = { id: string; courseName: string; testName: string };
-  const res: FeedResponse<QueryResult> = await cosmosClient
-    .database("Users")
-    .container("Test")
-    .items.query<QueryResult>(query)
-    .fetchAll();
-
-  return res.resources.reduce(
-    (
-      prevCourseAndTestName2TestId: CourseAndTestName2TestId,
-      resource: QueryResult
-    ) => {
-      if (prevCourseAndTestName2TestId[resource.courseName]) {
-        prevCourseAndTestName2TestId[resource.courseName][resource.testName] =
-          resource.id;
-      } else {
-        const testName2TestId: TestName2TestId = {};
-        testName2TestId[resource.testName] = resource.id;
-        prevCourseAndTestName2TestId[resource.courseName] = testName2TestId;
-      }
-
-      return prevCourseAndTestName2TestId;
-    },
-    {}
-  );
-};
-
-/**
- * 手動インポートデータを作成する
- * @param {unknown} manualImportJson 手動インポート用JSON
- * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
- * @returns {Promise<Data>} 手動インポートデータのPromise
- */
-export const createManualImportData = async (
-  manualImportJson: unknown,
-  cosmosClient: CosmosClient
-): Promise<Data> => {
-  // Cosmos DB格納済の手動インポート用JSONに対応する全項目のIDを取得
-  const insertedManualImportJson: Data = await fetchInsertedImportData(
-    { Users: { Question: [] } },
-    cosmosClient
-  );
-  const insertedIds: string[] = insertedManualImportJson.Users.Question.map(
-    (item: Item) => item.id
-  );
-
-  // courseName&testName→testIdの変換器を作成
-  const courseAndTestName2TestId: CourseAndTestName2TestId =
-    await createCourseAndTestName2TestId(cosmosClient);
-
-  // Cosmos DB未格納の全項目のみ抽出し、全項目にid、testIdカラムをそれぞれ付加
-  return Object.keys(manualImportJson).reduce(
-    (prevInitData: Data, courseName: string) => {
-      const nonInsertedItemsPerCourse: Item[] = Object.keys(
-        manualImportJson[courseName]
-      ).reduce((prevInsertedItemsPerTest: Item[], testName: string) => {
-        const testId: string = courseAndTestName2TestId[courseName][testName];
-
-        const nonInsertedItemsPerTest: Item[] = manualImportJson[courseName][
-          testName
-        ].reduce((prevInsertedItems: Item[], item: Item) => {
-          if (!insertedIds.includes(`${testId}_${item.number}`)) {
-            prevInsertedItems.push({
-              ...item,
-              id: `${testId}_${item.number}`,
-              testId,
-            });
-          }
-          return prevInsertedItems;
-        }, []);
-
-        prevInsertedItemsPerTest = prevInsertedItemsPerTest.concat(
-          nonInsertedItemsPerTest
-        );
-
-        return prevInsertedItemsPerTest;
-      }, []);
-
-      prevInitData.Users.Question = prevInitData.Users.Question.concat(
-        nonInsertedItemsPerCourse
-      );
-
-      return prevInitData;
-    },
-    { Users: { Question: [] } }
-  );
-};
-
-/**
- * 比較的要求ユニット(RU)数が多めのデータで構成される、各データベースの各コンテナーに対する全項目を
- * 合間にsleepを挟みながら直列でUpsertする
- * generateBulkUpsertPromises関数の実行時に429エラー(Cosmos DBの要求率が大きすぎる)場合に代用すること
- * @link https://docs.microsoft.com/ja-jp/azure/cosmos-db/sql/troubleshoot-request-rate-too-large
- * @param {Data} data データ
- * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
- * @param {number} sleepPeriod sleepする時間(ms単位)
- * @returns {Promise<ItemResponse<Item>[]>} 各データベースの各コンテナーに対する全項目をUpsertした全レスポンス
- */
-export const upsertAndSleepAllItems = async (
-  data: Data,
-  cosmosClient: CosmosClient,
-  sleepPeriod: number
-): Promise<ItemResponse<Item>[]> => {
-  const sleep = (sleepPeriod: number): Promise<unknown> =>
-    new Promise((resolve) => setTimeout(resolve, sleepPeriod));
-
-  const responses: ItemResponse<Item>[] = [];
-  for (const databaseName in data) {
-    const database = cosmosClient.database(databaseName);
-
-    for (const containerName in data[databaseName]) {
-      const container = database.container(containerName);
-
-      console.log(
-        `Database ${databaseName}, Container ${containerName}: Start ${data[databaseName][containerName].length} Items`
-      );
-
-      for (
-        let itemIdx = 0;
-        itemIdx < data[databaseName][containerName].length;
-        itemIdx++
-      ) {
-        const item: Item = data[databaseName][containerName][itemIdx];
-        const upsertResponse: ItemResponse<Item> =
-          await container.items.upsert<Item>(item);
-        responses.push(upsertResponse);
-        if (upsertResponse.statusCode >= 400) {
-          console.error(
-            `Database ${databaseName}, Container ${containerName}: ${
-              itemIdx + 1
-            }th Response NG`
-          );
-        } else {
-          console.log(
-            `Database ${databaseName}, Container ${containerName}: ${
-              itemIdx + 1
-            }th Response OK`
-          );
-        }
-
-        await sleep(sleepPeriod);
-      }
-    }
-  }
-
-  return responses;
-};
-
-/**
- * 現在のAzure CLIKey Vaultでの暗号化/復号クライアントを生成する
- * @returns {CryptographyClient} Key Vaultでの暗号化/復号クライアント
- */
-export const createCryptographyClient =
-  async (): Promise<CryptographyClient> => {
-    const credential = new DefaultAzureCredential();
-    const keyClient = new KeyClient(VAULT_URL, credential);
-    const cryptographyKey = await keyClient.getKey(VAULT_CRYPTOGRAPHY_KEY_NAME);
-    if (!cryptographyKey) {
-      throw new Error(
-        `Key vault key "${VAULT_CRYPTOGRAPHY_KEY_NAME}" is not found.`
-      );
-    }
-    return new CryptographyClient(cryptographyKey.id, credential);
-  };
 
 /**
  * 指定したstring型の平文(複数個)を、それぞれstring型→Uint8Array型→number[]型として暗号化する
@@ -471,7 +227,7 @@ export const createCryptographyClient =
  * @param {CryptographyClient} cryptographyClient Key Vaultでの暗号化/復号クライアント
  * @returns {Promise<number[][]>} 暗号化した0〜255の値を持つ配列(複数個)のPromise
  */
-export const encryptStrings2NumberArrays = async (
+const encryptStrings2NumberArrays = async (
   rawStrings: string[],
   cryptographyClient: CryptographyClient
 ): Promise<number[][]> => {
@@ -494,4 +250,250 @@ export const encryptStrings2NumberArrays = async (
   return encryptResults.map((encryptedResult: EncryptResult) =>
     Array.from(encryptedResult.result)
   );
+};
+
+/**
+ * 指定したUsersデータベースのQuestionコンテナーの1項目に対し、
+ * 以下のカラムを平文(複数個)のstring[]型からnumber[][]型に暗号化する
+ * * subjects
+ * * choices
+ * * explanations
+ * * (Optional)incorrectChoicesExplanationsの各非空文字要素
+ * @param {Question} rewQuestionItem UsersデータベースのQuestionコンテナーの平文のカラムを持つ項目
+ * @param {CryptographyClient} cryptographyClient Key Vaultでの暗号化/復号クライアント
+ * @returns {Promise<Question>} UsersデータベースのQuestionコンテナーの暗号化したカラムを持つ項目
+ */
+const excryptQuestionItem = async (
+  rewQuestionItem: Question,
+  cryptographyClient: CryptographyClient
+): Promise<Question> => {
+  const encryptedQuestionItem: Question = deepcopy(rewQuestionItem);
+
+  encryptedQuestionItem.subjects = await encryptStrings2NumberArrays(
+    rewQuestionItem.subjects as string[],
+    cryptographyClient
+  );
+
+  encryptedQuestionItem.choices = await encryptStrings2NumberArrays(
+    rewQuestionItem.choices as string[],
+    cryptographyClient
+  );
+
+  encryptedQuestionItem.explanations = await encryptStrings2NumberArrays(
+    rewQuestionItem.explanations as string[],
+    cryptographyClient
+  );
+
+  if (rewQuestionItem.incorrectChoicesExplanations) {
+    encryptedQuestionItem.incorrectChoicesExplanations = [];
+    for (const incorrectChoiceExplanations of rewQuestionItem.incorrectChoicesExplanations) {
+      if (incorrectChoiceExplanations) {
+        const encryptedIncorrectChoiceExplanations: number[][] =
+          await encryptStrings2NumberArrays(
+            incorrectChoiceExplanations as string[],
+            cryptographyClient
+          );
+        encryptedQuestionItem.incorrectChoicesExplanations.push(
+          encryptedIncorrectChoiceExplanations
+        );
+      } else {
+        encryptedQuestionItem.incorrectChoicesExplanations.push(null);
+      }
+    }
+  }
+
+  return encryptedQuestionItem;
+};
+
+/**
+ * インポートデータからUsersテータベースのQuestionコンテナーの項目を生成する
+ * コマンドライン引数にコース名・テスト名を指定していない場合は未格納の項目のみ、
+ * コース名/テスト名を指定した場合は、そのコース名/テスト名の全項目とする
+ * 非ローカル環境の場合は、以下のカラムを暗号化する
+ * * subjects
+ * * choices
+ * * explanations
+ * * (Optional)incorrectChoicesExplanationsの各非空文字要素
+ * @param {ImportData} importData インポートデータ
+ * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
+ * @param {Test[]} testItems UsersテータベースのTestコンテナーの項目
+ * @returns {Promise<Question[]>} UsersテータベースQuestionコンテナーの項目
+ */
+export const generateQuestionItems = async (
+  importData: ImportData,
+  cosmosClient: CosmosClient,
+  testItems: Test[]
+): Promise<Question[]> => {
+  // UsersテータベースのQuestionコンテナーの項目を生成
+  let questionItems: Question[], courseName: string;
+  if (process.argv.length === 2) {
+    // コマンドライン引数にコース名・テスト名未指定
+    // UsersテータベースのQuestionコンテナーをquery
+    const query: SqlQuerySpec = {
+      query: "SELECT c.id FROM c",
+    };
+    type QueryResult = { id: string };
+    const res: FeedResponse<QueryResult> = await cosmosClient
+      .database("Users")
+      .container("Question")
+      .items.query<QueryResult>(query)
+      .fetchAll();
+    const insertedQuestionIds: string[] = res.resources.map(
+      (resource: QueryResult) => resource.id
+    );
+
+    questionItems = Object.keys(importData).reduce(
+      (prevQuestionItems: Question[], courseName: string) => {
+        const innerQuestionItems: Question[] = Object.keys(
+          importData[courseName]
+        ).reduce((prevInnerQuestionItems: Question[], testName: string) => {
+          const testId: string = testItems.find(
+            (item: Test) =>
+              item.courseName === courseName && item.testName === testName
+          ).id;
+
+          const nonInsertedImportItem: ImportItem[] = importData[courseName][
+            testName
+          ].filter(
+            (item: ImportItem) =>
+              !insertedQuestionIds.includes(`${testId}_${item.number}`)
+          );
+
+          return [
+            ...prevInnerQuestionItems,
+            ...nonInsertedImportItem.map((item: ImportItem) => {
+              return {
+                ...item,
+                id: `${testId}_${item.number}`,
+                testId,
+              };
+            }),
+          ];
+        }, []);
+
+        return [...prevQuestionItems, ...innerQuestionItems];
+      },
+      []
+    );
+  } else if (process.argv.length === 3) {
+    // コース名のみをコマンドライン引数で指定
+    courseName = process.argv[2];
+    if (!(courseName in importData)) {
+      throw new Error("Invalid arguments");
+    }
+
+    // 指定したコース名でのid・テスト名を全取得
+    type TestIdAndName = { testId: string; testName: string };
+    const testIdAndNames: TestIdAndName[] = testItems
+      .filter((item: Test) => item.courseName === courseName)
+      .map((item: Test) => {
+        return { testId: item.id, testName: item.testName };
+      });
+
+    questionItems = testIdAndNames.reduce(
+      (prevQuestionItems: Question[], testIdAndName: TestIdAndName) => {
+        const items: Question[] = importData[courseName][
+          testIdAndName.testName
+        ].map((item: ImportItem) => {
+          const testId: string = testIdAndName.testId;
+          return {
+            ...item,
+            id: `${testId}_${item.number}`,
+            testId,
+          };
+        });
+        return [...prevQuestionItems, ...items];
+      },
+      []
+    );
+  } else if (process.argv.length === 4) {
+    // コース名・テスト名をコマンドライン引数で指定
+    courseName = process.argv[2];
+    const testName: string = process.argv[3];
+    if (!(courseName in importData) || !(testName in importData[courseName])) {
+      throw new Error("Invalid arguments");
+    }
+
+    // UsersテータベースのTestコンテナーのidを取得
+    const testId: string = testItems.find(
+      (item: Test) =>
+        item.courseName === courseName && item.testName === testName
+    ).id;
+
+    questionItems = importData[courseName][testName].map((item: ImportItem) => {
+      return {
+        ...item,
+        id: `${testId}_${item.number}`,
+        testId,
+      };
+    });
+  } else {
+    throw new Error("Invalid arguments");
+  }
+
+  // ローカル環境はここで終了、非ローカル環境の場合は暗号化を行う
+  if (process.env["NODE_TLS_REJECT_UNAUTHORIZED"] === "0") {
+    return questionItems;
+  }
+
+  // 現在のAzure資格情報から、Key Vaultでの暗号化/復号クライアントを生成
+  const credential = new DefaultAzureCredential();
+  const keyClient = new KeyClient(VAULT_URL, credential);
+  const cryptographyKey = await keyClient.getKey(VAULT_CRYPTOGRAPHY_KEY_NAME);
+  if (!cryptographyKey) {
+    throw new Error(
+      `Key vault key "${VAULT_CRYPTOGRAPHY_KEY_NAME}" is not found.`
+    );
+  }
+  const cryptographyClient: CryptographyClient = new CryptographyClient(
+    cryptographyKey.id,
+    credential
+  );
+
+  // 生成したUsersテータベースのQuestionコンテナーの項目の一部カラムを直列に暗号化
+  const encryptedQuestionItems: Question[] = [];
+  for (const questionItem of questionItems) {
+    const encryptedQuestionItem: Question = await excryptQuestionItem(
+      questionItem,
+      cryptographyClient
+    );
+    encryptedQuestionItems.push(encryptedQuestionItem);
+  }
+
+  return encryptedQuestionItems;
+};
+
+/**
+ * UsersテータベースのQuestionコンテナーの項目を合間にsleepしながらインポートする
+ * 項目は比較的要求ユニット(RU)数が多めであるものとする
+ * @link https://docs.microsoft.com/ja-jp/azure/cosmos-db/sql/troubleshoot-request-rate-too-large
+ * @param {Question[]} questionItems UsersテータベースのQuestionコンテナーの項目
+ * @param {CosmosClient} cosmosClient Cosmos DBのクライアント
+ * @param {number} sleepPeriod sleepする時間(ms単位)
+ * @returns {Promise<void>}
+ */
+export const importQuestionItemsAndSleep = async (
+  questionItems: Question[],
+  cosmosClient: CosmosClient,
+  sleepPeriod: number
+): Promise<void> => {
+  const sleep = (sleepPeriod: number): Promise<unknown> =>
+    new Promise((resolve) => setTimeout(resolve, sleepPeriod));
+
+  for (let i = 0; i < questionItems.length; i++) {
+    const item: Question = questionItems[i];
+    const res: ItemResponse<Question> = await cosmosClient
+      .database("Users")
+      .container("Question")
+      .items.upsert<Question>(item);
+
+    // レスポンス正常性チェック
+    if (res.statusCode >= 400) {
+      throw new Error(`Status Code ${res.statusCode}: ${JSON.stringify(item)}`);
+    } else {
+      console.log(`${i + 1}th Response OK`);
+    }
+
+    await sleep(sleepPeriod);
+  }
 };
