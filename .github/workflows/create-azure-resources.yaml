@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - .github/workflows/create-azure-resources.yaml
-      - cosmosdb**
       - resources**
 
 env:
@@ -19,7 +18,7 @@ env:
   GHCR_IMAGE_NAME: react
   GHCR_REPOSITORY_NAME: qatranslator
   LOCATION: japaneast
-  NODE_VERSION: "16.17.0"
+  NODE_VERSION: "16.19.0"
   RESOURCE_GROUP: qatranslator-je
 
 jobs:
