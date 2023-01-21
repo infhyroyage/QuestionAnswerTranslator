@@ -146,7 +146,7 @@ export const importData: ImportData = {
 
 1. QuestionAnswerTranslator リポジトリの各 workflow をすべて有効化する。
 2. Create Azure Resources の workflow を手動で実行する。
-3. 以下のコマンドを実行して、Azure にデプロイ済の Cosmos DB に対し、手動インポート用のデータをインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+3. 以下のコマンドを実行して、Azure にデプロイ済の Cosmos DB に対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
    ```bash
    npm run cosmosdb:import
    ```
@@ -191,7 +191,7 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localh
    REACT_APP_AZURE_TENANT_ID=(初期構築時にGitHubへ登録したシークレットAZURE_TENANT_IDの値)
    REACT_APP_DEEPL_AUTH_KEY=(初期構築時にGitHubへ登録したシークレットDEEPL_AUTH_KEYの値)
    ```
-3. ターミナルを起動して以下を実行し、Docker Compose で Azure Functions・Cosmos DB・React サーバーを起動する。実行したターミナルはそのまま放置する。
+3. ターミナルを起動して以下のコマンドを実行し、Docker Compose で Azure Functions・Cosmos DB・React サーバーを起動する。実行したターミナルはそのまま放置する。
    ```bash
    npm run local:create
    ```
@@ -209,7 +209,7 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localh
    localfunctions    | [略] Host lock lease acquired by instance ID '(略)'.
    ```
    なお、以前上記コマンドを実行したことがあり、`questionanswertranslator_localreact`および`questionanswertranslator_localfunctions`の Docker イメージが残ったままである場合は再ビルドせず、残った Docker イメージに対してそのまま Docker Compose で起動する。
-4. 3 とは別のターミナルで、以下のコマンドを実行する(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+4. 3 とは別のターミナルで以下のコマンドを実行し、起動した Cosmos DB サーバーに対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
    ```bash
    npm run local:cosmosdbImport
    ```
