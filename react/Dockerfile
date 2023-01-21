@@ -1,4 +1,4 @@
-FROM node:16.17.0-alpine3.16 as build
+FROM node:16.19.0-alpine3.16 as build
 WORKDIR /home/node
 COPY package.json ./
 RUN npm install
