@@ -8,7 +8,7 @@
     "azureApimPublisherEmail": {
       "type": "string"
     },
-    "azureADOwnerObjectId": {
+    "azureADGlobalAdminObjectId": {
       "type": "securestring"
     },
     "githubToken": {
@@ -465,7 +465,7 @@
             }
           },
           {
-            "objectId": "[parameters('azureADOwnerObjectId')]",
+            "objectId": "[parameters('azureADGlobalAdminObjectId')]",
             "tenantId": "[tenant().tenantId]",
             "permissions": {
               "keys": [
