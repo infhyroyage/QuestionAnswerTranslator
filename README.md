@@ -37,16 +37,16 @@ Azure リソース/localhost に環境を構築する事前準備として、以
 
 ### 1. GitHub Actions 用のサービスプリンシパル発行
 
-GitHub Actions から Azure Resource Management サービスにアクセスできるサービスプリンシパル QATranslator_Contributor を以下の手順で発行する。
-
-1. Azure Portal から Azure AD に遷移する。
-2. App Registrations > New registration の順で押下し、以下の項目を入力後、Register ボタンを押下してサービスプリンシパルを登録する。
-   - Name : `QATranslator_Contributor`
-   - Supported account types : `Accounts in this organizational directory only`
-   - Redirect URI : 何も入力しない
-3. 登録して自動遷移した「QATranslator_Contributor」の Overview にある「Application (client) ID」の値(=クライアント ID)と、「Object ID」の値(=オブジェクト ID)を手元に控える。
-4. Certificates & secrets > Client secrets (0) から「New client secret」を押下後、Expires のプルダウンに任意のクライアントシークレットの有効期限を選択し、「Add」ボタンを押下してクライアントシークレットを登録する。
-5. 登録したクライアントシークレットの「Value」の値を手元に控える。
+1. Azure CLI にてログイン後、以下のコマンドを実行し、サービスプリンシパル`QATranslator_Contributor`を発行する。
+   ```bash
+   az ad sp create-for-rbac --name "QATranslator_Contributor" --role "Contributor" --scope /subscriptions/{サブスクリプションID} --sdk-auth
+   ```
+2. 1 のコマンドを実行して得た以下の値を、それぞれ手元に控える。
+   - `clientId`(=クライアント ID)
+   - `clientSecret`(=クライアントシークレット)
+3. Azure Portal から Azure AD に遷移する。
+4. App Registrations > Owned applications > QATranslator_Contributor の順で押下する。
+5. Overview にある「Object ID」の値(=オブジェクト ID)を手元に控える。
 
 ### 2. Azure AD 認証認可用のサービスプリンシパル発行
 
