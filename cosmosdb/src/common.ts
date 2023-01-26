@@ -16,13 +16,8 @@ import { KeyVaultSecret, SecretClient } from "@azure/keyvault-secrets";
 import deepcopy from "deepcopy";
 import { v4 as uuidv4 } from "uuid";
 import { importData } from "../data/importData";
-import {
-  ImportData,
-  ImportDatabaseData,
-  ImportItem,
-  Question,
-  Test,
-} from "../types/common";
+import { Question, Test } from "../../types/cosmosDB";
+import { ImportData, ImportDatabaseData, ImportItem } from "../../types/import";
 
 const COSMOSDB_LOCAL_KEY =
   "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
@@ -94,7 +89,7 @@ export const generateCosmosClient = async (): Promise<CosmosClient> => {
       VAULT_URL,
       new AzureCliCredential()
     ).getSecret(keyName);
-    if (!secret) {
+    if (!secret || !secret.value) {
       throw new Error(`Key vault secret "${keyName}" is not found.`);
     }
     key = secret.value;
@@ -347,11 +342,17 @@ export const generateQuestionItems = async (
         const innerQuestionItems: Question[] = Object.keys(
           importData[courseName]
         ).reduce((prevInnerQuestionItems: Question[], testName: string) => {
-          const testId: string = testItems.find(
+          const testItem: Test | undefined = testItems.find(
             (item: Test) =>
               item.courseName === courseName && item.testName === testName
-          ).id;
+          );
+          if (!testItem) {
+            throw new Error(
+              `Course Name ${courseName} and Test Name ${testName} Not Found.`
+            );
+          }
 
+          const testId: string = testItem.id;
           const nonInsertedImportItem: ImportItem[] = importData[courseName][
             testName
           ].filter(
@@ -415,11 +416,17 @@ export const generateQuestionItems = async (
     }
 
     // UsersテータベースのTestコンテナーのidを取得
-    const testId: string = testItems.find(
+    const testItem: Test | undefined = testItems.find(
       (item: Test) =>
         item.courseName === courseName && item.testName === testName
-    ).id;
+    );
+    if (!testItem) {
+      throw new Error(
+        `Course Name ${courseName} and Test Name ${testName} Not Found.`
+      );
+    }
 
+    const testId: string = testItem.id;
     questionItems = importData[courseName][testName].map((item: ImportItem) => {
       return {
         ...item,
@@ -440,7 +447,7 @@ export const generateQuestionItems = async (
   const credential = new DefaultAzureCredential();
   const keyClient = new KeyClient(VAULT_URL, credential);
   const cryptographyKey = await keyClient.getKey(VAULT_CRYPTOGRAPHY_KEY_NAME);
-  if (!cryptographyKey) {
+  if (!cryptographyKey || !cryptographyKey.id) {
     throw new Error(
       `Key vault key "${VAULT_CRYPTOGRAPHY_KEY_NAME}" is not found.`
     );

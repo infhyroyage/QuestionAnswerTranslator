@@ -1,5 +1,6 @@
 import { CosmosClient } from "@azure/cosmos";
-import { ImportData, Question, Test } from "../types/common";
+import { Question, Test } from "../../types/cosmosDB";
+import { ImportData } from "../../types/import";
 import {
   createDatabasesAndContainers,
   generateCosmosClient,
