@@ -47,7 +47,7 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
           template: ./resources/base.json
-          parameters: azureADSPContributorObjectId=${{ secrets.AZURE_AD_SP_CONTRIBUTOR_OBJECT_ID }} azureApimPublisherEmail=${{ secrets.AZURE_APIM_PUBLISHER_EMAIL }} azureADGlobalAdminObjectId=${{ secrets.AZURE_AD_GLOBAL_ADMIN_OBJECT_ID }} githubToken=${{ secrets.GHCR_PAT_READ_PACKAGES }} githubUsername=${{ github.actor }}
+          parameters: azureApimPublisherEmail=${{ secrets.AZURE_APIM_PUBLISHER_EMAIL }} azureADGlobalAdminObjectId=${{ secrets.AZURE_AD_GLOBAL_ADMIN_OBJECT_ID }} githubToken=${{ secrets.GHCR_PAT_READ_PACKAGES }} githubUsername=${{ github.actor }}
 
   deploy-apim:
     runs-on: ubuntu-latest

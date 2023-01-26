@@ -84,7 +84,6 @@ QATranslator_Contributor とは別に、`qatranslator-je-appservice`から MSAL 
 | AZURE_AD_GLOBAL_ADMIN_OBJECT_ID       | Azure AD グローバル管理者のオブジェクト ID                       |
 | AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID     | 1.で発行した QATranslator_Contributor のクライアント ID          |
 | AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET | 1.で発行した QATranslator_Contributor のクライアントシークレット |
-| AZURE_AD_SP_CONTRIBUTOR_OBJECT_ID     | 1.で発行した QATranslator_Contributor のオブジェクト ID          |
 | AZURE_AD_SP_MSAL_CLIENT_ID            | 2.で発行した QATranslator_MSAL のクライアント ID                 |
 | AZURE_APIM_PUBLISHER_EMAIL            | API Management の発行者メールアドレス                            |
 | AZURE_SUBSCRIPTION_ID                 | サブスクリプション ID                                            |

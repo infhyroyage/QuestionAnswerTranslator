@@ -2,9 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "azureADSPContributorObjectId": {
-      "type": "securestring"
-    },
     "azureApimPublisherEmail": {
       "type": "string"
     },
@@ -453,17 +450,6 @@
       ],
       "properties": {
         "accessPolicies": [
-          {
-            "objectId": "[parameters('azureADSPContributorObjectId')]",
-            "tenantId": "[tenant().tenantId]",
-            "permissions": {
-              "keys": [],
-              "secrets": [
-                "Get"
-              ],
-              "certificates": []
-            }
-          },
           {
             "objectId": "[parameters('azureADGlobalAdminObjectId')]",
             "tenantId": "[tenant().tenantId]",
