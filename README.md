@@ -45,8 +45,6 @@ Azure リソース/localhost に環境を構築する事前準備として、以
    - `clientId`(=クライアント ID)
    - `clientSecret`(=クライアントシークレット)
 3. Azure Portal から Azure AD に遷移する。
-4. App Registrations > Owned applications > QATranslator_Contributor の順で押下する。
-5. Overview にある「Object ID」の値(=オブジェクト ID)を手元に控える。
 
 ### 2. Azure AD 認証認可用のサービスプリンシパル発行
 
