@@ -1,8 +1,8 @@
 import { FeedResponse } from "@azure/cosmos";
 import { Context } from "@azure/functions";
 import { getReadOnlyContainer } from "../shared/cosmosDBWrapper";
-import { Test } from "../types/cosmosDB";
-import { GetTests } from "../types/response";
+import { Test } from "../../types/cosmosDB";
+import { GetTests } from "../../types/functions";
 
 const COSMOS_DB_DATABASE_NAME = "Users";
 const COSMOS_DB_CONTAINER_NAME = "Test";

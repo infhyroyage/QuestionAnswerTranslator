@@ -11,8 +11,8 @@ import {
   IncorrectChoiceExplanation,
   IncorrectChoiceExplanations,
   Question,
-} from "../types/cosmosDB";
-import { GetQuestionAnswer, IncorrectChoices } from "../types/response";
+} from "../../types/cosmosDB";
+import { GetQuestionAnswer, IncorrectChoices } from "../../types/functions";
 
 const COSMOS_DB_DATABASE_NAME = "Users";
 const COSMOS_DB_CONTAINER_NAME = "Question";

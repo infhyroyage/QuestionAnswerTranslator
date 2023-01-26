@@ -6,8 +6,8 @@ import {
   createCryptographyClient,
   decryptNumberArrays2Strings,
 } from "../shared/vaultWrapper";
-import { Choice, Question, Subject } from "../types/cosmosDB";
-import { GetQuestion } from "../types/response";
+import { Choice, Question, Subject } from "../../types/cosmosDB";
+import { GetQuestion } from "../../types/functions";
 
 const COSMOS_DB_DATABASE_NAME = "Users";
 const COSMOS_DB_CONTAINER_NAME = "Question";

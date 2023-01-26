@@ -11,12 +11,6 @@ export type ExplanationSentences = {
   incorrectChoices: IncorrectChoices;
 };
 
-export type Test = {
-  id: string;
-  test: string;
-  length: number;
-};
-
 export type GetQuestion = {
   subjects: Sentence[];
   choices: Sentence[];
@@ -29,6 +23,11 @@ export type GetQuestionAnswer = {
   references: string[];
 };
 
+export type Test = {
+  id: string;
+  test: string;
+  length: number;
+};
 export type GetTests = {
   [course: string]: Test[];
 };
