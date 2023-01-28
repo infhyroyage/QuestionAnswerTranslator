@@ -102,26 +102,26 @@ export const importData: ImportData = {
   "コース名1": {
     "テスト名1": [
       {
-        "number": 1, // 問題番号(1スタート)
-        "subjects": ["問題文1", "https://xxx.com/yyy/zzz.png", "問題文2", ... ], // 問題文または画像URL
-        "choices": ["選択肢1", "選択肢2", ... ], // 選択肢
-        "correctIdxes": [0], // 回答の選択肢のインデックス(複数回答の場合は複数指定)
-        "explanations": ["解説文1", "解説文2", ... ], // 解説文または画像URL
-        "incorrectChoicesExplanations": [null, ["選択肢2の解説文1", "選択肢2の解説文2", ... ], ... ], // 不正解の選択肢の解説文(正解の選択肢はnull、省略可能)
-        "indicateImgIdxes": { // 画像URLのインデックス群(省略可能)
-          "subjects": [0, ... ], // subjects(省略可能)
-          "explanations": [2, ... ] // explanations(省略可能)
+        number: 1, // 問題番号(1スタート)
+        subjects: ["問題文1", "https://xxx.com/yyy/zzz.png", "問題文2", ... ], // 問題文または画像URL
+        choices: ["選択肢1", "選択肢2", ... ], // 選択肢
+        correctIdxes: [0], // 回答の選択肢のインデックス(複数回答の場合は複数指定)
+        explanations: ["解説文1", "解説文2", ... ], // 解説文または画像URL
+        incorrectChoicesExplanations: [null, ["選択肢2の解説文1", "選択肢2の解説文2", ... ], ... ], // 不正解の選択肢の解説文(正解の選択肢はnull、省略可能)
+        indicateImgIdxes: { // 画像URLのインデックス群(省略可能)
+          subjects: [0, ... ], // subjects(省略可能)
+          explanations: [2, ... ] // explanations(省略可能)
         },
-        "escapeTranslatedIdxes": { // 翻訳不必要な文字列のインデックス群(省略可能)
-          "subjects": [0, ... ], // subjects(省略可能)
-          "choices": [1, ... ], // choices(省略可能)
-          "explanations": [2, ... ], // explanations(省略可能)
-          "incorrectChoicesExplanations": [null, [0, ... ], ... ] // incorrectChoicesExplanations(正解の選択肢はnull、省略可能)
+        escapeTranslatedIdxes: { // 翻訳不必要な文字列のインデックス群(省略可能)
+          subjects: [0, ... ], // subjects(省略可能)
+          choices: [1, ... ], // choices(省略可能)
+          explanations: [2, ... ], // explanations(省略可能)
+          incorrectChoicesExplanations: [null, [0, ... ], ... ] // incorrectChoicesExplanations(正解の選択肢はnull、省略可能)
         },
-        "references": ["https://xxx.com/yyy/zzz.html", ... ] // 解説URL(省略可能)
+        references: ["https://xxx.com/yyy/zzz.html", ... ] // 解説URL(省略可能)
       },
       {
-        "number": 2,
+        number: 2,
         :
       },
       :
