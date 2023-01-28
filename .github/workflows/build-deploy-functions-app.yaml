@@ -40,10 +40,8 @@ jobs:
             functions/*/*.js
             functions/*/function.json
             functions/host.json
-            functions/local.settings.json
             functions/package.json
             !functions/node_modules
-            !functions/types
 
   deploy-functions-app:
     runs-on: ubuntu-latest
