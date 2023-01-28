@@ -96,7 +96,7 @@ Cosmos DB に保存する以下の文字列は、そのまま GitHub 上に管�
 インポートデータファイルのフォーマットを以下に示す。
 
 ```typescript
-import { ImportData } from "../types/common";
+import { ImportData } from "../../types/import";
 
 export const importData: ImportData = {
   "コース名1": {
