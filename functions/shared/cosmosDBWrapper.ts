@@ -9,13 +9,21 @@ import { CosmosClient, Container } from "@azure/cosmos";
 export const getReadOnlyContainer = (
   databaseName: string,
   containerName: string
-): Container =>
-  new CosmosClient({
-    endpoint: process.env["COSMOSDB_URI"],
-    key: process.env["COSMOSDB_READONLY_KEY"],
-  })
+): Container => {
+  const endpoint: string | undefined = process.env["COSMOSDB_URI"];
+  if (!endpoint) {
+    throw new Error("Unset COSMOSDB_URI");
+  }
+
+  const key: string | undefined = process.env["COSMOSDB_READONLY_KEY"];
+  if (!key) {
+    throw new Error("Unset COSMOSDB_READONLY_KEY");
+  }
+
+  return new CosmosClient({ endpoint, key })
     .database(databaseName)
     .container(containerName);
+};
 
 /**
  * 指定したCosmos DBアカウントのコンテナーのインスタンスを返す
@@ -26,10 +34,18 @@ export const getReadOnlyContainer = (
 export const getReadWriteContainer = (
   databaseName: string,
   containerName: string
-): Container =>
-  new CosmosClient({
-    endpoint: process.env["COSMOSDB_URI"],
-    key: process.env["COSMOSDB_KEY"],
-  })
+): Container => {
+  const endpoint: string | undefined = process.env["COSMOSDB_URI"];
+  if (!endpoint) {
+    throw new Error("Unset COSMOSDB_URI");
+  }
+
+  const key: string | undefined = process.env["COSMOSDB_KEY"];
+  if (!key) {
+    throw new Error("Unset COSMOSDB_KEY");
+  }
+
+  return new CosmosClient({ endpoint, key })
     .database(databaseName)
     .container(containerName);
+};

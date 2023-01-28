@@ -3,9 +3,10 @@ import {
   CryptographyClient,
   DecryptResult,
   KeyClient,
+  KeyVaultKey,
 } from "@azure/keyvault-keys";
 
-const VAULT_URL = "https://qatranslator-je-vault.vault.azure.net";
+const VAULT_URL: string = "https://qatranslator-je-vault.vault.azure.net";
 
 /**
  * Key Vaultで管理しているキーにおける、Key Vaultでの暗号化/復号クライアントを生成する
@@ -15,10 +16,10 @@ const VAULT_URL = "https://qatranslator-je-vault.vault.azure.net";
 export const createCryptographyClient = async (
   keyName: string
 ): Promise<CryptographyClient> => {
-  const credential = new ManagedIdentityCredential();
-  const keyClient = new KeyClient(VAULT_URL, credential);
-  const importKey = await keyClient.getKey(keyName);
-  if (!importKey) {
+  const credential: ManagedIdentityCredential = new ManagedIdentityCredential();
+  const keyClient: KeyClient = new KeyClient(VAULT_URL, credential);
+  const importKey: KeyVaultKey = await keyClient.getKey(keyName);
+  if (!importKey || !importKey.id) {
     throw new Error(`Key vault key "${keyName}" is not found.`);
   }
   return new CryptographyClient(importKey.id, credential);

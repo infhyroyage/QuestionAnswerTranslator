@@ -6,12 +6,7 @@ import {
   createCryptographyClient,
   decryptNumberArrays2Strings,
 } from "../shared/vaultWrapper";
-import {
-  Explanation,
-  IncorrectChoiceExplanation,
-  IncorrectChoiceExplanations,
-  Question,
-} from "../../types/cosmosDB";
+import { Question } from "../../types/cosmosDB";
 import { GetQuestionAnswer, IncorrectChoices } from "../../types/functions";
 
 const COSMOS_DB_DATABASE_NAME = "Users";
@@ -69,12 +64,14 @@ export default async (context: Context): Promise<void> => {
     }
     const result: QueryQuestionAnswer = response.resources[0];
 
-    let explanations: Explanation[];
-    let incorrectChoicesExplanations: IncorrectChoiceExplanations[] | undefined;
+    let explanations: string[];
+    let incorrectChoicesExplanations: (string[] | null)[] | undefined;
     if (process.env["COSMOSDB_URI"] === "https://localcosmosdb:8081") {
       // localhost環境のため、そのままexplanations/incorrectChoiceExplanationsを取得
-      explanations = result.explanations;
-      incorrectChoicesExplanations = result.incorrectChoicesExplanations;
+      explanations = result.explanations as string[];
+      incorrectChoicesExplanations = result.incorrectChoicesExplanations as
+        | (string[] | null)[]
+        | undefined;
     } else {
       // 非localhost環境のため、暗号化されたexplanations/incorrectChoiceExplanationsの各要素を復号して取得
       const cryptographyClient: CryptographyClient =
@@ -109,25 +106,25 @@ export default async (context: Context): Promise<void> => {
       ? incorrectChoicesExplanations.reduce(
           (
             prevIncorrectChoices: IncorrectChoices,
-            incorrectChoiceExplanations: IncorrectChoiceExplanations,
+            incorrectChoiceExplanations: string[] | null,
             choiceIdx: number
           ) => {
             if (incorrectChoiceExplanations) {
               prevIncorrectChoices[choiceIdx] = incorrectChoiceExplanations.map(
-                (
-                  IncorrectChoiceExplanation: IncorrectChoiceExplanation,
-                  idx: number
-                ) => {
+                (incorrectChoiceExplanation: string, idx: number) => {
                   return {
-                    sentence: IncorrectChoiceExplanation as string,
+                    sentence: incorrectChoiceExplanation as string,
                     isIndicatedImg: false,
                     isEscapedTranslation:
-                      result.escapeTranslatedIdxes &&
-                      result.escapeTranslatedIdxes
+                      !!result.escapeTranslatedIdxes &&
+                      !!result.escapeTranslatedIdxes
                         .incorrectChoicesExplanations &&
-                      result.escapeTranslatedIdxes.incorrectChoicesExplanations[
-                        choiceIdx
-                      ].includes(idx),
+                      !!result.escapeTranslatedIdxes
+                        .incorrectChoicesExplanations[choiceIdx] &&
+                      (
+                        result.escapeTranslatedIdxes
+                          .incorrectChoicesExplanations[choiceIdx] || []
+                      ).includes(idx),
                   };
                 }
               );
@@ -145,12 +142,12 @@ export default async (context: Context): Promise<void> => {
           return {
             sentence: explanation,
             isIndicatedImg:
-              result.indicateImgIdxes &&
-              result.indicateImgIdxes.explanations &&
+              !!result.indicateImgIdxes &&
+              !!result.indicateImgIdxes.explanations &&
               result.indicateImgIdxes.explanations.includes(idx),
             isEscapedTranslation:
-              result.escapeTranslatedIdxes &&
-              result.escapeTranslatedIdxes.explanations &&
+              !!result.escapeTranslatedIdxes &&
+              !!result.escapeTranslatedIdxes.explanations &&
               result.escapeTranslatedIdxes.explanations.includes(idx),
           };
         }),

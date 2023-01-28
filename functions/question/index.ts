@@ -6,7 +6,7 @@ import {
   createCryptographyClient,
   decryptNumberArrays2Strings,
 } from "../shared/vaultWrapper";
-import { Choice, Question, Subject } from "../../types/cosmosDB";
+import { Question } from "../../types/cosmosDB";
 import { GetQuestion } from "../../types/functions";
 
 const COSMOS_DB_DATABASE_NAME = "Users";
@@ -62,12 +62,12 @@ export default async (context: Context): Promise<void> => {
     }
     const result: QueryQuestion = response.resources[0];
 
-    let subjects: Subject[];
-    let choices: Choice[];
+    let subjects: string[];
+    let choices: string[];
     if (process.env["COSMOSDB_URI"] === "https://localcosmosdb:8081") {
       // localhost環境のため、そのままsubjects/choicesを取得
-      subjects = result.subjects;
-      choices = result.choices;
+      subjects = result.subjects as string[];
+      choices = result.choices as string[];
     } else {
       // 非localhost環境のため、暗号化されたsubjects/choicesを復号して取得
       const cryptographyClient: CryptographyClient =
@@ -87,12 +87,12 @@ export default async (context: Context): Promise<void> => {
         return {
           sentence: subject,
           isIndicatedImg:
-            result.indicateImgIdxes &&
-            result.indicateImgIdxes.subjects &&
+            !!result.indicateImgIdxes &&
+            !!result.indicateImgIdxes.subjects &&
             result.indicateImgIdxes.subjects.includes(idx),
           isEscapedTranslation:
-            result.escapeTranslatedIdxes &&
-            result.escapeTranslatedIdxes.subjects &&
+            !!result.escapeTranslatedIdxes &&
+            !!result.escapeTranslatedIdxes.subjects &&
             result.escapeTranslatedIdxes.subjects.includes(idx),
         };
       }),
@@ -101,8 +101,8 @@ export default async (context: Context): Promise<void> => {
           sentence: choice,
           isIndicatedImg: false,
           isEscapedTranslation:
-            result.escapeTranslatedIdxes &&
-            result.escapeTranslatedIdxes.choices &&
+            !!result.escapeTranslatedIdxes &&
+            !!result.escapeTranslatedIdxes.choices &&
             result.escapeTranslatedIdxes.choices.includes(idx),
         };
       }),
