@@ -5,8 +5,8 @@ import {
   CognitiveTranslation,
   DeepLResponse,
   DeepLTranslation,
-} from "../types/translation";
-import { Sentence } from "../types/functions";
+} from "../../translation";
+import { Sentence } from "../../../types/functions";
 
 /**
  * 翻訳エラー発生時のエラーメッセージ

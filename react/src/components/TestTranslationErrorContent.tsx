@@ -5,7 +5,7 @@ import {
   translateByDeepL,
 } from "../services/translation";
 import { translation } from "../store/translation";
-import { TestTranslationErrorContentProps } from "../types/props";
+import { TestTranslationErrorContentProps } from "../../../types/props";
 
 export const TestTranslationErrorContent: FC<TestTranslationErrorContentProps> =
   memo((props: TestTranslationErrorContentProps) => {

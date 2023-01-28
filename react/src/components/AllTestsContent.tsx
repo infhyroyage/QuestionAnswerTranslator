@@ -1,8 +1,8 @@
 import { useAccount, useMsal } from "@azure/msal-react";
 import React, { FC, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { GetTests, Test } from "../types/functions";
-import { TestState } from "../types/state";
+import { GetTests, Test } from "../../../types/functions";
+import { TestState } from "../../../types/routerState";
 import { accessFunctions } from "../services/functions";
 
 export const AllTestsContent: FC<{}> = () => {

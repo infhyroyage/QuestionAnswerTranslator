@@ -1,7 +1,7 @@
 import { AuthenticatedTemplate } from "@azure/msal-react";
 import { FC } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { TestState } from "../types/state";
+import { TestState } from "../../../types/routerState";
 
 export const TestReady: FC<{}> = () => {
   const location = useLocation();

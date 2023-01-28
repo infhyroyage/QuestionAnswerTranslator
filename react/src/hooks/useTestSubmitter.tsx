@@ -5,9 +5,9 @@ import {
   ExplanationSentences,
   GetQuestionAnswer,
   Sentence,
-} from "../types/functions";
+} from "../../../types/functions";
 import { useParams } from "react-router-dom";
-import { ProgressState } from "../types/state";
+import { ProgressState } from "../../../types/routerState";
 
 const INIT_EXPLANATION_SENTENCES = { overall: [], incorrectChoices: {} };
 

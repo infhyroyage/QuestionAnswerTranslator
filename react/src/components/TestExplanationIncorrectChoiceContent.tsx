@@ -1,7 +1,7 @@
 import React, { FC, memo } from "react";
 import { NOT_TRANSLATION_MSG } from "../services/translation";
-import { Sentence } from "../types/functions";
-import { TestExplanationIncorrectChoiceContentProps } from "../types/props";
+import { Sentence } from "../../../types/functions";
+import { TestExplanationIncorrectChoiceContentProps } from "../../../types/props";
 
 export const TestExplanationIncorrectChoiceContent: FC<TestExplanationIncorrectChoiceContentProps> =
   memo((props: TestExplanationIncorrectChoiceContentProps) => {

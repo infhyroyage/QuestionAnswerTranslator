@@ -12,8 +12,8 @@ import {
 } from "../services/translation";
 import { accessFunctions } from "../services/functions";
 import { translation } from "../store/translation";
-import { GetQuestion, Sentence } from "../types/functions";
-import { ProgressState } from "../types/state";
+import { GetQuestion, Sentence } from "../../../types/functions";
+import { ProgressState } from "../../../types/routerState";
 import { useRecoilState } from "recoil";
 import { useNavigate } from "react-router-dom";
 

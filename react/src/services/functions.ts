@@ -5,7 +5,7 @@ import {
   IPublicClientApplication,
 } from "@azure/msal-browser";
 import axios, { AxiosRequestHeaders } from "axios";
-import { Method } from "../types/functions";
+import { Method } from "../../../types/functions";
 import { functionsScopes } from "./msal";
 
 /**
