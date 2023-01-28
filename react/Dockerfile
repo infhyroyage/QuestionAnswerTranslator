@@ -2,7 +2,7 @@ FROM node:16.19.0-alpine3.16 as build
 WORKDIR /home/node
 COPY package.json ./
 RUN npm install
-COPY react ./
+COPY react types ./
 RUN npm run react:build
 
 FROM nginx:1.23.1
