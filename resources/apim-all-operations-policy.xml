@@ -17,14 +17,14 @@
     <!--https://docs.microsoft.com/ja-jp/azure/active-directory/develop/access-tokens-->
     <validate-jwt header-name="X-Access-Token" require-scheme="Bearer">
       <!--トークンの署名は妥当か-->
-      <openid-config url="https://login.microsoftonline.com/5643642c-bd8c-48aa-a0f1-3341988ddc8a/.well-known/openid-configuration" />
+      <openid-config url="https://login.microsoftonline.com/{AZURE_TENANT_ID}/.well-known/openid-configuration" />
       <!--Microsoft IDプラットフォームのクライアント(アプリケーション)が妥当か-->
       <audiences>
-        <audience>c9105b75-b3a8-4c45-a0e7-5c60837f29cc</audience>
+        <audience>{AZURE_AD_SP_MSAL_CLIENT_ID}</audience>
       </audiences>
       <!--Microsoft IDプラットフォームのテナント(ディレクトリ)が妥当か-->
       <issuers>
-        <issuer>https://login.microsoftonline.com/5643642c-bd8c-48aa-a0f1-3341988ddc8a/v2.0</issuer>
+        <issuer>https://login.microsoftonline.com/{AZURE_TENANT_ID}/v2.0</issuer>
       </issuers>
       <!--上記クライアント(アプリケーション)のAPIのスコープが妥当か-->
       <required-claims>
