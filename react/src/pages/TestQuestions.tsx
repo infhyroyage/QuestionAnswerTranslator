@@ -170,6 +170,7 @@ export const TestQuestions: FC<{}> = () => {
     if (state.testLength === state.answers.length) {
       // 結果へ遷移
       localStorage.removeItem("progress");
+      scroll(0, 0);
       navigate(`/tests/result`, { state });
     } else {
       // 次問題へ遷移
