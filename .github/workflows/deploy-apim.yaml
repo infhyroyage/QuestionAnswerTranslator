@@ -17,7 +17,7 @@ jobs:
   use-deploy-apim-workflow:
     uses: ./.github/workflows/reusable-deploy-apim.yaml
     with:
-      APIM_APIS_NAME: ;${{ env.APIM_APIS_NAME }}
+      APIM_APIS_NAME: ${{ env.APIM_APIS_NAME }}
       APIM_NAME: ${{ env.APIM_NAME }}
       RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
     secrets:
