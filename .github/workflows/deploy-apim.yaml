@@ -8,9 +8,18 @@ on:
       - .github/workflows/deploy-apim.yaml
       - apim**
 
+env:
+  APIM_APIS_NAME: apis-functions
+  APIM_NAME: qatranslator-je-apim
+  RESOURCE_GROUP: qatranslator-je
+
 jobs:
   use-deploy-apim-workflow:
     uses: ./.github/workflows/reusable-deploy-apim.yaml
+    with:
+      APIM_APIS_NAME: ;${{ env.APIM_APIS_NAME }}
+      APIM_NAME: ${{ env.APIM_NAME }}
+      RESOURCE_GROUP: ${{ env.RESOURCE_GROUP }}
     secrets:
       AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID: ${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}
       AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET: ${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}
