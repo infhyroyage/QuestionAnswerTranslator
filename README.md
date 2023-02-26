@@ -251,3 +251,8 @@ docker image rm questionanswertranslator_localfunctions questionanswertranslator
 
 サービスプリンシパルの削除については、Azure Portal から Azure AD > App Registrations に遷移し、各サービスプリンシパルのリンク先にある Delete ボタンを押下し、「I understand the implications of deleting this app registration.」のチェックを入れて Delete ボタンを押下する。
 QuestionAnswerTranslator リポジトリのシークレットの削除については、[GitHub の QuestionAnswerTranslator リポジトリのページ](https://github.com/infhyroyage/QuestionAnswerTranslator)にある Setting > Secrets > Actions より、登録した各シークレットの Remove ボタンを押下する。
+
+## TODO
+
+- localhost 環境構築にて、React/Azure Functions の Docker コンテナを Docker Compose 経由で起動せず、直接ホスト側でサーバー起動する。
+- フロントエンドのサーバーを App Service の`qatranslator-je-appservice`ではなく、Static Web App に変更する。
