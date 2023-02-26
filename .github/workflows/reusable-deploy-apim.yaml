@@ -2,11 +2,28 @@ name: Deploy API Management (Reusable Workflow)
 
 on:
   workflow_call:
-
-env:
-  APIM_APIS_NAME: apis-functions
-  APIM_NAME: qatranslator-je-apim
-  RESOURCE_GROUP: qatranslator-je
+    inputs:
+      APIM_APIS_NAME:
+        default: apis-functions
+        required: true
+        type: string
+      APIM_NAME:
+        default: qatranslator-je-apim
+        required: true
+        type: string
+      RESOURCE_GROUP:
+        default: qatranslator-je
+        required: true
+        type: string
+    secrets:
+      AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID:
+        required: true
+      AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
 
 jobs:
   deploy-apim:
@@ -23,9 +40,9 @@ jobs:
       - name: Import Swagger into API Management
         run: |
           az apim api import \
-            -g ${{ env.RESOURCE_GROUP }} \
-            -n ${{ env.APIM_NAME }} \
+            -g ${{ inputs.RESOURCE_GROUP }} \
+            -n ${{ inputs.APIM_NAME }} \
             --path "api" \
             --specification-format OpenApi \
-            --api-id ${{ env.APIM_APIS_NAME }} \
+            --api-id ${{ inputs.APIM_APIS_NAME }} \
             --specification-path ./apim/swagger.yaml
