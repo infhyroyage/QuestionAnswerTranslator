@@ -14,6 +14,7 @@ jobs:
     uses: ./.github/workflows/reusable-build-functions-app.yaml
 
   use-deploy-functions-app-workflow:
+    needs: use-build-functions-app-workflow
     uses: ./.github/workflows/reusable-deploy-functions-app.yaml
     secrets:
       AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID: ${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}
