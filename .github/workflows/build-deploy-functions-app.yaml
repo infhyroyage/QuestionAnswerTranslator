@@ -6,67 +6,17 @@ on:
       - main
     paths:
       - .github/workflows/build-deploy-functions-app.yaml
+      - .github/workflows/reusable-build-deploy-functions-app.yaml
       - functions**
 
-env:
-  FUNCTIONS_NAME: qatranslator-je-func
-  NODE_VERSION: "16.19.0"
-
 jobs:
-  build-artifacts:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@main
+  use-build-functions-app-workflow:
+    uses: ./.github/workflows/reusable-build-functions-app.yaml
 
-      - name: Setup Node ${{ env.NODE_VERSION }} Environment
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Build Azure Functions Application
-        run: |
-          pushd functions
-          cp ../package.json .
-          npm install
-          npm run functions:build
-          popd
-
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: qatranslator-func
-          path: |
-            functions/*/*.js
-            functions/*/function.json
-            functions/host.json
-            functions/package.json
-            !functions/node_modules
-
-  deploy-functions-app:
-    runs-on: ubuntu-latest
-    needs: build-artifacts
-    steps:
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: qatranslator-func
-
-      - name: Setup Node ${{ env.NODE_VERSION }} Environment
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Build Azure Functions Application
-        run: npm install --production
-
-      - name: Login Azure as Contributor
-        uses: azure/login@v1
-        with:
-          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
-
-      - name: Deploy Azure Functions Application
-        uses: Azure/functions-action@v1.4.8
-        with:
-          app-name: ${{ env.FUNCTIONS_NAME }}
-          package: .
+  use-deploy-functions-app-workflow:
+    uses: ./.github/workflows/reusable-deploy-functions-app.yaml
+    secrets:
+      AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID: ${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}
+      AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET: ${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}

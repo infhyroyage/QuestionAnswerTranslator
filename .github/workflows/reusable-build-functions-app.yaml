@@ -1,0 +1,40 @@
+name: Build Azure Functions Application (Reusable Workflow)
+
+on:
+  workflow_call:
+    inputs:
+      NODE_VERSION:
+        default: "16.19.0"
+        required: false
+        type: string
+
+jobs:
+  build-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Setup Node ${{ inputs.NODE_VERSION }} Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.NODE_VERSION }}
+
+      - name: Build Azure Functions Application
+        run: |
+          pushd functions
+          cp ../package.json .
+          npm install
+          npm run functions:build
+          popd
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: qatranslator-func
+          path: |
+            functions/*/*.js
+            functions/*/function.json
+            functions/host.json
+            functions/package.json
+            !functions/node_modules

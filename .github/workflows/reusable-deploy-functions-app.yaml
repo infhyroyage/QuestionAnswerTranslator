@@ -1,0 +1,51 @@
+name: Deploy Azure Functions Application (Reusable Workflow)
+
+on:
+  workflow_call:
+    inputs:
+      FUNCTIONS_NAME:
+        default: qatranslator-je-func
+        required: false
+        type: string
+      NODE_VERSION:
+        default: "16.19.0"
+        required: false
+        type: string
+    secrets:
+      AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID:
+        required: true
+      AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+
+jobs:
+  deploy-functions-app:
+    runs-on: ubuntu-latest
+    needs: build-artifacts
+    steps:
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: qatranslator-func
+
+      - name: Setup Node ${{ inputs.NODE_VERSION }} Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.NODE_VERSION }}
+
+      - name: Build Azure Functions Application
+        run: npm install --production
+
+      - name: Login Azure as Contributor
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Deploy Azure Functions Application
+        uses: Azure/functions-action@v1.4.8
+        with:
+          app-name: ${{ inputs.FUNCTIONS_NAME }}
+          package: .
