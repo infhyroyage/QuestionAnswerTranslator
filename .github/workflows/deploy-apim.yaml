@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - .github/workflows/deploy-apim.yaml
+      - .github/workflows/reusable-deploy-apim.yaml
       - apim**
 
 jobs:
