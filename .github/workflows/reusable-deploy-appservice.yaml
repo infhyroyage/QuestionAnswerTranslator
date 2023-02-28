@@ -1,0 +1,41 @@
+name: Deploy App Service (Reusable Workflow)
+
+on:
+  workflow_call:
+    inputs:
+      APP_SERVICE_NAME:
+        default: qatranslator-je-appservice
+        required: false
+        type: string
+      GHCR_IMAGE_NAME:
+        default: react
+        required: false
+        type: string
+      GHCR_REPOSITORY_NAME:
+        default: qatranslator
+        required: false
+        type: string
+    secrets:
+      AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID:
+        required: true
+      AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+
+jobs:
+  deploy-appservice:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login Azure as Contributor
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Deploy App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ inputs.APP_SERVICE_NAME }}
+          images: ghcr.io/${{ github.actor }}/${{ inputs.GHCR_REPOSITORY_NAME }}/${{ inputs.GHCR_IMAGE_NAME }}:${{ github.sha	}}
