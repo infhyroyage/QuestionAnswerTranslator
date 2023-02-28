@@ -174,10 +174,15 @@ functions 配下に cd し、以下のファイルを持つ関数アプリのプ
 
 ## localhost 環境構築
 
-Azure にリソースを構築せず、Azure Functions(HTTP Trigger の関数アプリのみ)・Cosmos DB・React サーバーを localhost 上で構築することもできる。
-Azure Functions は[Azure Functions Core Tools](https://docs.microsoft.com/ja-jp/azure/azure-functions/functions-run-local)、Cosmos DB は[Azure Cosmos DB Linux Emulator](https://docs.microsoft.com/ja-jp/azure/cosmos-db/local-emulator)を Docker Compose で起動することによって実現する。
-localhost 環境で使用する Azure Functions・Cosmos DB・React サーバーのポートは、それぞれ 9229・9230・3000 である。
-localhost 環境構築後、 [Azure Cosmos DB Emulator の index](https://localhost:9230/_explorer/index.html) にアクセスすると、DB 内のデータをプレビューすることができる。
+Azure にリソースを構築せず、以下を使用して localhost 上でサーバーをそれぞれ起動することもできる。
+
+| サーバー名                                     | 使用するサービス名                                                                                       | ポート番号 |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------- |
+| Azure Functions(HTTP Trigger の関数アプリのみ) | [Azure Functions Core Tools](https://docs.microsoft.com/ja-jp/azure/azure-functions/functions-run-local) | 9229       |
+| Cosmos DB                                      | [Azure Cosmos DB Linux Emulator](https://docs.microsoft.com/ja-jp/azure/cosmos-db/local-emulator)        | 9230       |
+| React のサーバー                               | [react-scripts](https://www.npmjs.com/package/react-scripts)                                             | 3000       |
+
+localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://localhost:9230/_explorer/index.html) にアクセスすると、Cosmos DB 内のデータを参照・更新することができる。
 
 ### 構築手順
 
@@ -254,5 +259,4 @@ QuestionAnswerTranslator リポジトリのシークレットの削除につい�
 
 ## TODO
 
-- localhost 環境構築にて、React/Azure Functions の Docker コンテナを Docker Compose 経由で起動せず、直接ホスト側でサーバー起動する。
 - フロントエンドのサーバーを App Service の`qatranslator-je-appservice`ではなく、Static Web App に変更する。
