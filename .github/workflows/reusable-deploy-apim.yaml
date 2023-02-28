@@ -4,13 +4,16 @@ on:
   workflow_call:
     inputs:
       APIM_APIS_NAME:
-        required: true
+        default: apis-functions
+        required: false
         type: string
       APIM_NAME:
-        required: true
+        default: qatranslator-je-apim
+        required: false
         type: string
       RESOURCE_GROUP:
-        required: true
+        default: qatranslator-je
+        required: false
         type: string
     secrets:
       AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID:

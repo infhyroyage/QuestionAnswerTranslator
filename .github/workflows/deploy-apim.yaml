@@ -12,13 +12,6 @@ on:
 jobs:
   use-deploy-apim-workflow:
     uses: ./.github/workflows/reusable-deploy-apim.yaml
-    with:
-      # inputsを指定してReusable Workflowを呼び出す際、withにenvを指定できない
-      # 以下URLにIssueが存在(2023/02/26現在Closedされていない)
-      # https://github.com/actions/runner/issues/2372
-      APIM_APIS_NAME: apis-functions
-      APIM_NAME: qatranslator-je-apim
-      RESOURCE_GROUP: qatranslator-je
     secrets:
       AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID: ${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}
       AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET: ${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}
