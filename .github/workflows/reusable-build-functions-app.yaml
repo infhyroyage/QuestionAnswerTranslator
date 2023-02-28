@@ -9,7 +9,7 @@ on:
         type: string
 
 jobs:
-  build-artifacts:
+  build-functions-app:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

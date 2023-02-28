@@ -6,7 +6,8 @@ on:
       - main
     paths:
       - .github/workflows/build-deploy-functions-app.yaml
-      - .github/workflows/reusable-build-deploy-functions-app.yaml
+      - .github/workflows/reusable-build-functions-app.yaml
+      - .github/workflows/reusable-deploy-functions-app.yaml
       - functions**
 
 jobs:
