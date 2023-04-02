@@ -3,8 +3,7 @@
     <!--CORSチェック-->
     <cors>
       <allowed-origins>
-        <origin>http://localhost:3000</origin>
-        <origin>https://qatranslator-je-appservice.azurewebsites.net</origin>
+        <origin>https://infhyroyage.github.io/</origin>
       </allowed-origins>
       <allowed-methods>
         <method>GET</method>

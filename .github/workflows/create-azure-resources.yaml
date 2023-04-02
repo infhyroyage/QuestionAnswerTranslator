@@ -11,7 +11,6 @@ on:
 env:
   APIM_APIS_NAME: apis-functions
   APIM_NAME: qatranslator-je-apim
-  APP_SERVICE_NAME: qatranslator-je-appservice
   FUNCTIONS_NAME: qatranslator-je-func
   LOCATION: japaneast
   RESOURCE_GROUP: qatranslator-je
@@ -42,7 +41,7 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
           template: ./resources/base.json
-          parameters: azureApimPublisherEmail=${{ secrets.AZURE_APIM_PUBLISHER_EMAIL }} azureADGlobalAdminObjectId=${{ secrets.AZURE_AD_GLOBAL_ADMIN_OBJECT_ID }} githubToken=${{ secrets.GHCR_PAT_READ_PACKAGES }} githubUsername=${{ github.actor }}
+          parameters: azureApimPublisherEmail=${{ secrets.AZURE_APIM_PUBLISHER_EMAIL }} azureADGlobalAdminObjectId=${{ secrets.AZURE_AD_GLOBAL_ADMIN_OBJECT_ID }}
 
   use-deploy-apim-workflow:
     needs: create-resources
@@ -52,43 +51,6 @@ jobs:
       AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET: ${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-
-  use-build-appservice-workflow:
-    needs: create-resources
-    uses: ./.github/workflows/reusable-build-appservice.yaml
-    secrets:
-      AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID: ${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}
-      AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET: ${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-
-  use-deploy-appservice-workflow:
-    needs: use-build-appservice-workflow
-    uses: ./.github/workflows/reusable-deploy-appservice.yaml
-    secrets:
-      AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID: ${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}
-      AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET: ${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-
-  set-appservice-appsettings:
-    runs-on: ubuntu-latest
-    needs: create-resources
-    steps:
-      - name: Checkout
-        uses: actions/checkout@main
-
-      - name: Login Azure as Contributor
-        uses: azure/login@v1
-        with:
-          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
-
-      - name: Add Key Vault Secrets
-        run: |
-          az webapp config appsettings set \
-            -g ${{ env.RESOURCE_GROUP }} \
-            -n ${{ env.APP_SERVICE_NAME }} \
-            --settings @resources/appservice-appsettings-vault-secret.json
 
   set-functions-appsettings:
     runs-on: ubuntu-latest

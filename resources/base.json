@@ -7,12 +7,6 @@
     },
     "azureADGlobalAdminObjectId": {
       "type": "securestring"
-    },
-    "githubToken": {
-      "type": "securestring"
-    },
-    "githubUsername": {
-      "type": "string"
     }
   },
   "variables": {
@@ -25,10 +19,6 @@
       },
       "orgName": "qatranslator-je-apim-org",
       "subscriptionsName": "subscriptions-functions"
-    },
-    "appservice": {
-      "name": "qatranslator-je-appservice",
-      "planName": "qatranslator-je-appserviceplan"
     },
     "cognitive": {
       "name": "qatranslator-je-cognitive"
@@ -250,25 +240,6 @@
       }
     },
     {
-      "apiVersion": "2020-12-01",
-      "name": "[variables('appservice').planName]",
-      "type": "Microsoft.Web/serverfarms",
-      "location": "[resourceGroup().location]",
-      "kind": "linux",
-      "sku": {
-        "Name": "F1",
-        "Tier": "Free"
-      },
-      "properties": {
-        "name": "[variables('appservice').planName]",
-        "numberOfWorkers": "1",
-        "reserved": true,
-        "workerSize": "0",
-        "workerSizeId": "0",
-        "zoneRedundant": false
-      }
-    },
-    {
       "apiVersion": "2021-03-01",
       "name": "[variables('functions').planName]",
       "type": "Microsoft.Web/serverfarms",
@@ -323,58 +294,6 @@
         "Flow_Type": "Bluefield",
         "Request_Source": "rest",
         "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspaces').name)]"
-      }
-    },
-    {
-      "apiVersion": "2018-11-01",
-      "name": "[variables('appservice').name]",
-      "type": "Microsoft.Web/sites",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('microsoft.insights/components', variables('insights').name)]",
-        "[resourceId('Microsoft.Web/serverfarms', variables('appservice').planName)]"
-      ],
-      "identity": {
-        "type": "SystemAssigned"
-      },
-      "properties": {
-        "clientAffinityEnabled": false,
-        "httpsOnly": true,
-        "name": "[variables('appservice').name]",
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appservice').planName)]",
-        "siteConfig": {
-          "alwaysOn": false,
-          "appSettings": [
-            {
-              "name": "ApplicationInsightsAgent_EXTENSION_VERSION",
-              "value": "~3"
-            },
-            {
-              "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
-              "value": "[parameters('githubToken')]"
-            },
-            {
-              "name": "DOCKER_REGISTRY_SERVER_URL",
-              "value": "https://ghcr.io"
-            },
-            {
-              "name": "DOCKER_REGISTRY_SERVER_USERNAME",
-              "value": "[parameters('githubUsername')]"
-            },
-            {
-              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
-              "value": "false"
-            },
-            {
-              "name": "XDT_MicrosoftApplicationInsights_Mode",
-              "value": "Recommended"
-            }
-          ],
-          "ftpsState": "Disabled",
-          "keyVaultReferenceIdentity": "SystemAssigned",
-          "linuxFxVersion": "DOCKER|mcr.microsoft.com/appsvc/staticsite:latest"
-        },
-        "virtualNetworkSubnetId": null
       }
     },
     {
@@ -445,7 +364,6 @@
       "type": "Microsoft.KeyVault/vaults",
       "dependsOn": [
         "[resourceId('Microsoft.ApiManagement/service', variables('apim').name)]",
-        "[resourceId('Microsoft.Web/sites', variables('appservice').name)]",
         "[resourceId('Microsoft.Web/sites', variables('functions').name)]"
       ],
       "properties": {
@@ -506,17 +424,6 @@
               "secrets": [
                 "Get",
                 "list"
-              ],
-              "certificates": []
-            }
-          },
-          {
-            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('appservice').name), '2018-11-01', 'Full').identity.principalId]",
-            "tenantId": "[tenant().tenantId]",
-            "permissions": {
-              "keys": [],
-              "secrets": [
-                "Get"
               ],
               "certificates": []
             }
