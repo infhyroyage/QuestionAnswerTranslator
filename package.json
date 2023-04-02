@@ -8,10 +8,7 @@
     "local:create": "docker-compose up",
     "local:cosmosdbImport": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node cosmosdb/src/import.ts",
     "local:destroy": "docker-compose down",
-    "local:functionsUpdate": "docker-compose up -d --no-deps --build localfunctions",
-    "local:reactUpdate": "docker-compose up -d --no-deps --build localreact",
-    "react:build": "react-scripts build",
-    "react:start": "FORCE_COLOR=true react-scripts start | cat"
+    "local:functionsUpdate": "docker-compose up -d --no-deps --build localfunctions"
   },
   "repository": {
     "type": "git",
