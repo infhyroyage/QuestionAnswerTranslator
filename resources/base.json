@@ -90,7 +90,7 @@
           "properties": {
             "apiRevision": "1",
             "description": "[concat('APIs from ', variables('functions').name, ' Function App')]",
-            "displayName": "[variables('functions').name]",
+            "displayName": "[variables('apim').apisName]",
             "isCurrent": true,
             "path": "api",
             "protocols": [
@@ -109,7 +109,7 @@
           "properties": {
             "apiRevision": "1",
             "description": "[concat('Health Check APIs from ', variables('functions').name, ' Function App')]",
-            "displayName": "[variables('functions').name]",
+            "displayName": "[variables('apim').apisHealthcheckName]",
             "isCurrent": true,
             "path": "",
             "protocols": [
