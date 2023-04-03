@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: qatranslator-je-func
+  title: apis-healthcheck-functions
   description: Health Check APIs from qatranslator-je-func Function App
   version: "1.0"
 servers:

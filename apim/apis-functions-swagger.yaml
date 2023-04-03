@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: qatranslator-je-func
+  title: apis-functions
   description: APIs from qatranslator-je-func Function App
   version: "1.0"
 servers:
