@@ -1,18 +1,11 @@
 openapi: 3.0.1
 info:
   title: qatranslator-je-func
-  description: Import from qatranslator-je-func Function App
+  description: APIs from qatranslator-je-func Function App
   version: "1.0"
 servers:
   - url: https://qatranslator-je-apim.azure-api.net
 paths:
-  /healthcheck:
-    get:
-      summary: /healthcheck
-      operationId: get-healthcheck
-      responses:
-        "200":
-          description: Normal Response
   /tests:
     get:
       summary: /tests
@@ -80,16 +73,3 @@ paths:
           description: Not Found Question
         "500":
           description: Internal Server Error
-components:
-  securitySchemes:
-    apiKeyHeader:
-      type: apiKey
-      name: Ocp-Apim-Subscription-Key
-      in: header
-    apiKeyQuery:
-      type: apiKey
-      name: subscription-key
-      in: query
-security:
-  - apiKeyHeader: []
-  - apiKeyQuery: []

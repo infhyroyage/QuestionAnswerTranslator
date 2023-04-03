@@ -11,14 +11,14 @@
   },
   "variables": {
     "apim": {
+      "apisHealthcheckName": "apis-healthcheck-functions",
       "apisName": "apis-functions",
       "loggersName": "loggers-insights",
       "name": "qatranslator-je-apim",
       "namedValuesNames": {
         "insightsInstrumentationKey": "named-values-insights-instrumentation-key"
       },
-      "orgName": "qatranslator-je-apim-org",
-      "subscriptionsName": "subscriptions-functions"
+      "orgName": "qatranslator-je-apim-org"
     },
     "cognitive": {
       "name": "qatranslator-je-cognitive"
@@ -89,29 +89,33 @@
           ],
           "properties": {
             "apiRevision": "1",
-            "description": "[concat('Import from ', variables('functions').name, ' Function App')]",
+            "description": "[concat('APIs from ', variables('functions').name, ' Function App')]",
             "displayName": "[variables('functions').name]",
             "isCurrent": true,
             "path": "api",
             "protocols": [
               "https"
-            ],
-            "subscriptionRequired": true
+            ]
           }
         },
         {
-          "type": "subscriptions",
+          "type": "apis",
           "apiVersion": "2021-12-01-preview",
-          "name": "[variables('apim').subscriptionsName]",
+          "name": "[variables('apim').apisHealthcheckName]",
           "dependsOn": [
             "[resourceId('Microsoft.ApiManagement/service', variables('apim').name)]",
-            "[resourceId('Microsoft.ApiManagement/service/apis', variables('apim').name, variables('apim').apisName)]"
+            "[resourceId('Microsoft.Web/sites', variables('functions').name)]"
           ],
           "properties": {
-            "allowTracing": true,
-            "displayName": "[variables('apim').subscriptionsName]",
-            "scope": "[resourceId('Microsoft.ApiManagement/service/apis', variables('apim').name, variables('apim').apisName)]",
-            "state": "active"
+            "apiRevision": "1",
+            "description": "[concat('Health Check APIs from ', variables('functions').name, ' Function App')]",
+            "displayName": "[variables('functions').name]",
+            "isCurrent": true,
+            "path": "",
+            "protocols": [
+              "https"
+            ],
+            "subscriptionRequired": true
           }
         },
         {

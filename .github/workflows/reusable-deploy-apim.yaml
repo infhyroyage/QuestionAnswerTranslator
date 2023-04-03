@@ -7,6 +7,10 @@ on:
         default: apis-functions
         required: false
         type: string
+      APIM_APIS_HEALTHCHECK_NAME:
+        default: apis-healthcheck-functions
+        required: false
+        type: string
       APIM_NAME:
         default: qatranslator-je-apim
         required: false
@@ -26,7 +30,7 @@ on:
         required: true
 
 jobs:
-  deploy-apim:
+  deploy-apis-healthcheck-functions:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -36,6 +40,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+          enable-AzPSSession: true
 
       - name: Import Swagger into API Management
         run: |
@@ -45,4 +50,71 @@ jobs:
             --path "api" \
             --specification-format OpenApi \
             --api-id ${{ inputs.APIM_APIS_NAME }} \
-            --specification-path ./apim/swagger.yaml
+            --specification-path ./apim/apis-functions-swagger.yaml
+
+      - name: Update API Management Policy XML File
+        run: |
+          sed -i.bak \
+            -e 's/{AZURE_AD_SP_MSAL_CLIENT_ID}/${{ secrets.AZURE_AD_SP_MSAL_CLIENT_ID }}/g' \
+            -e 's/{AZURE_TENANT_ID}/${{ secrets.AZURE_TENANT_ID }}/g' \
+            apim/apis-functions-policy.xml
+
+      # 従量課金のAPI Managementは、ARMテンプレートにポリシーを記述してデプロイできないため、
+      # PowershellにてFunctions API全体に対するポリシーを別途設定
+      - name: Set API Management Policies
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $apimContext = New-AzApiManagementContext `
+              -ResourceGroupName "${{ inputs.RESOURCE_GROUP }}" `
+              -ServiceName "${{ inputs.APIM_NAME }}"
+            Set-AzApiManagementPolicy `
+              -Context $apimContext `
+              -ApiId "${{ inputs.APIM_APIS_NAME }}" `
+              -PolicyFilePath "./apim/apis-functions-policy.xml"
+          azPSVersion: latest
+
+  deploy-apis-functions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Login Azure as Contributor
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+          enable-AzPSSession: true
+
+      - name: Import Swagger into API Management
+        run: |
+          az apim api import \
+            -g ${{ inputs.RESOURCE_GROUP }} \
+            -n ${{ inputs.APIM_NAME }} \
+            --path "" \
+            --specification-format OpenApi \
+            --api-id ${{ inputs.APIM_APIS_HEALTHCHECK_NAME }} \
+            --specification-path ./apim/apis-healthcheck-functions-swagger.yaml
+
+      - name: Update API Management Policy XML File
+        run: |
+          sed -i.bak \
+            -e 's/{AZURE_AD_SP_MSAL_CLIENT_ID}/${{ secrets.AZURE_AD_SP_MSAL_CLIENT_ID }}/g' \
+            -e 's/{AZURE_TENANT_ID}/${{ secrets.AZURE_TENANT_ID }}/g' \
+            apim/apis-healthcheck-functions-policy.xml
+
+      # 従量課金のAPI Managementは、ARMテンプレートにポリシーを記述してデプロイできないため、
+      # PowershellにてFunctions API全体に対するポリシーを別途設定
+      # ただし、[GET] /healthcheckのAPIのみ、CORSチェック・JWTトークンチェックを迂回する独自ポリシーを設定
+      - name: Set API Management Policies
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $apimContext = New-AzApiManagementContext `
+              -ResourceGroupName "${{ inputs.RESOURCE_GROUP }}" `
+              -ServiceName "${{ inputs.APIM_NAME }}"
+            Set-AzApiManagementPolicy `
+              -Context $apimContext `
+              -ApiId "${{ inputs.APIM_APIS_HEALTHCHECK_NAME }}" `
+              -PolicyFilePath "./apim/apis-healthcheck-functions-policy.xml"
+          azPSVersion: latest
