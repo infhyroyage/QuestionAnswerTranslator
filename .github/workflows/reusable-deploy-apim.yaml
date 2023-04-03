@@ -3,12 +3,12 @@ name: Deploy API Management (Reusable Workflow)
 on:
   workflow_call:
     inputs:
-      APIM_APIS_NAME:
-        default: apis-functions
-        required: false
-        type: string
       APIM_APIS_HEALTHCHECK_NAME:
         default: apis-healthcheck-functions
+        required: false
+        type: string
+      APIM_APIS_NAME:
+        default: apis-functions
         required: false
         type: string
       APIM_NAME:
@@ -23,6 +23,8 @@ on:
       AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID:
         required: true
       AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET:
+        required: true
+      AZURE_AD_SP_MSAL_CLIENT_ID:
         required: true
       AZURE_SUBSCRIPTION_ID:
         required: true
