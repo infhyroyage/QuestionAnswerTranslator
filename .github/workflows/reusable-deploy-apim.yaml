@@ -30,7 +30,7 @@ on:
         required: true
 
 jobs:
-  deploy-apis-healthcheck-functions:
+  deploy-apis-functions:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -74,7 +74,7 @@ jobs:
               -PolicyFilePath "./apim/apis-functions-policy.xml"
           azPSVersion: latest
 
-  deploy-apis-functions:
+  deploy-apis-healthcheck-functions:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -95,13 +95,6 @@ jobs:
             --specification-format OpenApi \
             --api-id ${{ inputs.APIM_APIS_HEALTHCHECK_NAME }} \
             --specification-path ./apim/apis-healthcheck-functions-swagger.yaml
-
-      - name: Update API Management Policy XML File
-        run: |
-          sed -i.bak \
-            -e 's/{AZURE_AD_SP_MSAL_CLIENT_ID}/${{ secrets.AZURE_AD_SP_MSAL_CLIENT_ID }}/g' \
-            -e 's/{AZURE_TENANT_ID}/${{ secrets.AZURE_TENANT_ID }}/g' \
-            apim/apis-healthcheck-functions-policy.xml
 
       # 従量課金のAPI Managementは、ARMテンプレートにポリシーを記述してデプロイできないため、
       # PowershellにてFunctions API全体に対するポリシーを別途設定
