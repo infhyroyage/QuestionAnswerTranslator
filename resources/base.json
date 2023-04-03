@@ -95,7 +95,8 @@
             "path": "api",
             "protocols": [
               "https"
-            ]
+            ],
+            "subscriptionRequired": false
           }
         },
         {
