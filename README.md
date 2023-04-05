@@ -1,41 +1,40 @@
 # QuestionAnswerTranslator
 
-## Azure リソースアーキテクチャー図
+## アーキテクチャー図
 
 ![architecture.drawio](architecture.drawio.svg)
 
-| リソース名                       | 概要                                                                       | workflow での CI/CD |
-| -------------------------------- | -------------------------------------------------------------------------- | :-----------------: |
-| `qatranslator-je-appservice`     | ユーザーからアクセスする App Service                                       |          o          |
-| `qatranslator-je-appserviceplan` | App Service のプラン                                                       |                     |
-| `qatranslator-je-cognitive`      | ユーザーから DeepL の無料枠を超過した場合のみアクセスする Translator       |                     |
-| `qatranslator-je-apim`           | ユーザー/App Service からアクセスする API Management                       |          o          |
-| `qatranslator-je-func`           | API Management からアクセスする Functions                                  |          o          |
-| `qatranslator-je-funcplan`       | Functions のプラン                                                         |                     |
-| `qatranslatorjesa`               | Functions から参照するストレージアカウント                                 |                     |
-| `qatranslator-je-cosmosdb`       | Functions からアクセスする Cosmos DB                                       |                     |
-| `qatranslator-je-insights`       | App Service/API Management/Functions を一括で監視する Application Insights |                     |
-| `qatranslator-je-ws`             | Application Insights を分析する Workspaces                                 |                     |
-| `qatranslator-je-vault`          | 暗号鍵/シークレットを管理する Key Vault                                    |                     |
+| Azure リソース名            | 概要                                                                       | workflow での CI/CD |
+| --------------------------- | -------------------------------------------------------------------------- | :-----------------: |
+| `qatranslator-je-cognitive` | ユーザーから DeepL の無料枠を超過した場合のみアクセスする Translator       |                     |
+| `qatranslator-je-apim`      | ユーザー/App Service からアクセスする API Management                       |          o          |
+| `qatranslator-je-func`      | API Management からアクセスする Functions                                  |          o          |
+| `qatranslator-je-funcplan`  | Functions のプラン                                                         |                     |
+| `qatranslatorjesa`          | Functions から参照するストレージアカウント                                 |                     |
+| `qatranslator-je-cosmosdb`  | Functions からアクセスする Cosmos DB                                       |                     |
+| `qatranslator-je-insights`  | App Service/API Management/Functions を一括で監視する Application Insights |                     |
+| `qatranslator-je-ws`        | Application Insights を分析する Workspaces                                 |                     |
+| `qatranslator-je-vault`     | 暗号鍵/シークレットを管理する Key Vault                                    |                     |
 
-## 使用するバージョン
+## 使用する主要なパッケージのバージョン
 
 | 名称       | バージョン |
 | ---------- | ---------- |
+| Next.js    | 13.2.4     |
 | Node.js    | 16.19.0    |
 | React      | 18.2.0     |
-| Typescript | 10.9.1     |
+| Typescript | 4.9.5      |
 
 ## 初期構築
 
 Azure リソース/localhost に環境を構築する事前準備として、以下の順で初期構築を必ずすべて行う必要がある。
 
-1. GitHub Actions 用のサービスプリンシパル発行
-2. Azure AD 認証認可用のサービスプリンシパル発行
-3. QuestionAnswerTranslator リポジトリのシークレット設定
-4. インポートデータファイル作成
+1. GitHub Actions 用サービスプリンシパルの発行
+2. Azure AD 認証認可用サービスプリンシパルの発行
+3. リポジトリのシークレット設定
+4. インポートデータファイルの作成
 
-### 1. GitHub Actions 用のサービスプリンシパル発行
+### 1. GitHub Actions 用サービスプリンシパルの発行
 
 1. Azure CLI にてログイン後、以下のコマンドを実行し、サービスプリンシパル`QATranslator_Contributor`を発行する。
    ```bash
@@ -46,9 +45,9 @@ Azure リソース/localhost に環境を構築する事前準備として、以
    - `clientSecret`(=クライアントシークレット)
 3. Azure Portal から Azure AD に遷移する。
 
-### 2. Azure AD 認証認可用のサービスプリンシパル発行
+### 2. Azure AD 認証認可用サービスプリンシパルの発行
 
-QATranslator_Contributor とは別に、`qatranslator-je-appservice`から MSAL を用いて Azure AD に認証認可できるサービスプリンシパル QATranslator_MSAL を以下の手順で発行する。
+QATranslator_Contributor とは別に、[Question Answer Portal](https://infhyroyage.github.io/QuestionAnswerPortal)から MSAL を用いて Azure AD に認証認可できるサービスプリンシパル QATranslator_MSAL を以下の手順で発行する。
 
 1. Azure Portal から Azure AD に遷移する。
 2. App Registrations > New registration の順で押下し、以下の項目を入力後、Register ボタンを押下してサービスプリンシパルを登録する。
@@ -56,7 +55,7 @@ QATranslator_Contributor とは別に、`qatranslator-je-appservice`から MSAL 
    - Supported account types : `Accounts in this organizational directory only`
    - Redirect URI : `Single-page application(SPA)`(左) と `http://localhost:3000`(右)
 3. 登録して自動遷移した「QATranslator_MSAL」の Overview にある「Application (client) ID」の値(=クライアント ID)を手元に控える。
-4. Authentication > Single-page application にある 「Add URI」を押下して、Redirect URIs にあるリストに`https://qatranslator-je-appservice.azurewebsites.net`を追加し、Save ボタンを押下する。
+4. Authentication > Single-page application にある 「Add URI」を押下して、Redirect URIs にあるリストに`https://infhyroyage.github.io/QuestionAnswerPortal`を追加し、Save ボタンを押下する。
 5. Expose an API > Application ID URI の右にある小さな文字「Set」を押下し、Application ID URI の入力欄に`api://{3で手元に控えたクライアントID}`が自動反映されていることを確認し、Save ボタンを押下する。
 6. Expose an API > Scopes defined by this API にある「Add a scope」を押下し、以下の項目を入力後、Save ボタンを押下する。
    - Scope name : `access_as_user`
@@ -73,23 +72,34 @@ QATranslator_Contributor とは別に、`qatranslator-je-appservice`から MSAL 
    4. Add permissions ボタンを押下。
 8. Manifest から JSON 形式のマニフェストを表示し、`"accessTokenAcceptedVersion"`の値を`null`から`2`に変更する。
 
-### 3. QuestionAnswerTranslator リポジトリのシークレット設定
+### 3. リポジトリのシークレット設定
 
-[GitHub の QuestionAnswerTranslator リポジトリのページ](https://github.com/infhyroyage/QuestionAnswerTranslator)にある Setting > Secrets > Actions より、以下のシークレットをすべて設定する。
+当リポジトリの Setting > Secrets And variables > Actions より、以下のシークレット・変数をすべて設定する。
+
+#### シークレット
+
+Secrets タブから「New repository secret」ボタンを押下して、下記の通り変数を設定する。
 
 | シークレット名                        | シークレット値                                                   |
 | ------------------------------------- | ---------------------------------------------------------------- |
-| AZURE_AD_GLOBAL_ADMIN_OBJECT_ID       | Azure AD グローバル管理者のオブジェクト ID                       |
-| AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID     | 1.で発行した QATranslator_Contributor のクライアント ID          |
-| AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET | 1.で発行した QATranslator_Contributor のクライアントシークレット |
-| AZURE_AD_SP_MSAL_CLIENT_ID            | 2.で発行した QATranslator_MSAL のクライアント ID                 |
 | AZURE_APIM_PUBLISHER_EMAIL            | API Management の発行者メールアドレス                            |
-| AZURE_SUBSCRIPTION_ID                 | サブスクリプション ID                                            |
-| AZURE_TENANT_ID                       | ディレクトリ ID                                                  |
+| AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET | 1.で発行した QATranslator_Contributor のクライアントシークレット |
 | DEEPL_AUTH_KEY                        | DeepL API の認証キー                                             |
-| GHCR_PAT_READ_PACKAGES                | read:packages を許可した GitHub の Personal Access Tokens        |
 
-### 4. インポートデータファイル作成
+#### 変数
+
+Variables タブから「New repository variable」ボタンを押下して、下記の通り変数を設定する。
+
+| 変数名                            | 変数値                                                  |
+| --------------------------------- | ------------------------------------------------------- |
+| API_MANAGEMENT_GATEWAY_URL        | API Management の Gateway URL                           |
+| AZURE_AD_GLOBAL_ADMIN_OBJECT_ID   | Azure AD グローバル管理者のオブジェクト ID              |
+| AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID | 1.で発行した QATranslator_Contributor のクライアント ID |
+| AZURE_AD_SP_MSAL_CLIENT_ID        | 2.で発行した QATranslator_MSAL のクライアント ID        |
+| AZURE_SUBSCRIPTION_ID             | サブスクリプション ID                                   |
+| AZURE_TENANT_ID                   | ディレクトリ ID                                         |
+
+### 4. インポートデータファイルの作成
 
 Cosmos DB に保存する以下の文字列は、そのまま GitHub 上に管理するべきではないセキュリティ上の理由のため、**インポートデータファイル**と呼ぶ特定のフォーマットで記述した Typescript のソースコードを git 管理せず、ローカル管理する運用としている。
 インポートデータファイルは、ローカルで git clone した QuestionAnswerTranslator リポジトリの cosmosdb/data 配下に importData.ts というファイル名で Azure リソース/localhost 環境構築前に用意しておく必要がある。
@@ -170,60 +180,40 @@ functions 配下に cd し、以下のファイルを持つ関数アプリのプ
 
 ### API Management
 
-上記で生成した関数アプリが HTTP Trigger の場合は、apim/swagger.yaml にその関数アプリの Swagger を記述する。
+上記で生成した関数アプリが HTTP Trigger の場合は、apim/apis-functions-swagger.yaml にその関数アプリの Swagger を記述する。
 
 ## localhost 環境構築
 
-Azure にリソースを構築せず、以下を使用して localhost 上でサーバーをそれぞれ起動することもできる。
+Azure にリソースを構築せず、localhost 上で以下のサーバーをそれぞれ起動することもできる。
 
 | サーバー名                                     | 使用するサービス名                                                                                       | ポート番号 |
 | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------- |
 | Azure Functions(HTTP Trigger の関数アプリのみ) | [Azure Functions Core Tools](https://docs.microsoft.com/ja-jp/azure/azure-functions/functions-run-local) | 9229       |
 | Cosmos DB                                      | [Azure Cosmos DB Linux Emulator](https://docs.microsoft.com/ja-jp/azure/cosmos-db/local-emulator)        | 9230       |
-| React のサーバー                               | [react-scripts](https://www.npmjs.com/package/react-scripts)                                             | 3000       |
 
 localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://localhost:9230/_explorer/index.html) にアクセスすると、Cosmos DB 内のデータを参照・更新することができる。
 
 ### 構築手順
 
 1. Docker および Docker Compose をインストールする。
-2. 以下を記述したファイル`.env.local`を QuestionAnswerTranslator リポジトリの react ディレクトリ配下に保存する。
-   ```
-   REACT_APP_AZURE_AD_SP_MSAL_CLIENT_ID=(初期構築時にGitHubへ登録したシークレットAZURE_AD_SP_MSAL_CLIENT_IDの値)
-   REACT_APP_AZURE_COGNITIVE_KEY=(初期構築時にデプロイしたqatranslator-je-cognitiveのキー値)
-   REACT_APP_AZURE_TENANT_ID=(初期構築時にGitHubへ登録したシークレットAZURE_TENANT_IDの値)
-   REACT_APP_DEEPL_AUTH_KEY=(初期構築時にGitHubへ登録したシークレットDEEPL_AUTH_KEYの値)
-   ```
-3. ターミナルを起動して以下のコマンドを実行し、Docker Compose で Azure Functions・Cosmos DB・React サーバーを起動する。実行したターミナルはそのまま放置する。
+2. ターミナルを起動して以下のコマンドを実行し、Docker Compose で Azure Functions・Cosmos DB を起動する。実行したターミナルはそのまま放置する。
    ```bash
    npm run local:create
    ```
    実行後、docker Compose で実行した localfunctions の標準出力が、以下のように表示されるまで待機する。
    ```
-   localfunctions    |
-   localfunctions    | Functions:
-   localfunctions    |
-   localfunctions    |     healthcheck: [GET] http://localhost:9229/api/healthcheck
-   localfunctions    |
-   (略)
-   localfunctions    |
-   localfunctions    | For detailed output, run func with --verbose flag.
-   localfunctions    | [略] Worker process started and initialized.
-   localfunctions    | [略] Host lock lease acquired by instance ID '(略)'.
+   localcosmosdb     | Starting
+   localcosmosdb     | Started 1/4 partitions
+   localcosmosdb     | Started 2/4 partitions
+   localcosmosdb     | Started 3/4 partitions
+   localcosmosdb     | Started 4/4 partitions
+   localcosmosdb     | Started
    ```
    なお、以前上記コマンドを実行したことがあり、`questionanswertranslator_localreact`および`questionanswertranslator_localfunctions`の Docker イメージが残ったままである場合は再ビルドせず、残った Docker イメージに対してそのまま Docker Compose で起動する。
-4. 3 とは別のターミナルで以下のコマンドを実行し、起動した Cosmos DB サーバーに対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+3. 2 とは別のターミナルで以下のコマンドを実行し、起動した Cosmos DB サーバーに対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
    ```bash
    npm run local:cosmosdbImport
    ```
-
-### React サーバーアップデート手順
-
-localhost 環境構築後、React サーバーを再ビルドして localhost 環境にデプロイしたい場合、ターミナルを起動し以下を実行する。
-
-```bash
-npm run local:reactUpdate
-```
 
 ### 関数アプリアップデート手順
 
@@ -244,7 +234,7 @@ npm run local:destroy
 なお、localhost 環境構築時にビルドした Docker イメージを削除したい場合は、ターミナルを起動し以下を実行すればよい。
 
 ```bash
-docker image rm questionanswertranslator_localfunctions questionanswertranslator_localreact
+docker image rm questionanswertranslator_localfunctions
 ```
 
 ## 完全初期化
@@ -256,3 +246,8 @@ docker image rm questionanswertranslator_localfunctions questionanswertranslator
 
 サービスプリンシパルの削除については、Azure Portal から Azure AD > App Registrations に遷移し、各サービスプリンシパルのリンク先にある Delete ボタンを押下し、「I understand the implications of deleting this app registration.」のチェックを入れて Delete ボタンを押下する。
 QuestionAnswerTranslator リポジトリのシークレットの削除については、[GitHub の QuestionAnswerTranslator リポジトリのページ](https://github.com/infhyroyage/QuestionAnswerTranslator)にある Setting > Secrets > Actions より、登録した各シークレットの Remove ボタンを押下する。
+
+## TODO
+
+- セッション ID と日本語の文章を指定して翻訳する API を Functions に作成。
+  - クライアントサイドで翻訳しない。サーバーサイドで翻訳する。
