@@ -23,7 +23,7 @@ jobs:
       - name: Login Azure as Contributor
         uses: azure/login@v1
         with:
-          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+          creds: '{"clientId":"${{ vars.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
 
       - name: Create Resource Group if Needed
         run: |
@@ -36,10 +36,10 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           scope: resourcegroup
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          subscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
           template: ./resources/base.json
-          parameters: azureApimPublisherEmail=${{ secrets.AZURE_APIM_PUBLISHER_EMAIL }} azureADGlobalAdminObjectId=${{ secrets.AZURE_AD_GLOBAL_ADMIN_OBJECT_ID }}
+          parameters: azureApimPublisherEmail=${{ secrets.AZURE_APIM_PUBLISHER_EMAIL }} azureADGlobalAdminObjectId=${{ vars.AZURE_AD_GLOBAL_ADMIN_OBJECT_ID }}
 
   use-deploy-apim-workflow:
     needs: create-resources
@@ -62,7 +62,7 @@ jobs:
       - name: Login Azure as Contributor
         uses: azure/login@v1
         with:
-          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+          creds: '{"clientId":"${{ vars.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
 
       - name: Add Key Vault Secrets
         run: |
@@ -83,13 +83,13 @@ jobs:
       - name: Login Azure as Contributor
         uses: azure/login@v1
         with:
-          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+          creds: '{"clientId":"${{ vars.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
 
       - name: Create Resources
         uses: azure/arm-deploy@v1
         with:
           scope: resourcegroup
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          subscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
           template: ./resources/connect-apim-2-functions.json
 
