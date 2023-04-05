@@ -29,8 +29,7 @@ export type GetQuestionAnswer = {
 
 export type Test = {
   id: string;
-  test: string;
-  length: number;
+  testName: string;
 };
 export type GetTests = {
   [course: string]: Test[];

@@ -23,8 +23,7 @@ export default async (context: Context): Promise<void> => {
     const body: GetTests = items.reduce((prev: GetTests, item: Test) => {
       const tmpItem = {
         id: item.id,
-        test: item.testName,
-        length: item.length,
+        testName: item.testName,
       };
 
       if (item.courseName in prev) {
