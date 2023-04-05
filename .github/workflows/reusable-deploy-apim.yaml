@@ -15,20 +15,24 @@ on:
         default: qatranslator-je-apim
         required: false
         type: string
+      AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID:
+        required: true
+        type: string
+      AZURE_AD_SP_MSAL_CLIENT_ID:
+        required: true
+        type: string
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+        type: string
+      AZURE_TENANT_ID:
+        required: true
+        type: string
       RESOURCE_GROUP:
         default: qatranslator-je
         required: false
         type: string
     secrets:
-      AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID:
-        required: true
       AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET:
-        required: true
-      AZURE_AD_SP_MSAL_CLIENT_ID:
-        required: true
-      AZURE_SUBSCRIPTION_ID:
-        required: true
-      AZURE_TENANT_ID:
         required: true
 
 jobs:
@@ -41,7 +45,7 @@ jobs:
       - name: Login Azure as Contributor
         uses: azure/login@v1
         with:
-          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+          creds: '{"clientId":"${{ inputs.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ inputs.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ inputs.AZURE_TENANT_ID }}"}'
           enable-AzPSSession: true
 
       - name: Import Swagger into API Management
@@ -57,8 +61,8 @@ jobs:
       - name: Update API Management Policy XML File
         run: |
           sed -i.bak \
-            -e 's/{AZURE_AD_SP_MSAL_CLIENT_ID}/${{ secrets.AZURE_AD_SP_MSAL_CLIENT_ID }}/g' \
-            -e 's/{AZURE_TENANT_ID}/${{ secrets.AZURE_TENANT_ID }}/g' \
+            -e 's/{AZURE_AD_SP_MSAL_CLIENT_ID}/${{ inputs.AZURE_AD_SP_MSAL_CLIENT_ID }}/g' \
+            -e 's/{AZURE_TENANT_ID}/${{ inputs.AZURE_TENANT_ID }}/g' \
             apim/apis-functions-policy.xml
 
       # 従量課金のAPI Managementは、ARMテンプレートにポリシーを記述してデプロイできないため、
@@ -85,7 +89,7 @@ jobs:
       - name: Login Azure as Contributor
         uses: azure/login@v1
         with:
-          creds: '{"clientId":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+          creds: '{"clientId":"${{ inputs.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ inputs.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ inputs.AZURE_TENANT_ID }}"}'
           enable-AzPSSession: true
 
       - name: Import Swagger into API Management
