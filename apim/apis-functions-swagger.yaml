@@ -17,6 +17,26 @@ paths:
           description: Invalid token
         "500":
           description: Internal Server Error
+  /tests/{testId}:
+    get:
+      summary: /tests/{testId}
+      operationId: tests-testid
+      parameters:
+        - name: testId
+          in: path
+          description: testId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Normal Response
+        "401":
+          description: Invalid token
+        "404":
+          description: Not Found Test
+        "500":
+          description: Internal Server Error
   /tests/{testId}/questions/{questionNumber}:
     get:
       summary: /tests/{testId}/questions/{questionNumber}
