@@ -27,6 +27,11 @@ export type GetQuestionAnswer = {
   references: string[];
 };
 
+export type GetTest = {
+  testName: string;
+  length: number;
+};
+
 export type Test = {
   id: string;
   testName: string;
