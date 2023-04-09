@@ -6,6 +6,17 @@ info:
 servers:
   - url: https://qatranslator-je-apim.azure-api.net
 paths:
+  /en2ja:
+    put:
+      summary: /en2ja
+      operationId: put-en2ja
+      responses:
+        "200":
+          description: Normal Response
+        "401":
+          description: Invalid token
+        "500":
+          description: Internal Server Error
   /tests:
     get:
       summary: /tests
