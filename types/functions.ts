@@ -40,4 +40,7 @@ export type GetTests = {
   [course: string]: Test[];
 };
 
-export type Method = "GET";
+export type PutEn2JaReq = string[];
+export type PutEn2JaRes = string[];
+
+export type Methods = ["GET", "PUT"];

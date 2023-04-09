@@ -112,3 +112,6 @@ resources/base.parameters.json
 
 # Cosmos DB Import Data
 cosmosdb/data
+
+# Azure Functions Core Tools
+functions/local.settings.json
