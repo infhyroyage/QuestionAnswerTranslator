@@ -196,7 +196,26 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://l
 ### 構築手順
 
 1. Docker および Docker Compose をインストールする。
-2. ターミナルを起動して以下のコマンドを実行し、Docker Compose で Azure Functions・Cosmos DB を起動する。実行したターミナルはそのまま放置する。
+2. 以下を記述したファイル`local.settings.json`を QuestionAnswerTranslator リポジトリの functions ディレクトリ配下に保存する。
+   ```json
+   {
+     "IsEncrypted": false,
+     "Values": {
+       "COGNITIVE_KEY": "(Azureリソース環境構築時にデプロイしたqatranslator-je-cognitiveのキー値)",
+       "COSMOSDB_URI": "https://localcosmosdb:8081",
+       "COSMOSDB_KEY": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
+       "COSMOSDB_READONLY_KEY": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
+       "DEEPL_AUTH_KEY": "(Azureリソース環境構築時にGitHubへ登録したシークレットDEEPL_AUTH_KEYの値)",
+       "FUNCTIONS_WORKER_RUNTIME": "node"
+     },
+     "Host": {
+       "LocalHttpPort": 9229,
+       "CORS": "http://localhost:3000"
+     },
+     "ConnectionStrings": {}
+   }
+   ```
+3. ターミナルを起動して以下のコマンドを実行し、Docker Compose で Azure Functions・Cosmos DB を起動する。実行したターミナルはそのまま放置する。
    ```bash
    npm run local:create
    ```
@@ -210,7 +229,7 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://l
    localcosmosdb     | Started
    ```
    なお、以前上記コマンドを実行したことがあり、`questionanswertranslator_localreact`および`questionanswertranslator_localfunctions`の Docker イメージが残ったままである場合は再ビルドせず、残った Docker イメージに対してそのまま Docker Compose で起動する。
-3. 2 とは別のターミナルで以下のコマンドを実行し、起動した Cosmos DB サーバーに対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+4. 3 とは別のターミナルで以下のコマンドを実行し、起動した Cosmos DB サーバーに対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
    ```bash
    npm run local:cosmosdbImport
    ```
@@ -246,8 +265,3 @@ docker image rm questionanswertranslator_localfunctions
 
 サービスプリンシパルの削除については、Azure Portal から Azure AD > App Registrations に遷移し、各サービスプリンシパルのリンク先にある Delete ボタンを押下し、「I understand the implications of deleting this app registration.」のチェックを入れて Delete ボタンを押下する。
 QuestionAnswerTranslator リポジトリのシークレットの削除については、[GitHub の QuestionAnswerTranslator リポジトリのページ](https://github.com/infhyroyage/QuestionAnswerTranslator)にある Setting > Secrets > Actions より、登録した各シークレットの Remove ボタンを押下する。
-
-## TODO
-
-- セッション ID と日本語の文章を指定して翻訳する API を Functions に作成。
-  - クライアントサイドで翻訳しない。サーバーサイドで翻訳する。
