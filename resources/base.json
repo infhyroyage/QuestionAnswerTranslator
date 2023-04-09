@@ -3,9 +3,12 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "azureApimPublisherEmail": {
-      "type": "string"
+      "type": "securestring"
     },
     "azureADGlobalAdminObjectId": {
+      "type": "string"
+    },
+    "deeplAuthKey": {
       "type": "securestring"
     }
   },
@@ -42,8 +45,10 @@
       },
       "name": "qatranslator-je-vault",
       "secretNames": {
+        "cognitiveKey": "cognitive-key",
         "cosmosDBPrimaryKey": "cosmos-db-primary-key",
         "cosmosDBPrimaryReadonlyKey": "cosmos-db-primary-readonly-key",
+        "deeplAuthKey": "deepl-auth-key",
         "insightsConnectionString": "insights-connection-string",
         "insightsInstrumentationKey": "insights-instrumentation-key",
         "storageConnectionString": "storage-connection-string"
@@ -491,6 +496,22 @@
         {
           "type": "secrets",
           "apiVersion": "2021-11-01-preview",
+          "name": "[variables('vault').secretNames.cognitiveKey]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[resourceId('Microsoft.CognitiveServices/accounts', variables('cognitive').name)]",
+            "[resourceId('Microsoft.KeyVault/vaults', variables('vault').name)]"
+          ],
+          "properties": {
+            "attributes": {
+              "enabled": true
+            },
+            "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('cognitive').name), '2022-03-01').key1]"
+          }
+        },
+        {
+          "type": "secrets",
+          "apiVersion": "2021-11-01-preview",
           "name": "[variables('vault').secretNames.cosmosDBPrimaryKey]",
           "location": "[resourceGroup().location]",
           "dependsOn": [
@@ -518,6 +539,21 @@
               "enabled": true
             },
             "value": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name), '2022-02-15-preview').primaryReadonlyMasterKey]"
+          }
+        },
+        {
+          "type": "secrets",
+          "apiVersion": "2021-11-01-preview",
+          "name": "[variables('vault').secretNames.deeplAuthKey]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[resourceId('Microsoft.KeyVault/vaults', variables('vault').name)]"
+          ],
+          "properties": {
+            "attributes": {
+              "enabled": true
+            },
+            "value": "[parameters('deeplAuthKey')]"
           }
         },
         {

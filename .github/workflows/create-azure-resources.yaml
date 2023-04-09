@@ -39,7 +39,7 @@ jobs:
           subscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
           template: ./resources/base.json
-          parameters: azureApimPublisherEmail=${{ secrets.AZURE_APIM_PUBLISHER_EMAIL }} azureADGlobalAdminObjectId=${{ vars.AZURE_AD_GLOBAL_ADMIN_OBJECT_ID }}
+          parameters: azureApimPublisherEmail=${{ secrets.AZURE_APIM_PUBLISHER_EMAIL }} azureADGlobalAdminObjectId=${{ vars.AZURE_AD_GLOBAL_ADMIN_OBJECT_ID }} deeplAuthKey=${{ secrets.DEEPL_AUTH_KEY }}
 
   use-deploy-apim-workflow:
     needs: create-resources
