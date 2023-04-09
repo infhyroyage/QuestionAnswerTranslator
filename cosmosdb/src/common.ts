@@ -1,5 +1,6 @@
 import {
   CosmosClient,
+  DatabaseResponse,
   FeedResponse,
   ItemResponse,
   OperationResponse,
@@ -106,19 +107,32 @@ export const generateCosmosClient = async (): Promise<CosmosClient> => {
 export const createDatabasesAndContainers = async (
   cosmosClient: CosmosClient
 ): Promise<void> => {
+  let databaseRes: DatabaseResponse;
+
+  // Systemsデータベース
+  databaseRes = await cosmosClient.databases.createIfNotExists({
+    id: "Systems",
+  });
+
+  // SystemsデータベースのFlagコンテナー
+  await databaseRes.database.containers.createIfNotExists({
+    id: "Flag",
+    partitionKey: "/id",
+  });
+
   // Usersデータベース
-  const { database } = await cosmosClient.databases.createIfNotExists({
+  databaseRes = await cosmosClient.databases.createIfNotExists({
     id: "Users",
   });
 
-  // Testコンテナー
-  await database.containers.createIfNotExists({
+  // UsersデータベースのTestコンテナー
+  await databaseRes.database.containers.createIfNotExists({
     id: "Test",
     partitionKey: "/id",
   });
 
-  // Questionコンテナー
-  await database.containers.createIfNotExists({
+  // UsersデータベースのQuestionコンテナー
+  await databaseRes.database.containers.createIfNotExists({
     id: "Question",
     partitionKey: "/id",
   });
