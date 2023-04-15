@@ -7,6 +7,7 @@
       </allowed-origins>
       <allowed-methods>
         <method>GET</method>
+        <method>PUT</method>
       </allowed-methods>
       <allowed-headers>
         <header>X-Access-Token</header>
