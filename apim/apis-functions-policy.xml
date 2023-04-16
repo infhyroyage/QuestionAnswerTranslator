@@ -10,7 +10,7 @@
       </allowed-methods>
       <allowed-headers>
         <header>X-Access-Token</header>
-        <header>X-Raw-Texts</header>
+        <header>texts</header>
       </allowed-headers>
     </cors>
     <!--下記URLに基づいたJWTトークンチェック-->
