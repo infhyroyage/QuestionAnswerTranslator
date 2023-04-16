@@ -1,5 +1,5 @@
 import { FeedResponse, SqlQuerySpec } from "@azure/cosmos";
-import { Context } from "@azure/functions";
+import { Context, HttpRequest } from "@azure/functions";
 import { GetEn2Ja } from "../../types/functions";
 import { Flag } from "../cosmosDB";
 import { translateByCognitive, translateByDeepL } from "../shared/axiosWrapper";
@@ -9,20 +9,19 @@ const COSMOS_DB_DATABASE_NAME = "Systems";
 const COSMOS_DB_CONTAINER_NAME = "Flag";
 const COSMOS_DB_ITEMS_ID = "isTranslatedByAzureCognitive";
 
-export default async (context: Context): Promise<void> => {
+export default async (context: Context, req: HttpRequest): Promise<void> => {
   try {
-    const rawTextsHeader: string | undefined =
-      context.req?.headers["X-Raw-Texts"];
-    // X-Raw-Textsヘッダーのバリデーションチェック
-    if (!rawTextsHeader) {
+    // textsヘッダーのバリデーションチェック
+    const textsHeader: string | undefined = req.headers["texts"];
+    if (!textsHeader) {
       context.res = {
         status: 400,
-        body: "Invalid X-Raw-Texts Header.",
+        body: "Invalid texts Header.",
       };
       return;
     }
 
-    const texts: string[] = JSON.parse(rawTextsHeader);
+    const texts: string[] = JSON.parse(textsHeader);
 
     // Cosmos DBのSystemsデータベースのFlagsコンテナーから、
     // Azure Translatorで翻訳するかのフラグを取得
