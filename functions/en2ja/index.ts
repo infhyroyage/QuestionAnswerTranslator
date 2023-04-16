@@ -1,6 +1,6 @@
 import { FeedResponse, SqlQuerySpec } from "@azure/cosmos";
 import { Context } from "@azure/functions";
-import { PostEn2JaReq, PostEn2JaRes } from "../../types/functions";
+import { GetEn2Ja } from "../../types/functions";
 import { Flag } from "../cosmosDB";
 import { translateByCognitive, translateByDeepL } from "../shared/axiosWrapper";
 import { getReadWriteContainer } from "../shared/cosmosDBWrapper";
@@ -11,7 +11,18 @@ const COSMOS_DB_ITEMS_ID = "isTranslatedByAzureCognitive";
 
 export default async (context: Context): Promise<void> => {
   try {
-    const texts: PostEn2JaReq = context.req?.body;
+    const rawTextsHeader: string | undefined =
+      context.req?.headers["X-Raw-Texts"];
+    // X-Raw-Textsヘッダーのバリデーションチェック
+    if (!rawTextsHeader) {
+      context.res = {
+        status: 400,
+        body: "Invalid X-Raw-Texts Header.",
+      };
+      return;
+    }
+
+    const texts: string[] = JSON.parse(rawTextsHeader);
 
     // Cosmos DBのSystemsデータベースのFlagsコンテナーから、
     // Azure Translatorで翻訳するかのフラグを取得
@@ -32,7 +43,7 @@ export default async (context: Context): Promise<void> => {
       isTranslatedByAzureCognitive = true;
     }
 
-    let body: PostEn2JaRes | undefined = undefined;
+    let body: GetEn2Ja | undefined = undefined;
     if (isTranslatedByAzureCognitive) {
       body = await translateByCognitive(texts);
     } else {
