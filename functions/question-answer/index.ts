@@ -110,24 +110,25 @@ export default async (context: Context): Promise<void> => {
             choiceIdx: number
           ) => {
             if (incorrectChoiceExplanations) {
-              prevIncorrectChoices[choiceIdx] = incorrectChoiceExplanations.map(
-                (incorrectChoiceExplanation: string, idx: number) => {
-                  return {
-                    sentence: incorrectChoiceExplanation as string,
-                    isIndicatedImg: false,
-                    isEscapedTranslation:
-                      !!result.escapeTranslatedIdxes &&
-                      !!result.escapeTranslatedIdxes
-                        .incorrectChoicesExplanations &&
-                      !!result.escapeTranslatedIdxes
-                        .incorrectChoicesExplanations[choiceIdx] &&
-                      (
-                        result.escapeTranslatedIdxes
-                          .incorrectChoicesExplanations[choiceIdx] || []
-                      ).includes(idx),
-                  };
-                }
-              );
+              prevIncorrectChoices[`${choiceIdx}`] =
+                incorrectChoiceExplanations.map(
+                  (incorrectChoiceExplanation: string, idx: number) => {
+                    return {
+                      sentence: incorrectChoiceExplanation as string,
+                      isIndicatedImg: false,
+                      isEscapedTranslation:
+                        !!result.escapeTranslatedIdxes &&
+                        !!result.escapeTranslatedIdxes
+                          .incorrectChoicesExplanations &&
+                        !!result.escapeTranslatedIdxes
+                          .incorrectChoicesExplanations[choiceIdx] &&
+                        (
+                          result.escapeTranslatedIdxes
+                            .incorrectChoicesExplanations[choiceIdx] || []
+                        ).includes(idx),
+                    };
+                  }
+                );
             }
             return prevIncorrectChoices;
           },

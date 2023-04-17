@@ -4,7 +4,7 @@ export type Sentence = {
   isEscapedTranslation: boolean;
 };
 export type IncorrectChoices = {
-  [choiceIdx: number]: Sentence[];
+  [choiceIdx: string]: Sentence[];
 };
 export type ExplanationSentences = {
   overall: Sentence[];
