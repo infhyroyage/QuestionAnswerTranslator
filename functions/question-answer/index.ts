@@ -162,7 +162,6 @@ export default async (context: Context): Promise<void> => {
     };
   } catch (e) {
     console.error(e);
-
     context.res = {
       status: 500,
       body: JSON.stringify(e),
