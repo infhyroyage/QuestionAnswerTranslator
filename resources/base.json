@@ -5,9 +5,6 @@
     "azureApimPublisherEmail": {
       "type": "securestring"
     },
-    "azureADGlobalAdminObjectId": {
-      "type": "string"
-    },
     "deeplAuthKey": {
       "type": "securestring"
     }
@@ -378,54 +375,6 @@
       ],
       "properties": {
         "accessPolicies": [
-          {
-            "objectId": "[parameters('azureADGlobalAdminObjectId')]",
-            "tenantId": "[tenant().tenantId]",
-            "permissions": {
-              "keys": [
-                "Get",
-                "List",
-                "Update",
-                "Create",
-                "Import",
-                "Delete",
-                "Recover",
-                "Backup",
-                "Restore",
-                "Decrypt",
-                "Encrypt",
-                "Rotate",
-                "GetRotationPolicy",
-                "SetRotationPolicy"
-              ],
-              "secrets": [
-                "Get",
-                "List",
-                "Set",
-                "Delete",
-                "Recover",
-                "Backup",
-                "Restore"
-              ],
-              "certificates": [
-                "Get",
-                "List",
-                "Update",
-                "Create",
-                "Import",
-                "Delete",
-                "Recover",
-                "Backup",
-                "Restore",
-                "ManageContacts",
-                "ManageIssuers",
-                "GetIssuers",
-                "ListIssuers",
-                "SetIssuers",
-                "DeleteIssuers"
-              ]
-            }
-          },
           {
             "objectId": "[reference(resourceId('Microsoft.ApiManagement/service', variables('apim').name), '2021-01-01-preview', 'Full').identity.principalId]",
             "tenantId": "[tenant().tenantId]",

@@ -90,8 +90,6 @@ Variables タブから「New repository variable」ボタンを押下して、�
 
 | 変数名                            | 変数値                                                  |
 | --------------------------------- | ------------------------------------------------------- |
-| API_MANAGEMENT_GATEWAY_URL        | API Management の Gateway URL                           |
-| AZURE_AD_GLOBAL_ADMIN_OBJECT_ID   | Azure AD グローバル管理者のオブジェクト ID              |
 | AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID | 1.で発行した QATranslator_Contributor のクライアント ID |
 | AZURE_AD_SP_MSAL_CLIENT_ID        | 2.で発行した QATranslator_MSAL のクライアント ID        |
 | AZURE_SUBSCRIPTION_ID             | サブスクリプション ID                                   |
