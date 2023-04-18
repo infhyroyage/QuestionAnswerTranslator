@@ -1,20 +1,28 @@
 # QuestionAnswerTranslator
 
+## 概要
+
+主に以下の Azure リソースで必要最小限のコストに抑えるように構成した、[QuestionAnswerPortal](https://github.com/infhyroyage/QuestionAnswerPortal)から呼び出す API サーバー。
+
+- Azure API Management
+- Azure Functions
+- Azure Cosmos DB
+
 ## アーキテクチャー図
 
 ![architecture.drawio](architecture.drawio.svg)
 
 | Azure リソース名            | 概要                                                                       | workflow での CI/CD |
 | --------------------------- | -------------------------------------------------------------------------- | :-----------------: |
-| `qatranslator-je-cognitive` | ユーザーから DeepL の無料枠を超過した場合のみアクセスする Translator       |                     |
 | `qatranslator-je-apim`      | ユーザー/App Service からアクセスする API Management                       |          o          |
 | `qatranslator-je-func`      | API Management からアクセスする Functions                                  |          o          |
 | `qatranslator-je-funcplan`  | Functions のプラン                                                         |                     |
 | `qatranslatorjesa`          | Functions から参照するストレージアカウント                                 |                     |
 | `qatranslator-je-cosmosdb`  | Functions からアクセスする Cosmos DB                                       |                     |
+| `qatranslator-je-cognitive` | ユーザーから DeepL の無料枠を超過した場合のみアクセスする Translator       |                     |
+| `qatranslator-je-vault`     | 暗号鍵/シークレットを管理する Key Vault                                    |                     |
 | `qatranslator-je-insights`  | App Service/API Management/Functions を一括で監視する Application Insights |                     |
 | `qatranslator-je-ws`        | Application Insights を分析する Workspaces                                 |                     |
-| `qatranslator-je-vault`     | 暗号鍵/シークレットを管理する Key Vault                                    |                     |
 
 ## 使用する主要なパッケージのバージョン
 
@@ -29,7 +37,7 @@ Azure リソース/localhost に環境を構築する事前準備として、以
 
 1. GitHub Actions 用サービスプリンシパルの発行
 2. Azure AD 認証認可用サービスプリンシパルの発行
-3. リポジトリのシークレット設定
+3. リポジトリのシークレット・変数設定
 4. インポートデータファイルの作成
 
 ### 1. GitHub Actions 用サービスプリンシパルの発行
@@ -70,13 +78,13 @@ QATranslator_Contributor とは別に、[Question Answer Portal](https://infhyro
    4. Add permissions ボタンを押下。
 8. Manifest から JSON 形式のマニフェストを表示し、`"accessTokenAcceptedVersion"`の値を`null`から`2`に変更する。
 
-### 3. リポジトリのシークレット設定
+### 3. リポジトリのシークレット・変数設定
 
-当リポジトリの Setting > Secrets And variables > Actions より、以下のシークレット・変数をすべて設定する。
+QuestionAnswerTranslator リポジトリの Setting > Secrets And variables > Actions より、以下のシークレット・変数をすべて設定する。
 
 #### シークレット
 
-Secrets タブから「New repository secret」ボタンを押下して、下記の通り変数を設定する。
+Secrets タブから「New repository secret」ボタンを押下して、下記の通り変数をすべて設定する。
 
 | シークレット名                        | シークレット値                                                   |
 | ------------------------------------- | ---------------------------------------------------------------- |
@@ -86,7 +94,7 @@ Secrets タブから「New repository secret」ボタンを押下して、下記
 
 #### 変数
 
-Variables タブから「New repository variable」ボタンを押下して、下記の通り変数を設定する。
+Variables タブから「New repository variable」ボタンを押下して、下記の通り変数をすべて設定する。
 
 | 変数名                            | 変数値                                                  |
 | --------------------------------- | ------------------------------------------------------- |
@@ -165,7 +173,7 @@ export const importData: ImportData = {
    az rest -m DELETE -u https://management.azure.com/subscriptions/(サブスクリプションID)/providers/Microsoft.ApiManagement/locations/japaneast/deletedservices/qatranslator-je-apim?api-version=2021-08-01
    ```
 
-## API 追加時の対応
+## API 追加開発時の対応
 
 ### 関数アプリ
 
@@ -257,7 +265,15 @@ docker image rm questionanswertranslator_localfunctions
 初期構築以前の完全なクリーンな状態に戻すためには、初期構築時に行った以下をすべて削除すれば良い。
 
 - 各サービスプリンシパル(QATranslator_Contributor・QATranslator_MSAL)
-- QuestionAnswerTranslator リポジトリの各シークレット
+- リポジトリの各シークレット・変数
 
-サービスプリンシパルの削除については、Azure Portal から Azure AD > App Registrations に遷移し、各サービスプリンシパルのリンク先にある Delete ボタンを押下し、「I understand the implications of deleting this app registration.」のチェックを入れて Delete ボタンを押下する。
-QuestionAnswerTranslator リポジトリのシークレットの削除については、[GitHub の QuestionAnswerTranslator リポジトリのページ](https://github.com/infhyroyage/QuestionAnswerTranslator)にある Setting > Secrets > Actions より、登録した各シークレットの Remove ボタンを押下する。
+### サービスプリンシパルの削除
+
+1. Azure Portal から Azure AD > App Registrations に遷移する。
+2. 以下の各サービスプリンシパルのリンク先にある Delete ボタンを押下し、「I understand the implications of deleting this app registration.」のチェックを入れて Delete ボタンを押下する。
+   - QATranslator_Contributor
+   - QATranslator_MSAL
+
+### リポジトリのシークレット・変数の削除
+
+QuestionAnswerTranslator リポジトリの Setting > Secrets And variables > Actions より、Secrets・Variables タブから初期構築時に設定した各シークレット・変数に対し、ゴミ箱のボタンを押下する。
