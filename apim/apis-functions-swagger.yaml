@@ -14,7 +14,7 @@ paths:
         "200":
           description: Normal Response
         "400":
-          description: "Invalid texts Header"
+          description: "Invalid X-Raw-Texts Header"
         "401":
           description: Invalid token
         "500":
