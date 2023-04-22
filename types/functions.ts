@@ -43,4 +43,4 @@ export type GetTests = {
 export type PutEn2JaReq = string[];
 export type PutEn2JaRes = string[];
 
-export type Methods = ["GET", "POST"];
+export type Methods = ["GET", "PUT"];
