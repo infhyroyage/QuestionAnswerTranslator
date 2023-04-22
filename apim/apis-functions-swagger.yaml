@@ -7,14 +7,12 @@ servers:
   - url: https://qatranslator-je-apim.azure-api.net
 paths:
   /en2ja:
-    get:
+    post:
       summary: /en2ja
-      operationId: get-en2ja
+      operationId: post-en2ja
       responses:
         "200":
           description: Normal Response
-        "400":
-          description: "Invalid X-Raw-Texts Header"
         "401":
           description: Invalid token
         "500":
