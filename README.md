@@ -2,11 +2,7 @@
 
 ## 概要
 
-[Microsoft ID Platform](https://learn.microsoft.com/ja-jp/azure/active-directory/develop/v2-overview)経由で認証認可を行った[QuestionAnswerPortal](https://github.com/infhyroyage/QuestionAnswerPortal)の Web アプリケーションから呼び出す、主に以下の Azure リソースで必要最小限のコストに抑えるように構成する API サーバーと、Web サーバーの 2 つを構成する Azure リソース。
-
-- Azure API Management
-- Azure Functions
-- Azure Cosmos DB
+[Microsoft ID Platform](https://learn.microsoft.com/ja-jp/azure/active-directory/develop/v2-overview)経由で認証認可を行った[QuestionAnswerPortal](https://github.com/infhyroyage/QuestionAnswerPortal)の Web アプリケーションに乗せるための Web サーバーと、Web サーバーが呼び出す API サーバーとを構成する Azure リソース。
 
 ## アーキテクチャー図
 
