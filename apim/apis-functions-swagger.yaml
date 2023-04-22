@@ -7,9 +7,9 @@ servers:
   - url: https://qatranslator-je-apim.azure-api.net
 paths:
   /en2ja:
-    post:
+    put:
       summary: /en2ja
-      operationId: post-en2ja
+      operationId: put-en2ja
       responses:
         "200":
           description: Normal Response
