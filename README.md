@@ -2,7 +2,7 @@
 
 ## 概要
 
-[Microsoft ID Platform](https://learn.microsoft.com/ja-jp/azure/active-directory/develop/v2-overview)経由で認証認可を行った[QuestionAnswerPortal](https://github.com/infhyroyage/QuestionAnswerPortal)から呼び出す、主に以下の Azure リソースで必要最小限のコストに抑えるように構成する API サーバー。
+[Microsoft ID Platform](https://learn.microsoft.com/ja-jp/azure/active-directory/develop/v2-overview)経由で認証認可を行った[QuestionAnswerPortal](https://github.com/infhyroyage/QuestionAnswerPortal)の Web アプリケーションから呼び出す、主に以下の Azure リソースで必要最小限のコストに抑えるように構成する API サーバーと、Web サーバーの 2 つを構成する Azure リソース。
 
 - Azure API Management
 - Azure Functions
@@ -12,17 +12,18 @@
 
 ![architecture.drawio](architecture.drawio.svg)
 
-| Azure リソース名            | 概要                                                                       | workflow での CI/CD |
-| --------------------------- | -------------------------------------------------------------------------- | :-----------------: |
-| `qatranslator-je-apim`      | ユーザー/App Service からアクセスする API Management                       |          o          |
-| `qatranslator-je-func`      | API Management からアクセスする Functions                                  |          o          |
-| `qatranslator-je-funcplan`  | Functions のプラン                                                         |                     |
-| `qatranslatorjesa`          | Functions から参照するストレージアカウント                                 |                     |
-| `qatranslator-je-cosmosdb`  | Functions からアクセスする Cosmos DB                                       |                     |
-| `qatranslator-je-cognitive` | ユーザーから DeepL の無料枠を超過した場合のみアクセスする Translator       |                     |
-| `qatranslator-je-vault`     | 暗号鍵/シークレットを管理する Key Vault                                    |                     |
-| `qatranslator-je-insights`  | App Service/API Management/Functions を一括で監視する Application Insights |                     |
-| `qatranslator-je-ws`        | Application Insights を分析する Workspaces                                 |                     |
+| Azure リソース名            | 概要                                                                          | workflow での CI/CD      |
+| --------------------------- | ----------------------------------------------------------------------------- | :----------------------- |
+| `qatranslator-ea-swa`       | ユーザーからアクセスする Static Web App                                       | QuestionAnswerPortal     |
+| `qatranslator-je-apim`      | ユーザー/Static Web App からアクセスする API Management                       | QuestionAnswerTranslator |
+| `qatranslator-je-func`      | API Management からアクセスする Functions                                     | QuestionAnswerTranslator |
+| `qatranslator-je-funcplan`  | Functions のプラン                                                            |                          |
+| `qatranslatorjesa`          | Functions から参照するストレージアカウント                                    |                          |
+| `qatranslator-je-cosmosdb`  | Functions からアクセスする Cosmos DB                                          |                          |
+| `qatranslator-je-cognitive` | ユーザーから DeepL の無料枠を超過した場合のみアクセスする Translator          |                          |
+| `qatranslator-je-vault`     | 暗号鍵/シークレットを管理する Key Vault                                       |                          |
+| `qatranslator-je-insights`  | Static Web App/API Management/Functions を一括で監視する Application Insights |                          |
+| `qatranslator-je-ws`        | Application Insights を分析する Workspaces                                    |                          |
 
 ## 使用する主要なパッケージのバージョン
 

@@ -57,6 +57,21 @@
   },
   "resources": [
     {
+      "type": "Microsoft.Web/staticSites",
+      "apiVersion": "2022-09-01",
+      "name": "qatranslator-ea-swa",
+      "location": "East Asia",
+      "sku": {
+        "name": "Free",
+        "tier": "Free"
+      },
+      "properties": {
+        "repositoryUrl": "https://github.com/infhyroyage/QuestionAnswerPortal",
+        "branch": "main",
+        "provider": "GitHub"
+      }
+    },
+    {
       "type": "Microsoft.ApiManagement/service",
       "apiVersion": "2021-01-01-preview",
       "name": "[variables('apim').name]",
