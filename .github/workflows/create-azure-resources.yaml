@@ -32,7 +32,6 @@ jobs:
             -l ${{ env.LOCATION }}
 
       - name: Create Resources
-        id: exec-template
         uses: azure/arm-deploy@v1
         with:
           scope: resourcegroup
