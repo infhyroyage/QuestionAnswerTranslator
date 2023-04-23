@@ -31,10 +31,6 @@ on:
         default: qatranslator-je
         required: false
         type: string
-      SWA_NAME:
-        default: qatranslator-ea-swa
-        required: false
-        type: string
     secrets:
       AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET:
         required: true
@@ -62,23 +58,10 @@ jobs:
             --api-id ${{ inputs.APIM_APIS_NAME }} \
             --specification-path ./apim/apis-functions-swagger.yaml
 
-      - name: Get Azure Static Web App Host Name
-        id: get-azure-swa-hostname
-        run: |
-          AZURE_SWA_HOSTNAME=$( \
-              az staticwebapp show \
-              -g ${{ inputs.RESOURCE_GROUP }} \
-              -n ${{ inputs.SWA_NAME }} \
-              --query defaultHostname \
-              -o tsv \
-            )
-          echo "AZURE_SWA_HOSTNAME=${AZURE_SWA_HOSTNAME}" >> "$GITHUB_OUTPUT"
-
       - name: Update API Management Policy XML File
         run: |
           sed -i.bak \
             -e 's/{AZURE_AD_SP_MSAL_CLIENT_ID}/${{ inputs.AZURE_AD_SP_MSAL_CLIENT_ID }}/g' \
-            -e 's/{AZURE_SWA_HOSTNAME}/${{ steps.get-azure-swa-hostname.outputs.AZURE_SWA_HOSTNAME }}/g' \
             -e 's/{AZURE_TENANT_ID}/${{ inputs.AZURE_TENANT_ID }}/g' \
             apim/apis-functions-policy.xml
 
