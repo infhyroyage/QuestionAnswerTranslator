@@ -2,7 +2,7 @@
 
 ## 概要
 
-[Microsoft ID Platform](https://learn.microsoft.com/ja-jp/azure/active-directory/develop/v2-overview)経由で認証認可を行った[QuestionAnswerPortal](https://github.com/infhyroyage/QuestionAnswerPortal)の Web アプリケーションに乗せるための Web サーバーと、Web サーバーが呼び出す API サーバーとを構成する Azure リソース。
+[Microsoft ID Platform](https://learn.microsoft.com/ja-jp/azure/active-directory/develop/v2-overview)経由で認証認可を行った[QuestionAnswerPortal](https://github.com/infhyroyage/QuestionAnswerPortal)の Web アプリケーションを実行する Web サーバーが呼び出す API サーバーを構成する。
 
 ## アーキテクチャー図
 
