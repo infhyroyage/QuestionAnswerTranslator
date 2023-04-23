@@ -10,7 +10,8 @@
         <method>PUT</method>
       </allowed-methods>
       <allowed-headers>
-        <header>X-Access-Token</header>
+        <!--X-Access-Tokenと指定すると、PUTメソッドでCORSエラーが発生するため注意-->
+        <header>*</header>
       </allowed-headers>
     </cors>
     <!--下記URLに基づいたJWTトークンチェック-->
