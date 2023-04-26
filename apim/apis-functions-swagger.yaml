@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
-  title: apis-functions
-  description: APIs from qatranslator-je-func Function App
+  title: Function App
+  description: QuestionAnswerPortalでのWebアプリケーションから実行するAPIの仕様書です
   version: "1.0"
 servers:
   - url: https://qatranslator-je-apim.azure-api.net

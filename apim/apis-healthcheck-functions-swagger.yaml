@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
-  title: apis-healthcheck-functions
-  description: Health Check APIs from qatranslator-je-func Function App
+  title: HealthCheckAPIs
+  description: FunctionsのヘルスチェックAPIの仕様書です
   version: "1.0"
 servers:
   - url: https://qatranslator-je-apim.azure-api.net

@@ -91,8 +91,8 @@
           ],
           "properties": {
             "apiRevision": "1",
-            "description": "[concat('APIs from ', variables('functions').name, ' Function App')]",
-            "displayName": "[variables('apim').apisName]",
+            "description": "QuestionAnswerPortalでのWebアプリケーションから実行するAPIの仕様書です",
+            "displayName": "QuestionAnswerPortalAPIs",
             "isCurrent": true,
             "path": "api",
             "protocols": [
@@ -111,8 +111,8 @@
           ],
           "properties": {
             "apiRevision": "1",
-            "description": "[concat('Health Check APIs from ', variables('functions').name, ' Function App')]",
-            "displayName": "[variables('apim').apisHealthcheckName]",
+            "description": "FunctionsのヘルスチェックAPIの仕様書です",
+            "displayName": "HealthCheckAPIs",
             "isCurrent": true,
             "path": "",
             "protocols": [
