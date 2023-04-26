@@ -65,10 +65,11 @@ jobs:
           az apim api import \
             -g ${{ inputs.RESOURCE_GROUP }} \
             -n ${{ inputs.APIM_NAME }} \
+            --api-id ${{ inputs.APIM_APIS_NAME }} \
             --path "api" \
             --specification-format OpenApi \
-            --api-id ${{ inputs.APIM_APIS_NAME }} \
-            --specification-path ./QuestionAnswerPortal/swagger.yaml
+            --specification-path ./QuestionAnswerPortal/swagger.yaml \
+            --subscription-required false
 
       - name: Update API Management Policy XML File
         run: |
@@ -109,10 +110,11 @@ jobs:
           az apim api import \
             -g ${{ inputs.RESOURCE_GROUP }} \
             -n ${{ inputs.APIM_NAME }} \
+            --api-id ${{ inputs.APIM_APIS_HEALTHCHECK_NAME }} \
             --path "" \
             --specification-format OpenApi \
-            --api-id ${{ inputs.APIM_APIS_HEALTHCHECK_NAME }} \
-            --specification-path ./apim/apis-healthcheck-functions-swagger.yaml
+            --specification-path ./apim/apis-healthcheck-functions-swagger.yaml \
+            --subscription-required true
 
       # 従量課金のAPI Managementは、ARMテンプレートにポリシーを記述してデプロイできないため、
       # PowershellにてFunctions API全体に対するポリシーを別途設定
