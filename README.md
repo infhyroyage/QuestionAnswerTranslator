@@ -157,7 +157,7 @@ functions 配下に cd し、以下のファイルを持つ関数アプリのプ
 
 ### API Management
 
-上記で生成した関数アプリが HTTP Trigger の場合は、apim/apis-functions-swagger.yaml にその関数アプリの Swagger を記述する。
+上記で生成した関数アプリが HTTP Trigger の場合は、[QuestionAnswerPortal の Swagger](https://github.com/infhyroyage/QuestionAnswerPortal/blob/main/swagger.yaml)にその関数アプリの API リファレンスを記述する。
 
 ## localhost 環境構築
 
