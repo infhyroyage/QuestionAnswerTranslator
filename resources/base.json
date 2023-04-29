@@ -91,7 +91,7 @@
           ],
           "properties": {
             "apiRevision": "1",
-            "description": "QuestionAnswerPortalでのWebアプリケーションから実行するAPIの仕様書です",
+            "description": "QuestionAnswerPortalでのWebアプリケーションから実行するAPIリファレンスです",
             "displayName": "QuestionAnswerPortalAPIs",
             "isCurrent": true,
             "path": "api",
@@ -111,7 +111,7 @@
           ],
           "properties": {
             "apiRevision": "1",
-            "description": "FunctionsのヘルスチェックAPIの仕様書です",
+            "description": "FunctionsのヘルスチェックAPIリファレンスです",
             "displayName": "HealthCheckAPIs",
             "isCurrent": true,
             "path": "",
