@@ -42,17 +42,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@main
 
-      - name: Checkout QuestionAnswerPortal
+      - name: Checkout QuestionAnswerSwagger
         uses: actions/checkout@v3
         with:
-          repository: ${{ github.actor }}/QuestionAnswerPortal
-          path: QuestionAnswerPortal
+          repository: ${{ github.actor }}/QuestionAnswerSwagger
+          path: QuestionAnswerSwagger
 
       - name: Update Swagger
         run: |
           sed -i.bak \
             -e 's|{API_URI}/api|https://${{ inputs.APIM_NAME }}.azure-api.net|g' \
-            QuestionAnswerPortal/swagger.yaml
+            QuestionAnswerSwagger/swagger.yaml
 
       - name: Login Azure as Contributor
         uses: azure/login@v1
@@ -68,7 +68,7 @@ jobs:
             --api-id ${{ inputs.APIM_APIS_NAME }} \
             --path "api" \
             --specification-format OpenApi \
-            --specification-path ./QuestionAnswerPortal/swagger.yaml \
+            --specification-path ./QuestionAnswerSwagger/swagger.yaml \
             --subscription-required false
 
       - name: Update API Management Policy XML File
