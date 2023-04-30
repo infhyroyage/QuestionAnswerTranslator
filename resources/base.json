@@ -339,10 +339,6 @@
               "value": "node"
             },
             {
-              "name": "SUBSCRIPTION_ID",
-              "value": "[subscription().subscriptionId]"
-            },
-            {
               "name": "WEBSITE_ENABLE_SYNC_UPDATE_SITE",
               "value": "true"
             },
