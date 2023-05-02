@@ -4,7 +4,7 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
 WORKDIR /home/site/wwwroot
 COPY package.json ./
 RUN npm install
-COPY functions ./
 COPY types ./
+COPY functions ./
 RUN npm run functions:build
 CMD [ "npm", "run", "functions:start" ]
