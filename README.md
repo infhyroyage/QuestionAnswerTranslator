@@ -187,11 +187,12 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://l
      },
      "Host": {
        "LocalHttpPort": 9229,
-       "CORS": "http://localhost:3000"
+       "CORS": "*"
      },
      "ConnectionStrings": {}
    }
    ```
+   - CORS は任意のオリジンを許可するように設定しているため、特定のオリジンのみ許可したい場合は`Host` > `CORS`にそのオリジンを設定すること。
 3. ターミナルを起動して以下のコマンドを実行し、Docker Compose で Azure Functions・Cosmos DB を起動する。実行したターミナルはそのまま放置する。
    ```bash
    npm run local:create
