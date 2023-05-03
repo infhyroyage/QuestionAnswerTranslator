@@ -4,11 +4,10 @@
   "scripts": {
     "cosmosdb:import": "ts-node cosmosdb/src/import.ts",
     "functions:build": "tsc",
-    "functions:start": "func start",
-    "local:create": "docker-compose up",
+    "local:cosmosdbCreate": "docker-compose up",
+    "local:cosmosdbDestroy": "docker-compose down",
     "local:cosmosdbImport": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node cosmosdb/src/import.ts",
-    "local:destroy": "docker-compose down",
-    "local:functionsUpdate": "docker-compose up -d --no-deps --build localfunctions"
+    "local:functions": "cd functions; tsc; func start"
   },
   "repository": {
     "type": "git",

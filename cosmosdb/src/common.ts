@@ -22,7 +22,7 @@ import { ImportData, ImportDatabaseData, ImportItem } from "../../types/import";
 
 const COSMOSDB_LOCAL_KEY =
   "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
-const COSMOSDB_LOCAL_URI = "https://localhost:9230";
+const COSMOSDB_LOCAL_URI = "https://localhost:8081";
 const COSMOSDB_URI =
   "https://qatranslator-je-cosmosdb.documents.azure.com:443/";
 const VAULT_URL = "https://qatranslator-je-vault.vault.azure.net";

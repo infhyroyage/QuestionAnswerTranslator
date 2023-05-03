@@ -64,7 +64,7 @@ export default async (context: Context): Promise<void> => {
 
     let subjects: string[];
     let choices: string[];
-    if (process.env["COSMOSDB_URI"] === "https://localcosmosdb:8081") {
+    if (process.env["COSMOSDB_URI"] === "https://localhost:8081") {
       // localhost環境のため、そのままsubjects/choicesを取得
       subjects = result.subjects as string[];
       choices = result.choices as string[];

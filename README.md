@@ -170,73 +170,61 @@ Azure にリソースを構築せず、localhost 上で以下のサーバーを�
 | サーバー名                                     | 使用するサービス名                                                                                       | ポート番号 |
 | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------- |
 | Azure Functions(HTTP Trigger の関数アプリのみ) | [Azure Functions Core Tools](https://docs.microsoft.com/ja-jp/azure/azure-functions/functions-run-local) | 9229       |
-| Cosmos DB                                      | [Azure Cosmos DB Linux Emulator](https://docs.microsoft.com/ja-jp/azure/cosmos-db/local-emulator)        | 9230       |
+| Cosmos DB                                      | [Azure Cosmos DB Linux Emulator](https://docs.microsoft.com/ja-jp/azure/cosmos-db/local-emulator)        | 8081       |
 
-localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://localhost:9230/_explorer/index.html) にアクセスすると、Cosmos DB 内のデータを参照・更新することができる。
+localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://localhost:8081/_explorer/index.html) にアクセスすると、Cosmos DB 内のデータを参照・更新することができる。
 
 ### 構築手順
 
 1. Docker および Docker Compose をインストールする。
+   - Azure Functions Core Tools
+   - Docker
+   - Docker Compose
 2. 以下を記述したファイル`local.settings.json`を QuestionAnswerTranslator リポジトリの functions ディレクトリ配下に保存する。
    ```json
    {
      "IsEncrypted": false,
      "Values": {
        "COGNITIVE_KEY": "(Azureリソース環境構築時にデプロイしたqatranslator-je-cognitiveのキー値)",
-       "COSMOSDB_URI": "https://localcosmosdb:8081",
        "COSMOSDB_KEY": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
        "COSMOSDB_READONLY_KEY": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
+       "COSMOSDB_URI": "https://localhost:8081",
        "DEEPL_AUTH_KEY": "(Azureリソース環境構築時にGitHubへ登録したシークレットDEEPL_AUTH_KEYの値)",
-       "FUNCTIONS_WORKER_RUNTIME": "node"
+       "FUNCTIONS_WORKER_RUNTIME": "node",
+       "NODE_TLS_REJECT_UNAUTHORIZED": "0"
      },
      "Host": {
-       "LocalHttpPort": 9229,
-       "CORS": "*"
+       "CORS": "*",
+       "LocalHttpPort": 9229
      },
      "ConnectionStrings": {}
    }
    ```
    - CORS は任意のオリジンを許可するように設定しているため、特定のオリジンのみ許可したい場合は`Host` > `CORS`にそのオリジンを設定すること。
-3. ターミナルを起動して以下のコマンドを実行し、Docker Compose で Azure Functions・Cosmos DB を起動する。実行したターミナルはそのまま放置する。
+3. ターミナルを起動して以下のコマンドを実行し、Azure Functions を起動する。実行したターミナルはそのまま放置する。
    ```bash
-   npm run local:create
+   npm run local:functions
    ```
-   実行後、docker Compose で実行した localfunctions の標準出力が、以下のように表示されるまで待機する。
+4. 3 とは別のターミナルで以下のコマンドを実行し、Cosmos DB を起動する。実行したターミナルはそのまま放置する。
+   ```bash
+   npm run local:cosmosdbCreate
    ```
-   localcosmosdb     | Starting
-   localcosmosdb     | Started 1/4 partitions
-   localcosmosdb     | Started 2/4 partitions
-   localcosmosdb     | Started 3/4 partitions
-   localcosmosdb     | Started 4/4 partitions
+   実行後、以下の標準出力が表示されるまで待機する。
+   ```
    localcosmosdb     | Started
    ```
-   なお、以前上記コマンドを実行したことがあり、`questionanswertranslator_localreact`および`questionanswertranslator_localfunctions`の Docker イメージが残ったままである場合は再ビルドせず、残った Docker イメージに対してそのまま Docker Compose で起動する。
-4. 3 とは別のターミナルで以下のコマンドを実行し、起動した Cosmos DB サーバーに対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+5. 4 とは別のターミナルで以下のコマンドを実行し、起動した Cosmos DB サーバーに対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
    ```bash
    npm run local:cosmosdbImport
    ```
 
-### 関数アプリアップデート手順
-
-localhost 環境構築後、関数アプリを再ビルドして localhost 環境にデプロイしたい場合、ターミナルを起動し以下を実行する。
-
-```bash
-npm run local:functionsUpdate
-```
-
 ### 削除手順
 
-ターミナルを起動し以下を実行すると、localhost 環境を削除できる。
-
-```bash
-npm run local:destroy
-```
-
-なお、localhost 環境構築時にビルドした Docker イメージを削除したい場合は、ターミナルを起動し以下を実行すればよい。
-
-```bash
-docker image rm questionanswertranslator_localfunctions
-```
+1. ターミナルを起動して以下のコマンドを実行し、起動した Cosmos DB を停止する。
+   ```bash
+   npm run local:cosmosdbDestroy
+   ```
+2. 構築手順の 3 で起動した Azure Functions のターミナルに対して Ctrl+C キーを入力し、起動した Azure Functions を停止する。
 
 ## 完全初期化
 

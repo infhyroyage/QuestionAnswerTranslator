@@ -66,7 +66,7 @@ export default async (context: Context): Promise<void> => {
 
     let explanations: string[];
     let incorrectChoicesExplanations: (string[] | null)[] | undefined;
-    if (process.env["COSMOSDB_URI"] === "https://localcosmosdb:8081") {
+    if (process.env["COSMOSDB_URI"] === "https://localhost:8081") {
       // localhost環境のため、そのままexplanations/incorrectChoiceExplanationsを取得
       explanations = result.explanations as string[];
       incorrectChoicesExplanations = result.incorrectChoicesExplanations as

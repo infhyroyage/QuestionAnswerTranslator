@@ -1,22 +1,12 @@
 version: "3"
 
 services:
-  localfunctions:
-    build:
-      context: .
-      dockerfile: functions/Dockerfile.local
-    container_name: localfunctions
-    tty: true
-    ports:
-      - 9229:9229
-    environment:
-      - NODE_TLS_REJECT_UNAUTHORIZED=0
   localcosmosdb:
     image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
     container_name: localcosmosdb
     tty: true
     ports:
-      - 9230:8081
+      - 8081:8081
       - 10251:10251
       - 10252:10252
       - 10253:10253
