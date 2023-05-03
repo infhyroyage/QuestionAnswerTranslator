@@ -33,7 +33,7 @@ jobs:
         with:
           name: qatranslator-func
           path: |
-            functions/*/*.js
+            functions/dist
             functions/*/function.json
             functions/host.json
             functions/package.json
