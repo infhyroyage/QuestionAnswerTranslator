@@ -1,5 +1,9 @@
 # QuestionAnswerTranslator
 
+[![Create Azure Resources](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/create-azure-resources.yaml/badge.svg)](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/create-azure-resources.yaml)
+[![Build and Deploy Azure Functions Application](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/build-deploy-functions-app.yaml/badge.svg)](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/build-deploy-functions-app.yaml)
+[![Deploy API Management](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/deploy-apim.yaml/badge.svg)](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/deploy-apim.yaml)
+
 ## 概要
 
 [QuestionAnswerPortal](https://github.com/infhyroyage/QuestionAnswerPortal)から呼び出す、[QuestionAnswerSwagger](https://github.com/infhyroyage/QuestionAnswerSwagger)に従った API サーバーを構成する。
