@@ -13,5 +13,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "./index.js"
+  "scriptFile": "../dist/functions/en2ja/index.js"
 }

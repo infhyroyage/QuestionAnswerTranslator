@@ -8,6 +8,7 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "outDir": "dist",
     "removeComments": true,
     "rootDirs": [".", "../types"],
     "strict": true,
