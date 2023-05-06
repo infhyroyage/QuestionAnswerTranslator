@@ -249,17 +249,17 @@ QuestionAnswerTranslator リポジトリの Setting > Secrets And variables > Ac
 
 ## TODO
 
-以下の Key Vault に格納しているシークレットの有効期限を 8 日間にし、1 週間サイクルで再設定する GitHub Workflow を生成する。
+以下の Key Vault に格納しているシークレットを 1 日サイクルで再設定する GitHub Workflow を生成する。
 
 | Key Vault シークレット名       | シークレット元              | シークレット元での名称     | シークレット元での冗長名称 |
 | ------------------------------ | --------------------------- | -------------------------- | -------------------------- |
 | cognitive-key                  | `qatranslator-je-cognitive` | キー 1                     | キー 2                     |
 | cosmos-db-primary-key          | `qatranslator-je-cosmosdb`  | プライマリキー(Read-write) | セカンダリキー(Read-only)  |
 | cosmos-db-primary-readonly-key | `qatranslator-je-cosmosdb`  | プライマリキー(Read-only)  | セカンダリキー(Read-write) |
-| functions-default-host-key     | `qatranslator-je-func`      | 全関数アプリのホストキー   | -                          |
+| functions-default-host-key     | `qatranslator-je-func`      | 全関数アプリのホストキー   | -(※)                       |
 | storage-connection-string      | `qatranslatorjesa`          | キー 1 の接続文字列        | キー 2 の接続文字列        |
 
-functions-default-host-key 以下で対応する。
+(※)functions-default-host-key は以下で対応する。
 
 1. 全関数アプリのホストキーをもう 1 個一時生成。
 2. 1 のキーを設定。
