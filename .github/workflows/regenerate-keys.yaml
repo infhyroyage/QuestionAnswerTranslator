@@ -34,7 +34,9 @@ jobs:
           az keyvault secret set \
             --vault-name ${{ env.VAULT_NAME }} \
             -n cognitive-key \
-            --value ${regeneratedKey2}
+            --value ${regeneratedKey2} \
+            --query attributes.created \
+            -o tsv
 
       - name: Regenerate Cognitive Key1 and Set into Vault
         run: |
@@ -49,4 +51,6 @@ jobs:
           az keyvault secret set \
             --vault-name ${{ env.VAULT_NAME }} \
             -n cognitive-key \
-            --value ${regeneratedKey1}
+            --value ${regeneratedKey1} \
+            --query attributes.created \
+            -o tsv
