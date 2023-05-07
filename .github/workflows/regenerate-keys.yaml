@@ -7,7 +7,7 @@ on:
 
 env:
   COGNITIVE_NAME: qatranslator-je-cognitive
-  # COSMOSDB_NAME: qatranslator-je-cosmosdb
+  COSMOSDB_NAME: qatranslator-je-cosmosdb
   # FUNCTIONS_NAME: qatranslator-je-func
   RESOURCE_GROUP: qatranslator-je
   # STORAGE_ACCOUNT_NAME: qatranslatorjesa
@@ -22,7 +22,7 @@ jobs:
         with:
           creds: '{"clientId":"${{ vars.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
 
-      - name: Regenerate Cognitive Key2 and Set into Vault
+      - name: Regenerate Cognitive Key2
         run: |
           regeneratedKey2=$( \
             az cognitiveservices account keys regenerate \
@@ -39,7 +39,7 @@ jobs:
             --query attributes.created \
             -o tsv
 
-      - name: Regenerate Cognitive Key1 and Set into Vault
+      - name: Regenerate Cognitive Key1
         run: |
           regeneratedKey1=$( \
             az cognitiveservices account keys regenerate \
@@ -53,5 +53,97 @@ jobs:
             --vault-name ${{ env.VAULT_NAME }} \
             -n cognitive-key \
             --value ${regeneratedKey1} \
+            --query attributes.created \
+            -o tsv
+
+  cosmosdb:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login Azure as Contributor
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ vars.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
+
+      - name: Regenerate Cosmos DB Secondary Readonly Key
+        run: |
+          az cosmosdb keys regenerate \
+            -g ${{ env.RESOURCE_GROUP }} \
+            -n ${{ env.COSMOSDB_NAME }} \
+            --key-kind secondaryReadonly
+          regeneratedSecondaryReadonlyKey=$( \
+            az cosmosdb keys list \
+              -g ${{ env.RESOURCE_GROUP }} \
+              -n ${{ env.COGNITIVE_NAME }} \
+              --type read-only-keys \
+              --query secondaryReadonlyMasterKey \
+              -o tsv \
+          )
+          az keyvault secret set \
+            --vault-name ${{ env.VAULT_NAME }} \
+            -n cosmos-db-primary-readonly-key \
+            --value ${regeneratedSecondaryReadonlyKey} \
+            --query attributes.created \
+            -o tsv
+
+      - name: Regenerate Cosmos DB Primary Readonly Key
+        run: |
+          az cosmosdb keys regenerate \
+            -g ${{ env.RESOURCE_GROUP }} \
+            -n ${{ env.COSMOSDB_NAME }} \
+            --key-kind primaryReadonly
+          regeneratedPrimaryReadonlyKey=$( \
+            az cosmosdb keys list \
+              -g ${{ env.RESOURCE_GROUP }} \
+              -n ${{ env.COGNITIVE_NAME }} \
+              --type read-only-keys \
+              --query primaryReadonlyMasterKey \
+              -o tsv \
+          )
+          az keyvault secret set \
+            --vault-name ${{ env.VAULT_NAME }} \
+            -n cosmos-db-primary-readonly-key \
+            --value ${regeneratedPrimaryReadonlyKey} \
+            --query attributes.created \
+            -o tsv
+
+      - name: Regenerate Cosmos DB Secondary Key
+        run: |
+          az cosmosdb keys regenerate \
+            -g ${{ env.RESOURCE_GROUP }} \
+            -n ${{ env.COSMOSDB_NAME }} \
+            --key-kind secondary
+          regeneratedSecondaryKey=$( \
+            az cosmosdb keys list \
+              -g ${{ env.RESOURCE_GROUP }} \
+              -n ${{ env.COGNITIVE_NAME }} \
+              --type keys \
+              --query secondaryMasterKey \
+              -o tsv \
+          )
+          az keyvault secret set \
+            --vault-name ${{ env.VAULT_NAME }} \
+            -n cosmos-db-primary-key \
+            --value ${regeneratedSecondaryKey} \
+            --query attributes.created \
+            -o tsv
+
+      - name: Regenerate Cosmos DB Primary Key
+        run: |
+          az cosmosdb keys regenerate \
+            -g ${{ env.RESOURCE_GROUP }} \
+            -n ${{ env.COSMOSDB_NAME }} \
+            --key-kind primary
+          regeneratedPrimaryKey=$( \
+            az cosmosdb keys list \
+              -g ${{ env.RESOURCE_GROUP }} \
+              -n ${{ env.COGNITIVE_NAME }} \
+              --type keys \
+              --query primaryMasterKey \
+              -o tsv \
+          )
+          az keyvault secret set \
+            --vault-name ${{ env.VAULT_NAME }} \
+            -n cosmos-db-primary-key \
+            --value ${regeneratedPrimaryKey} \
             --query attributes.created \
             -o tsv
