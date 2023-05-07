@@ -48,12 +48,14 @@ Azure リソース/localhost に環境を構築する事前準備として、以
 
 1. Azure CLI にてログイン後、以下のコマンドを実行し、サービスプリンシパル`QATranslator_Contributor`を発行する。
    ```bash
-   az ad sp create-for-rbac --name "QATranslator_Contributor" --role "Contributor" --scope /subscriptions/{サブスクリプションID} --sdk-auth
+   az ad sp create-for-rbac --name QATranslator_Contributor --role Contributor --scope /subscriptions/{サブスクリプションID}
    ```
 2. 1 のコマンドを実行して得た以下の値を、それぞれ手元に控える。
-   - `clientId`(=クライアント ID)
-   - `clientSecret`(=クライアントシークレット)
-3. Azure Portal から Azure AD に遷移する。
+   - `appId`(=クライアント ID)
+   - `password`(=クライアントシークレット)
+3. Azure Portal から Azure AD > App Registrations に遷移する。
+4. QATranslator_Contributor のリンク先にある Overview にある「Managed application in local directory」のリンク「QATranslator_Contributor」を押下し、QATranslator_Contributor のエンタープライズアプリケーションに遷移する。
+5. Overview の Properties にある「Object ID」の値(=エンタープライズアプリケーションのオブジェクト ID)を手元に控える。
 
 ### 3. リポジトリのシークレット・変数設定
 
@@ -73,12 +75,13 @@ Secrets タブから「New repository secret」ボタンを押下して、下記
 
 Variables タブから「New repository variable」ボタンを押下して、下記の通り変数をすべて設定する。
 
-| 変数名                            | 変数値                                                  |
-| --------------------------------- | ------------------------------------------------------- |
-| AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID | 2.で発行した QATranslator_Contributor のクライアント ID |
-| AZURE_AD_SP_MSAL_CLIENT_ID        | 1.で発行した QATranslator_MSAL のクライアント ID        |
-| AZURE_SUBSCRIPTION_ID             | Azure サブスクリプション ID                             |
-| AZURE_TENANT_ID                   | Azure ディレクトリ ID                                   |
+| 変数名                            | 変数値                                                                                    |
+| --------------------------------- | ----------------------------------------------------------------------------------------- |
+| AZURE_AD_EA_CONTRIBUTOR_OBJECT_ID | 2.で発行した QATranslator_Contributor のエンタープライズアプリケーションのオブジェクト ID |
+| AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID | 2.で発行した QATranslator_Contributor のクライアント ID                                   |
+| AZURE_AD_SP_MSAL_CLIENT_ID        | 1.で発行した QATranslator_MSAL のクライアント ID                                          |
+| AZURE_SUBSCRIPTION_ID             | Azure サブスクリプション ID                                                               |
+| AZURE_TENANT_ID                   | Azure ディレクトリ ID                                                                     |
 
 ### 4. インポートデータファイルの作成
 
