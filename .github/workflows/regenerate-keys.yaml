@@ -73,7 +73,7 @@ jobs:
           regeneratedSecondaryReadonlyKey=$( \
             az cosmosdb keys list \
               -g ${{ env.RESOURCE_GROUP }} \
-              -n ${{ env.COGNITIVE_NAME }} \
+              -n ${{ env.COSMOSDB_NAME }} \
               --type read-only-keys \
               --query secondaryReadonlyMasterKey \
               -o tsv \
@@ -94,7 +94,7 @@ jobs:
           regeneratedPrimaryReadonlyKey=$( \
             az cosmosdb keys list \
               -g ${{ env.RESOURCE_GROUP }} \
-              -n ${{ env.COGNITIVE_NAME }} \
+              -n ${{ env.COSMOSDB_NAME }} \
               --type read-only-keys \
               --query primaryReadonlyMasterKey \
               -o tsv \
@@ -115,7 +115,7 @@ jobs:
           regeneratedSecondaryKey=$( \
             az cosmosdb keys list \
               -g ${{ env.RESOURCE_GROUP }} \
-              -n ${{ env.COGNITIVE_NAME }} \
+              -n ${{ env.COSMOSDB_NAME }} \
               --type keys \
               --query secondaryMasterKey \
               -o tsv \
@@ -136,7 +136,7 @@ jobs:
           regeneratedPrimaryKey=$( \
             az cosmosdb keys list \
               -g ${{ env.RESOURCE_GROUP }} \
-              -n ${{ env.COGNITIVE_NAME }} \
+              -n ${{ env.COSMOSDB_NAME }} \
               --type keys \
               --query primaryMasterKey \
               -o tsv \
@@ -214,6 +214,7 @@ jobs:
             az storage account keys renew \
               -g ${{ env.RESOURCE_GROUP }} \
               -n ${{ env.STORAGE_ACCOUNT_NAME }} \
+              --key key2 \
               --query "[?keyName == 'key2'].value | [0]" \
               -o tsv \
           )
@@ -230,6 +231,7 @@ jobs:
             az storage account keys renew \
               -g ${{ env.RESOURCE_GROUP }} \
               -n ${{ env.STORAGE_ACCOUNT_NAME }} \
+              --key key1 \
               --query "[?keyName == 'key1'].value | [0]" \
               -o tsv \
           )
