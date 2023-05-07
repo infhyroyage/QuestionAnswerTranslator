@@ -10,7 +10,7 @@ env:
   COSMOSDB_NAME: qatranslator-je-cosmosdb
   # FUNCTIONS_NAME: qatranslator-je-func
   RESOURCE_GROUP: qatranslator-je
-  # STORAGE_ACCOUNT_NAME: qatranslatorjesa
+  STORAGE_ACCOUNT_NAME: qatranslatorjesa
   VAULT_NAME: qatranslator-je-vault
 
 jobs:
@@ -145,5 +145,45 @@ jobs:
             --vault-name ${{ env.VAULT_NAME }} \
             -n cosmos-db-primary-key \
             --value ${regeneratedPrimaryKey} \
+            --query attributes.created \
+            -o tsv
+
+  storageaccount:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login Azure as Contributor
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ vars.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
+
+      - name: Regenerate Storage Account Key2
+        run: |
+          regeneratedKey2=$( \
+            az storage account keys renew \
+              -g ${{ env.RESOURCE_GROUP }} \
+              -n ${{ env.STORAGE_ACCOUNT_NAME }} \
+              --query "[?keyName == 'key2'].value | [0]" \
+              -o tsv \
+          )
+          az keyvault secret set \
+            --vault-name ${{ env.VAULT_NAME }} \
+            -n storage-connection-string \
+            --value "DefaultEndpointsProtocol=https;AccountName=${{ env.STORAGE_ACCOUNT_NAME }};AccountKey=${regeneratedKey2};EndpointSuffix=core.windows.net" \
+            --query attributes.created \
+            -o tsv
+
+      - name: Regenerate Storage Account Key1
+        run: |
+          regeneratedKey1=$( \
+            az storage account keys renew \
+              -g ${{ env.RESOURCE_GROUP }} \
+              -n ${{ env.STORAGE_ACCOUNT_NAME }} \
+              --query "[?keyName == 'key1'].value | [0]" \
+              -o tsv \
+          )
+          az keyvault secret set \
+            --vault-name ${{ env.VAULT_NAME }} \
+            -n storage-connection-string \
+            --value "DefaultEndpointsProtocol=https;AccountName=${{ env.STORAGE_ACCOUNT_NAME }};AccountKey=${regeneratedKey1};EndpointSuffix=core.windows.net" \
             --query attributes.created \
             -o tsv
