@@ -2,6 +2,9 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "azureAdSpContributorClientId": {
+      "type": "string"
+    },
     "azureApimPublisherEmail": {
       "type": "securestring"
     },
@@ -371,6 +374,17 @@
       ],
       "properties": {
         "accessPolicies": [
+          {
+            "objectId": "[parameters('azureAdSpContributorClientId')]",
+            "tenantId": "[tenant().tenantId]",
+            "permissions": {
+              "keys": [],
+              "secrets": [
+                "Set"
+              ],
+              "certificates": []
+            }
+          },
           {
             "objectId": "[reference(resourceId('Microsoft.ApiManagement/service', variables('apim').name), '2021-01-01-preview', 'Full').identity.principalId]",
             "tenantId": "[tenant().tenantId]",
