@@ -8,7 +8,7 @@ on:
 env:
   COGNITIVE_NAME: qatranslator-je-cognitive
   COSMOSDB_NAME: qatranslator-je-cosmosdb
-  # FUNCTIONS_NAME: qatranslator-je-func
+  FUNCTIONS_NAME: qatranslator-je-func
   RESOURCE_GROUP: qatranslator-je
   STORAGE_ACCOUNT_NAME: qatranslatorjesa
   VAULT_NAME: qatranslator-je-vault
@@ -147,6 +147,58 @@ jobs:
             --value ${regeneratedPrimaryKey} \
             --query attributes.created \
             -o tsv
+
+  functions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login Azure as Contributor
+        uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ vars.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
+
+      - name: Generate Functions Temporary Host Key
+        run: |
+          generatedTmpKey=$( \
+            az functionapp keys set \
+              -g ${{ env.RESOURCE_GROUP }} \
+              -n ${{ env.FUNCTIONS_NAME }} \
+              --key-type functionKeys \
+              --key-name tmp \
+              --query value \
+              -o tsv \
+          )
+          az keyvault secret set \
+            --vault-name ${{ env.VAULT_NAME }} \
+            -n functions-default-host-key \
+            --value ${generatedTmpKey} \
+            --query attributes.created \
+            -o tsv
+
+      - name: Regenerate Functions Host Key
+        run: |
+          regeneratedDefaultKey=$( \
+            az functionapp keys set \
+              -g ${{ env.RESOURCE_GROUP }} \
+              -n ${{ env.FUNCTIONS_NAME }} \
+              --key-type functionKeys \
+              --key-name default \
+              --query value \
+              -o tsv \
+          )
+          az keyvault secret set \
+            --vault-name ${{ env.VAULT_NAME }} \
+            -n functions-default-host-key \
+            --value ${regeneratedDefaultKey} \
+            --query attributes.created \
+            -o tsv
+
+      - name: Delete Functions Temporary Host Key
+        run: |
+          az functionapp keys delete \
+            -g ${{ env.RESOURCE_GROUP }} \
+            -n ${{ env.FUNCTIONS_NAME }} \
+            --key-type functionKeys \
+            --key-name tmp
 
   storageaccount:
     runs-on: ubuntu-latest
