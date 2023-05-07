@@ -249,24 +249,3 @@ QuestionAnswerTranslator リポジトリの Setting > Secrets And variables > Ac
 ### 3. Azure AD 認証認可用サービスプリンシパルの削除
 
 [QuestionAnswerPortal の「2. Microsoft ID Platform 認証認可用サービスプリンシパルの削除」](https://github.com/infhyroyage/QuestionAnswerPortal#2-microsoft-id-platform-%E8%AA%8D%E8%A8%BC%E8%AA%8D%E5%8F%AF%E7%94%A8%E3%82%B5%E3%83%BC%E3%83%93%E3%82%B9%E3%83%97%E3%83%AA%E3%83%B3%E3%82%B7%E3%83%91%E3%83%AB%E3%81%AE%E5%89%8A%E9%99%A4)の通りに削除する。
-
-## TODO
-
-以下の Key Vault に格納しているシークレットを 1 日サイクルで再設定する GitHub Workflow を生成する。
-
-| Key Vault シークレット名       | シークレット元              | シークレット元での名称     | シークレット元での冗長名称 |
-| ------------------------------ | --------------------------- | -------------------------- | -------------------------- |
-| cognitive-key                  | `qatranslator-je-cognitive` | キー 1                     | キー 2                     |
-| cosmos-db-primary-key          | `qatranslator-je-cosmosdb`  | プライマリキー(Read-write) | セカンダリキー(Read-only)  |
-| cosmos-db-primary-readonly-key | `qatranslator-je-cosmosdb`  | プライマリキー(Read-only)  | セカンダリキー(Read-write) |
-| functions-default-host-key     | `qatranslator-je-func`      | 全関数アプリのホストキー   | -(※)                       |
-| storage-connection-string      | `qatranslatorjesa`          | キー 1 の接続文字列        | キー 2 の接続文字列        |
-
-(※)functions-default-host-key は以下で対応する。
-
-1. 全関数アプリのホストキーをもう 1 個一時生成。
-2. 1 のキーを設定。
-3. functions-default-host-key 削除。
-4. functions-default-host-key 再生成。
-5. 4 のキーを設定。
-6. 1 のキーを削除。
