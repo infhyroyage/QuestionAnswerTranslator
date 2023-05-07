@@ -3,6 +3,7 @@ name: Regenerate Keys
 on:
   schedule:
     - cron: "0 0 * * *"
+  workflow_dispatch:
 
 env:
   COGNITIVE_NAME: qatranslator-je-cognitive
