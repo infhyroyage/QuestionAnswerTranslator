@@ -149,7 +149,8 @@ export const importData: ImportData = {
 1. QuestionAnswerTranslator リポジトリの各 workflow をすべて無効化する。
 2. Azure Portal からリソースグループ`qatranslator-je`を削除する。
 3. Azure Portal から Key Vault > Manage deleted vaults > サブスクリプション > qatranslator-je-vault の順で押下し、Purge ボタンを押下して、論理的に削除した Key Vault を物理的に削除する。
-4. 以下の Azure CLI の実行後に正常復帰することを確認し、論理的に削除した API Management を物理的に削除する。
+4. Azure Portal から Cognitive Services > Translator > Manage deleted resources > サブスクリプション > qatranslator-je-cognitive の順で押下し、Purge ボタンを押下して、論理的に削除した Translator を物理的に削除する。
+5. 以下の Azure CLI の実行後に正常復帰することを確認し、論理的に削除した API Management を物理的に削除する。
    ```bash
    az rest -m DELETE -u https://management.azure.com/subscriptions/(サブスクリプションID)/providers/Microsoft.ApiManagement/locations/japaneast/deletedservices/qatranslator-je-apim?api-version=2021-08-01
    ```
