@@ -143,7 +143,7 @@ export const importData: ImportData = {
    - Permission : 「Key permissions」配下の「Get」と「Encrypt」、および、「Secret permissions」配下の「Get」に、それぞれチェックを入れる。
    - Principal : 自身の AzureAD ユーザー名を検索して選択する。
    - Application (optional) : 入力しない。
-4. 以下のコマンドを実行して、Azure にデプロイ済の Cosmos DB に対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+4. ターミナルを起動して以下のコマンドを実行し、Azure にデプロイ済の Cosmos DB に対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
    ```bash
    npm run cosmosdb:import
    ```
@@ -151,10 +151,19 @@ export const importData: ImportData = {
 ### 削除手順
 
 1. QuestionAnswerTranslator リポジトリの各 workflow をすべて無効化する。
-2. Azure Portal からリソースグループ`qatranslator-je`を削除する。
-3. Azure Portal から Key Vault > Manage deleted vaults > サブスクリプション > qatranslator-je-vault の順で押下し、Purge ボタンを押下して、論理的に削除した Key Vault を物理的に削除する。
-4. Azure Portal から Cognitive Services > Translator > Manage deleted resources > サブスクリプション > qatranslator-je-cognitive の順で押下し、Purge ボタンを押下して、論理的に削除した Translator を物理的に削除する。
-5. 以下の Azure CLI の実行後に正常復帰することを確認し、論理的に削除した API Management を物理的に削除する。
+2. ターミナルを起動して以下のコマンドを実行し、リソースグループ`qatranslator-je`を削除する。
+   ```bash
+   az group delete -n qatranslator-je -y
+   ```
+3. 2 のターミナルで以下のコマンドを実行し、論理的に削除した`qatranslator-je-vault`を物理的に削除する。
+   ```bash
+   az keyvault purge -n qatranslator-je-vault
+   ```
+4. 3 のターミナルで以下のコマンドを実行し、論理的に削除した`qatranslator-je-cognitive`を物理的に削除する。
+   ```bash
+   az resource delete --ids /subscriptions/(サブスクリプションID)/providers/Microsoft.CognitiveServices/locations/japaneast/resourceGroups/qatranslator-je/deletedAccounts/qatranslator-je-cognitive
+   ```
+5. 4 のターミナルで以下のコマンドを実行し、論理的に削除した`qatranslator-je-apim`を物理的に削除する。
    ```bash
    az rest -m DELETE -u https://management.azure.com/subscriptions/(サブスクリプションID)/providers/Microsoft.ApiManagement/locations/japaneast/deletedservices/qatranslator-je-apim?api-version=2021-08-01
    ```
