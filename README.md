@@ -138,8 +138,12 @@ export const importData: ImportData = {
 ### 構築手順
 
 1. QuestionAnswerTranslator リポジトリの各 workflow をすべて有効化する。
-2. Create Azure Resources の workflow を手動で実行する。
-3. 以下のコマンドを実行して、Azure にデプロイ済の Cosmos DB に対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+2. QuestionAnswerTranslator リポジトリの Actions > 左側の Create Azure Resources の順で押下し、「Run workflow」のプルダウンから main ブランチに対して「Run workflow」ボタンを押下して、 Azure Resources の workflow を手動で実行する。
+3. Azure Portal から Key Vault > qatranslator-je-vault > Access policies > Create の順で押下し、以下の通り「Next」ボタンを入力しながら「Create」ボタンを押下して、自身の AzureAD ユーザーの Azure Key Vault へのアクセス許可を追加する。
+   - Permission : 「Key permissions」配下の「Get」と「Encrypt」、および、「Secret permissions」配下の「Get」に、それぞれチェックを入れる。
+   - Principal : 自身の AzureAD ユーザー名を検索して選択する。
+   - Application (optional) : 入力しない。
+4. 以下のコマンドを実行して、Azure にデプロイ済の Cosmos DB に対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
    ```bash
    npm run cosmosdb:import
    ```
