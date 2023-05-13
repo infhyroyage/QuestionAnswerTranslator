@@ -459,8 +459,9 @@ export const generateQuestionItems = async (
 
   // 現在のAzure資格情報から、Key Vaultでの暗号化/復号クライアントを生成
   const credential = new DefaultAzureCredential();
-  const keyClient = new KeyClient(VAULT_URL, credential);
-  const cryptographyKey = await keyClient.getKey(VAULT_CRYPTOGRAPHY_KEY_NAME);
+  const cryptographyKey = await new KeyClient(VAULT_URL, credential).getKey(
+    VAULT_CRYPTOGRAPHY_KEY_NAME
+  );
   if (!cryptographyKey || !cryptographyKey.id) {
     throw new Error(
       `Key vault key "${VAULT_CRYPTOGRAPHY_KEY_NAME}" is not found.`
