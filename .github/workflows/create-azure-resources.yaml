@@ -7,6 +7,7 @@ on:
     paths:
       - .github/workflows/create-azure-resources.yaml
       - resources**
+  workflow_dispatch:
 
 env:
   FUNCTIONS_NAME: qatranslator-je-func
@@ -40,17 +41,6 @@ jobs:
           template: ./resources/base.json
           parameters: azureAdEAContributorObjectId=${{ vars.AZURE_AD_EA_CONTRIBUTOR_OBJECT_ID }} azureApimPublisherEmail=${{ secrets.AZURE_APIM_PUBLISHER_EMAIL }} deeplAuthKey=${{ secrets.DEEPL_AUTH_KEY }}
 
-  use-deploy-apim-workflow:
-    needs: create-resources
-    uses: ./.github/workflows/reusable-deploy-apim.yaml
-    with:
-      AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID: ${{ vars.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}
-      AZURE_AD_SP_MSAL_CLIENT_ID: ${{ vars.AZURE_AD_SP_MSAL_CLIENT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-    secrets:
-      AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET: ${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}
-
   set-functions-appsettings:
     runs-on: ubuntu-latest
     needs: create-resources
@@ -69,6 +59,20 @@ jobs:
             -g ${{ env.RESOURCE_GROUP }} \
             -n ${{ env.FUNCTIONS_NAME }} \
             --settings @resources/functions-appsettings-vault-secret.json
+
+  use-build-functions-app-workflow:
+    needs: set-functions-appsettings
+    uses: ./.github/workflows/reusable-build-functions-app.yaml
+
+  use-deploy-functions-app-workflow:
+    needs: use-build-functions-app-workflow
+    uses: ./.github/workflows/reusable-deploy-functions-app.yaml
+    with:
+      AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID: ${{ vars.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+    secrets:
+      AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET: ${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}
 
   # FunctionsにAzureWebJobsStorageのアプリケーション設定をせずにデプロイすると
   # InternalServerErrorとなってしまうデプロイ処理は、以下のJobに定義すること
@@ -92,15 +96,12 @@ jobs:
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
           template: ./resources/connect-apim-2-functions.json
 
-  use-build-functions-app-workflow:
-    needs: set-functions-appsettings
-    uses: ./.github/workflows/reusable-build-functions-app.yaml
-
-  use-deploy-functions-app-workflow:
-    needs: use-build-functions-app-workflow
-    uses: ./.github/workflows/reusable-deploy-functions-app.yaml
+  use-deploy-apim-workflow:
+    needs: connect-apim-2-functions
+    uses: ./.github/workflows/reusable-deploy-apim.yaml
     with:
       AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID: ${{ vars.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}
+      AZURE_AD_SP_MSAL_CLIENT_ID: ${{ vars.AZURE_AD_SP_MSAL_CLIENT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
     secrets:
