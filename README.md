@@ -144,7 +144,7 @@ export const importData: ImportData = {
    - Application (optional) : 入力しない。
 4. ターミナルを起動して以下のコマンドを実行し、Azure にデプロイ済の Cosmos DB に対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
    ```bash
-   npm run cosmosdb:import
+   npm run azure:cosmosdbImport
    ```
 
 ### 削除手順
