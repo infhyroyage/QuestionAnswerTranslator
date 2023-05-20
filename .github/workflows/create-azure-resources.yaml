@@ -7,7 +7,6 @@ on:
     paths:
       - .github/workflows/create-azure-resources.yaml
       - resources**
-  workflow_dispatch:
 
 env:
   FUNCTIONS_NAME: qatranslator-je-func
