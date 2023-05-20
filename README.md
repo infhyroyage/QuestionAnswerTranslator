@@ -13,17 +13,17 @@
 
 ![architecture.drawio](architecture.drawio.svg)
 
-| Azure リソース名            | 概要                                                                       | QuestionAnswerPortal での CI/CD |
-| --------------------------- | -------------------------------------------------------------------------- | :-----------------------------: |
-| `qatranslator-je-apim`      | ユーザー/App Service からアクセスする API Management                       |               ✅                |
-| `qatranslator-je-func`      | API Management からアクセスする Functions                                  |               ✅                |
-| `qatranslator-je-funcplan`  | Functions のプラン                                                         |                                 |
-| `qatranslatorjesa`          | Functions から参照するストレージアカウント                                 |                                 |
-| `qatranslator-je-cosmosdb`  | Functions からアクセスする Cosmos DB                                       |                                 |
-| `qatranslator-je-cognitive` | ユーザーから DeepL の無料枠を超過した場合のみアクセスする Translator       |                                 |
-| `qatranslator-je-vault`     | 暗号鍵/シークレットを管理する Key Vault                                    |                                 |
-| `qatranslator-je-insights`  | App Service/API Management/Functions を一括で監視する Application Insights |                                 |
-| `qatranslator-je-ws`        | Application Insights を分析する Workspaces                                 |                                 |
+| Azure リソース名            | 概要                                                                                         |
+| --------------------------- | -------------------------------------------------------------------------------------------- |
+| `qatranslator-je-apim`      | ユーザー/App Service からアクセスする API Management                                         |
+| `qatranslator-je-func`      | API Management からアクセスする Functions                                                    |
+| `qatranslator-je-funcplan`  | Functions のプラン                                                                           |
+| `qatranslatorjesa`          | Functions から参照するストレージアカウント                                                   |
+| `qatranslator-je-cosmosdb`  | Functions からアクセスする Cosmos DB                                                         |
+| `qatranslator-je-cognitive` | Functions からアクセスする Translator(無料枠を使い切った場合は代わりに DeepL へアクセスする) |
+| `qatranslator-je-vault`     | 暗号鍵/シークレットを管理する Key Vault                                                      |
+| `qatranslator-je-insights`  | App Service/API Management/Functions を一括で監視する Application Insights                   |
+| `qatranslator-je-ws`        | Application Insights を分析する Workspaces                                                   |
 
 ## 使用する主要なパッケージのバージョン
 
