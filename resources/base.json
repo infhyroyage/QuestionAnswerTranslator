@@ -53,9 +53,6 @@
         "insightsInstrumentationKey": "insights-instrumentation-key",
         "storageConnectionString": "storage-connection-string"
       }
-    },
-    "workspaces": {
-      "name": "qatranslator-je-ws"
     }
   },
   "resources": [
@@ -267,43 +264,16 @@
       }
     },
     {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
-      "name": "[variables('workspaces').name]",
-      "subscriptionId": "[subscription().subscriptionId]",
-      "resourceGroup": "[resourceGroup().name]",
-      "properties": {
-        "mode": "Incremental",
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "resources": [
-            {
-              "apiVersion": "2015-11-01-preview",
-              "name": "[variables('workspaces').name]",
-              "type": "Microsoft.OperationalInsights/workspaces",
-              "location": "[resourceGroup().location]",
-              "properties": {}
-            }
-          ]
-        }
-      }
-    },
-    {
       "apiVersion": "2020-02-02-preview",
       "name": "[variables('insights').name]",
       "type": "microsoft.insights/components",
       "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[variables('workspaces').name]"
-      ],
       "kind": "web",
       "properties": {
         "ApplicationId": "[variables('functions').name]",
         "Application_Type": "web",
         "Flow_Type": "Bluefield",
-        "Request_Source": "rest",
-        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspaces').name)]"
+        "Request_Source": "rest"
       }
     },
     {

@@ -23,7 +23,6 @@
 | `qatranslator-je-cognitive` | Functions からアクセスする Translator(無料枠を使い切った場合は代わりに DeepL へアクセスする) |
 | `qatranslator-je-vault`     | 暗号鍵/シークレットを管理する Key Vault                                                      |
 | `qatranslator-je-insights`  | App Service/API Management/Functions を一括で監視する Application Insights                   |
-| `qatranslator-je-ws`        | Application Insights を分析する Workspaces                                                   |
 
 ## 使用する主要なパッケージのバージョン
 
