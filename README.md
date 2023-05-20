@@ -137,7 +137,7 @@ export const importData: ImportData = {
 ### 構築手順
 
 1. QuestionAnswerTranslator リポジトリの各 workflow をすべて有効化する。
-2. QuestionAnswerTranslator リポジトリの Actions > 左側の Create Azure Resources の順で押下し、「Run workflow」のプルダウンから main ブランチに対して「Run workflow」ボタンを押下して、 Azure Resources の workflow を手動で実行する。
+2. QuestionAnswerTranslator リポジトリの Actions > 左側の Create Azure Resources > 最後の実行名 の順で押下し、右上の「Re-run jobs」から「Re-run all jobs」を押下し、確認ダイアログ内の「Re-run jobs」ボタンを押下する。
 3. Azure Portal から Key Vault > qatranslator-je-vault > Access policies > Create の順で押下し、以下の通り「Next」ボタンを入力しながら「Create」ボタンを押下して、自身の AzureAD ユーザーの Azure Key Vault へのアクセス許可を追加する。
    - Permission : 「Key permissions」配下の「Get」と「Encrypt」、および、「Secret permissions」配下の「Get」に、それぞれチェックを入れる。
    - Principal : 自身の AzureAD ユーザー名を検索して選択する。
