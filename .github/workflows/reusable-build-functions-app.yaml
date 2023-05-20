@@ -25,7 +25,7 @@ jobs:
           pushd functions
           cp ../package.json .
           npm install
-          npm run functions:build
+          npx tsc
           popd
 
       - name: Upload Build Artifacts
