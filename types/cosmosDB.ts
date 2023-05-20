@@ -36,4 +36,6 @@ export type Test = {
 
 export type Flag = {
   id: string;
+  year: number;
+  month: number;
 };

@@ -31,8 +31,19 @@ export default async (context: Context): Promise<void> => {
       .query<Flag>(query)
       .fetchAll();
     console.dir(response, { depth: null });
+
+    // 当月中にAzure Translatorの無料枠を使い切ったことがある場合、Azure Translatorにリクエストする必要がないため
+    // 最初からDeepLにリクエストを送るように制御する
     if (response.resources.length > 0) {
-      isUsedUpTransLator = true;
+      const now: Date = new Date();
+      if (
+        response.resources[0].year === now.getFullYear() &&
+        response.resources[0].month === now.getMonth() + 1
+      ) {
+        isUsedUpTransLator = true;
+      } else {
+        await container.item(COSMOS_DB_ITEMS_ID).delete();
+      }
     }
 
     let body: PutEn2JaRes | undefined = undefined;
@@ -42,7 +53,12 @@ export default async (context: Context): Promise<void> => {
       body = await translateByAzureTranslator(texts);
       if (!body) {
         // Azure Translatorの無料枠を使い切ったためフラグを設定
-        await container.items.upsert<Flag>({ id: COSMOS_DB_ITEMS_ID });
+        const now: Date = new Date();
+        await container.items.upsert<Flag>({
+          id: COSMOS_DB_ITEMS_ID,
+          year: now.getFullYear(),
+          month: now.getMonth() + 1,
+        });
 
         body = await translateByDeepL(texts);
       }
