@@ -86,8 +86,8 @@ Variables タブから「New repository variable」ボタンを押下して、�
 
 ### 4. インポートデータファイルの作成
 
-Cosmos DB に保存する以下の文字列は、そのまま GitHub 上に管理するべきではないセキュリティ上の理由のため、**インポートデータファイル**と呼ぶ特定のフォーマットで記述した Typescript のソースコードを git 管理せず、ローカル管理する運用としている。
-インポートデータファイルは、ローカルで git clone した QuestionAnswerTranslator リポジトリの cosmosdb/data 配下に importData.ts というファイル名で Azure リソース/localhost 環境構築前に用意しておく必要がある。
+`qatranslator-je-cosmosdb`に格納するデータは、GitHub 上で管理せず、**インポートデータファイル**と呼ぶ特定のフォーマットで記述した Typescript のソースコードを、ローカル上で管理する運用としている。
+インポートデータファイルは、ローカルで git clone した QuestionAnswerTranslator リポジトリの cosmosdb/data 配下に importData.ts というファイル名で用意する必要がある。
 インポートデータファイルのフォーマットを以下に示す。
 
 ```typescript
@@ -179,7 +179,7 @@ functions 配下に cd し、以下のファイルを持つ関数アプリのプ
 
 ### API Management
 
-上記で生成した関数アプリが HTTP Trigger の場合は、[QuestionAnswerPortal の Swagger](https://github.com/infhyroyage/QuestionAnswerPortal/blob/main/swagger.yaml)にその関数アプリの API リファレンスを記述する。
+上記で生成した関数アプリが HTTP Trigger の場合は、[QuestionAnswerSwagger の swagger.yaml](https://github.com/infhyroyage/QuestionAnswerSwagger/blob/main/swagger.yaml)にその関数アプリの API リファレンスを記述する。
 
 ## localhost 環境構築
 
