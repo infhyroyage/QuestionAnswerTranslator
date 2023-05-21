@@ -42,9 +42,33 @@ Azure リソース/localhost に環境を構築する事前準備として、以
 
 ### 1. Azure AD 認証認可用サービスプリンシパルの発行
 
-[Microsoft ID Platform](https://learn.microsoft.com/ja-jp/azure/active-directory/develop/v2-overview)経由で Web アプリケーションに認証認可を実現するためのサービスプリンシパル QATranslator_MSAL を、[QuestionAnswerPortal の「1. Microsoft ID Platform 認証認可用サービスプリンシパルの発行」](https://github.com/infhyroyage/QuestionAnswerPortal#1-microsoft-id-platform-%E8%AA%8D%E8%A8%BC%E8%AA%8D%E5%8F%AF%E7%94%A8%E3%82%B5%E3%83%BC%E3%83%93%E3%82%B9%E3%83%97%E3%83%AA%E3%83%B3%E3%82%B7%E3%83%91%E3%83%AB%E3%81%AE%E7%99%BA%E8%A1%8C)の通りに発行する。
+[Microsoft ID Platform](https://learn.microsoft.com/ja-jp/azure/active-directory/develop/v2-overview)経由で Web アプリケーションに認証認可を実現するためのサービスプリンシパル QATranslator_MSAL を以下の手順で発行する。
+
+1. Azure Portal から Azure AD に遷移する。
+2. App Registrations > New registration の順で押下し、以下の項目を入力後、Register ボタンを押下してサービスプリンシパルを登録する。
+   - Name : `QATranslator_MSAL`
+   - Supported account types : `Accounts in this organizational directory only`
+   - Redirect URI : `Single-page application(SPA)`(左) と `https://infhyroyage.github.io/QuestionAnswerPortal`(右)
+3. 登録して自動遷移した「QATranslator_MSAL」の Overview にある「Application (client) ID」の値(=クライアント ID)を手元に控える。
+4. Expose an API > Application ID URI の右にある小さな文字「Set」を押下し、Application ID URI の入力欄に`api://{3で手元に控えたクライアントID}`が自動反映されていることを確認し、Save ボタンを押下する。
+5. Expose an API > Scopes defined by this API にある「Add a scope」を押下し、以下の項目を入力後、Save ボタンを押下する。
+   - Scope name : `access_as_user`
+   - Who can consent? : `Admins and users`
+   - Admin consent display name : `QATranslator`
+   - Admin consent description : `Allow react app to access QATranslator backend as the signed-in user`
+   - User consent display name :`QATranslator`
+   - User consent description : `Allow react app to access QATranslator backend on your behalf`
+   - State : `Enabled`
+6. API permissions > Configured permissions の API / Permissions name に、Microsoft Graph API の「User.Read」が既に許可されていることを確認し、「Add a permission」を押下後、以下の順で操作する。
+   1. 「My APIs」タブの`QATranslator_MSAL`を選択。
+   2. What type of permissions does your application require?にて「Delegated permissions」を選択。
+   3. `QATranslator`の`access_as_user`のチェックボックスを選択。
+   4. Add permissions ボタンを押下。
+7. Manifest から JSON 形式のマニフェストを表示し、`"accessTokenAcceptedVersion"`の値を`null`から`2`に変更する。
 
 ### 2. GitHub Actions 用サービスプリンシパルの発行
+
+GitHub Actions から Azure リソースを環境を構築するためのサービスプリンシパル QATranslator_Contributor を以下の手順で発行する。
 
 1. Azure CLI にてログイン後、以下のコマンドを実行し、サービスプリンシパル`QATranslator_Contributor`を発行する。
    ```bash
@@ -178,7 +202,8 @@ functions 配下に cd し、以下のファイルを持つ関数アプリのプ
 
 ### API Management
 
-上記で生成した関数アプリが HTTP Trigger の場合は、[QuestionAnswerSwagger の swagger.yaml](https://github.com/infhyroyage/QuestionAnswerSwagger/blob/main/swagger.yaml)にその関数アプリの API リファレンスを記述する。
+上記で生成した関数アプリが HTTP Trigger の場合は、その関数アプリの API リファレンスである Swagger を[QuestionAnswerSwagger の swagger.yaml](https://github.com/infhyroyage/QuestionAnswerSwagger/blob/main/swagger.yaml)に記述する。
+API Management のデプロイには、この Swagger を用いている。
 
 ## localhost 環境構築
 
@@ -262,4 +287,5 @@ QuestionAnswerTranslator リポジトリの Setting > Secrets And variables > Ac
 
 ### 3. Azure AD 認証認可用サービスプリンシパルの削除
 
-[QuestionAnswerPortal の「2. Microsoft ID Platform 認証認可用サービスプリンシパルの削除」](https://github.com/infhyroyage/QuestionAnswerPortal#2-microsoft-id-platform-%E8%AA%8D%E8%A8%BC%E8%AA%8D%E5%8F%AF%E7%94%A8%E3%82%B5%E3%83%BC%E3%83%93%E3%82%B9%E3%83%97%E3%83%AA%E3%83%B3%E3%82%B7%E3%83%91%E3%83%AB%E3%81%AE%E5%89%8A%E9%99%A4)の通りに削除する。
+1. Azure Portal から Azure AD > App Registrations に遷移する。
+2. QATranslator_MSAL のリンク先にある Delete ボタンを押下し、「I understand the implications of deleting this app registration.」のチェックを入れて Delete ボタンを押下する。
