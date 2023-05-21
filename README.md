@@ -218,10 +218,7 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://l
 
 ### 構築手順
 
-1. Docker および Docker Compose をインストールする。
-   - Azure Functions Core Tools
-   - Docker
-   - Docker Compose
+1. Azure Functions Core Tools および Docker をインストールする。
 2. 以下を記述したファイル`local.settings.json`を QuestionAnswerTranslator リポジトリの functions ディレクトリ配下に保存する。
    ```json
    {
