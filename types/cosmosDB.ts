@@ -19,7 +19,7 @@ export type Question = {
   subjects: Subject[];
   choices: Choice[];
   correctIdxes: number[];
-  explanations: Explanation[];
+  explanations?: Explanation[];
   incorrectChoicesExplanations?: IncorrectChoiceExplanations[];
   indicateImgIdxes?: IndicateImgIdxes;
   escapeTranslatedIdxes?: EscapeTranslatedIdxes;

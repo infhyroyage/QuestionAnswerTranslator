@@ -64,11 +64,11 @@ export default async (context: Context): Promise<void> => {
     }
     const result: QueryQuestionAnswer = response.resources[0];
 
-    let explanations: string[];
+    let explanations: string[] | undefined;
     let incorrectChoicesExplanations: (string[] | null)[] | undefined;
     if (process.env["COSMOSDB_URI"] === "https://localhost:8081") {
       // localhost環境のため、そのままexplanations/incorrectChoiceExplanationsを取得
-      explanations = result.explanations as string[];
+      explanations = result.explanations as string[] | undefined;
       incorrectChoicesExplanations = result.incorrectChoicesExplanations as
         | (string[] | null)[]
         | undefined;
@@ -76,10 +76,14 @@ export default async (context: Context): Promise<void> => {
       // 非localhost環境のため、暗号化されたexplanations/incorrectChoiceExplanationsの各要素を復号して取得
       const cryptographyClient: CryptographyClient =
         await createCryptographyClient(VAULT_CRYPTOGRAPHY_KEY_NAME);
-      explanations = await decryptNumberArrays2Strings(
-        result.explanations as number[][],
-        cryptographyClient
-      );
+      if (result.explanations) {
+        explanations = await decryptNumberArrays2Strings(
+          result.explanations as number[][],
+          cryptographyClient
+        );
+      } else {
+        explanations = undefined;
+      }
       if (result.incorrectChoicesExplanations) {
         incorrectChoicesExplanations = [];
         for (const incorrectChoiceExplanations of result.incorrectChoicesExplanations) {
@@ -139,19 +143,21 @@ export default async (context: Context): Promise<void> => {
     const body: GetQuestionAnswer = {
       correctIdxes: result.correctIdxes,
       explanations: {
-        overall: explanations.map((explanation: string, idx: number) => {
-          return {
-            sentence: explanation,
-            isIndicatedImg:
-              !!result.indicateImgIdxes &&
-              !!result.indicateImgIdxes.explanations &&
-              result.indicateImgIdxes.explanations.includes(idx),
-            isEscapedTranslation:
-              !!result.escapeTranslatedIdxes &&
-              !!result.escapeTranslatedIdxes.explanations &&
-              result.escapeTranslatedIdxes.explanations.includes(idx),
-          };
-        }),
+        overall: explanations
+          ? explanations.map((explanation: string, idx: number) => {
+              return {
+                sentence: explanation,
+                isIndicatedImg:
+                  !!result.indicateImgIdxes &&
+                  !!result.indicateImgIdxes.explanations &&
+                  result.indicateImgIdxes.explanations.includes(idx),
+                isEscapedTranslation:
+                  !!result.escapeTranslatedIdxes &&
+                  !!result.escapeTranslatedIdxes.explanations &&
+                  result.escapeTranslatedIdxes.explanations.includes(idx),
+              };
+            })
+          : [],
         incorrectChoices,
       },
       references: result.references || [],
