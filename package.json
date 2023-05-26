@@ -19,7 +19,7 @@
     "@azure/identity": "^3.0.0",
     "@azure/keyvault-keys": "^4.5.0",
     "@azure/keyvault-secrets": "^4.5.1",
-    "axios": "^0.27.2",
+    "axios": "^1.4.0",
     "deepcopy": "^2.1.0",
     "qs": "^6.11.2",
     "uuid": "^9.0.0"
