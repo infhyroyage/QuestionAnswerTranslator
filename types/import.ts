@@ -20,9 +20,9 @@ export type ImportItem = {
   correctIdxes: number[];
 
   /**
-   * 解説文
+   * 解説文(省略可能)
    */
-  explanations: string[];
+  explanations?: string[];
 
   /**
    * 不正解の選択肢の解説文(正解の選択肢はnull、省略可能)

@@ -268,34 +268,36 @@ const encryptStrings2NumberArrays = async (
  * * choices
  * * explanations
  * * (Optional)incorrectChoicesExplanationsの各非空文字要素
- * @param {Question} rewQuestionItem UsersデータベースのQuestionコンテナーの平文のカラムを持つ項目
+ * @param {Question} rawQuestionItem UsersデータベースのQuestionコンテナーの平文のカラムを持つ項目
  * @param {CryptographyClient} cryptographyClient Key Vaultでの暗号化/復号クライアント
  * @returns {Promise<Question>} UsersデータベースのQuestionコンテナーの暗号化したカラムを持つ項目
  */
 const excryptQuestionItem = async (
-  rewQuestionItem: Question,
+  rawQuestionItem: Question,
   cryptographyClient: CryptographyClient
 ): Promise<Question> => {
-  const encryptedQuestionItem: Question = deepcopy(rewQuestionItem);
+  const encryptedQuestionItem: Question = deepcopy(rawQuestionItem);
 
   encryptedQuestionItem.subjects = await encryptStrings2NumberArrays(
-    rewQuestionItem.subjects as string[],
+    rawQuestionItem.subjects as string[],
     cryptographyClient
   );
 
   encryptedQuestionItem.choices = await encryptStrings2NumberArrays(
-    rewQuestionItem.choices as string[],
+    rawQuestionItem.choices as string[],
     cryptographyClient
   );
 
-  encryptedQuestionItem.explanations = await encryptStrings2NumberArrays(
-    rewQuestionItem.explanations as string[],
-    cryptographyClient
-  );
+  if (rawQuestionItem.explanations) {
+    encryptedQuestionItem.explanations = await encryptStrings2NumberArrays(
+      rawQuestionItem.explanations as string[],
+      cryptographyClient
+    );
+  }
 
-  if (rewQuestionItem.incorrectChoicesExplanations) {
+  if (rawQuestionItem.incorrectChoicesExplanations) {
     encryptedQuestionItem.incorrectChoicesExplanations = [];
-    for (const incorrectChoiceExplanations of rewQuestionItem.incorrectChoicesExplanations) {
+    for (const incorrectChoiceExplanations of rawQuestionItem.incorrectChoicesExplanations) {
       if (incorrectChoiceExplanations) {
         const encryptedIncorrectChoiceExplanations: number[][] =
           await encryptStrings2NumberArrays(
