@@ -21,7 +21,7 @@
     "@azure/keyvault-secrets": "^4.5.1",
     "axios": "^0.27.2",
     "deepcopy": "^2.1.0",
-    "qs": "^6.11.0",
+    "qs": "^6.11.2",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
