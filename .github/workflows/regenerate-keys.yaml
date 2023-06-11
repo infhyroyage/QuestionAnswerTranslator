@@ -71,7 +71,9 @@ jobs:
             -n ${{ env.FUNCTIONS_NAME }} \
             --settings "COGNITIVE_KEY=@Microsoft.KeyVault(SecretUri=${secretUri})"
 
-  cosmos-db-primary-key:
+  # Cosmos DBのアクセスキーを再生成すると、自動的にCosmos DBアカウント単位で排他制御が発生するため、
+  # プライマリーキー(セカンダリーキー)と、読取専用プライマリーキー(セカンダリーキー)の再生成は同一Jobで実行する
+  cosmos-db-primary-key-and-primary-readonly-key:
     runs-on: ubuntu-latest
     steps:
       - name: Login Azure as Contributor
@@ -132,14 +134,6 @@ jobs:
             -g ${{ env.RESOURCE_GROUP }} \
             -n ${{ env.FUNCTIONS_NAME }} \
             --settings "COSMOSDB_KEY=@Microsoft.KeyVault(SecretUri=${secretUri})"
-
-  cosmos-db-primary-readonly-key:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Login Azure as Contributor
-        uses: azure/login@v1
-        with:
-          creds: '{"clientId":"${{ vars.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
 
       - name: Regenerate Cosmos DB Secondary Readonly Key
         run: |
