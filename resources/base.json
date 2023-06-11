@@ -350,6 +350,7 @@
             "permissions": {
               "keys": [],
               "secrets": [
+                "Get",
                 "Set"
               ],
               "certificates": []
