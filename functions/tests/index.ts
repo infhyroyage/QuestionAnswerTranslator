@@ -17,7 +17,7 @@ export default async (context: Context): Promise<void> => {
       .items.readAll<Test>()
       .fetchAll();
     const items: Test[] = response.resources;
-    context.log.verbose({ items });
+    context.log.info({ items });
 
     // 各項目をcourseName単位でまとめるようにレスポンス整形
     const body: GetTests = items.reduce((prev: GetTests, item: Test) => {
@@ -33,7 +33,7 @@ export default async (context: Context): Promise<void> => {
       }
       return prev;
     }, {});
-    context.log.verbose({ body });
+    context.log.info({ body });
 
     context.res = {
       status: 200,

@@ -22,7 +22,7 @@ export default async (context: Context): Promise<void> => {
     )
       .items.query<GetTest>(query)
       .fetchAll();
-    context.log.verbose({ response });
+    context.log.info({ response });
 
     if (response.resources.length === 0) {
       context.res = {

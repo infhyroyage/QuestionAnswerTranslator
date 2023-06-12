@@ -31,7 +31,7 @@ export default async (context: Context): Promise<void> => {
     const fetchAllResponse: FeedResponse<Flag> = await container.items
       .query<Flag>(query)
       .fetchAll();
-    context.log.verbose({ fetchAllResponse });
+    context.log.info({ fetchAllResponse });
 
     // 当月中にAzure Translatorの無料枠を使い切ったことがある場合、Azure Translatorにリクエストする必要がないため
     // 最初からDeepLにリクエストを送るように制御する
@@ -46,7 +46,7 @@ export default async (context: Context): Promise<void> => {
         const deleteResponse: ItemResponse<Flag> = await container
           .item(COSMOS_DB_ITEMS_ID)
           .delete<Flag>();
-        context.log.verbose({ deleteResponse });
+        context.log.info({ deleteResponse });
       }
     }
 
@@ -65,12 +65,12 @@ export default async (context: Context): Promise<void> => {
             year: now.getFullYear(),
             month: now.getMonth() + 1,
           });
-        context.log.verbose({ upsertResponse });
+        context.log.info({ upsertResponse });
 
         body = await translateByDeepL(texts);
       }
     }
-    context.log.verbose({ body });
+    context.log.info({ body });
     if (!body) throw new Error("Translated texts are empty.");
 
     context.res = { status: 200, body };

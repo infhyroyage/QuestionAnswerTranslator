@@ -50,7 +50,7 @@ export default async (context: Context): Promise<void> => {
     )
       .items.query<QueryQuestion>(query)
       .fetchAll();
-    context.log.verbose({ response });
+    context.log.info({ response });
 
     if (response.resources.length === 0) {
       context.res = {
@@ -110,7 +110,7 @@ export default async (context: Context): Promise<void> => {
       }),
       isCorrectedMulti: result.correctIdxes.length > 1,
     };
-    context.log.verbose({ body });
+    context.log.info({ body });
 
     context.res = {
       status: 200,
