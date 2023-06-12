@@ -9,21 +9,21 @@ const COSMOS_DB_CONTAINER_NAME = "Test";
 export default async (context: Context): Promise<void> => {
   try {
     const { testId } = context.bindingData;
-    console.log({ testId });
+    context.log.info({ testId });
 
     // Cosmos DBのUsersデータベースのTestコンテナーから項目取得
     const query: SqlQuerySpec = {
       query: "SELECT c.testName, c.length FROM c WHERE c.id = @testId",
       parameters: [{ name: "@testId", value: testId }],
     };
-
     const response: FeedResponse<GetTest> = await getReadOnlyContainer(
       COSMOS_DB_DATABASE_NAME,
       COSMOS_DB_CONTAINER_NAME
     )
       .items.query<GetTest>(query)
       .fetchAll();
-    console.dir(response, { depth: null });
+    context.log.verbose({ response });
+
     if (response.resources.length === 0) {
       context.res = {
         status: 404,
@@ -33,18 +33,16 @@ export default async (context: Context): Promise<void> => {
     } else if (response.resources.length > 1) {
       throw new Error("Not Unique Test");
     }
-    const item: GetTest = response.resources[0];
 
     context.res = {
       status: 200,
-      body: JSON.stringify(item),
+      body: JSON.stringify(response.resources[0]),
     };
   } catch (e) {
-    console.error(e);
-
+    context.log.error(e);
     context.res = {
       status: 500,
-      body: JSON.stringify(e),
+      body: "Internal Server Error",
     };
   }
 };

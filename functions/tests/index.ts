@@ -17,7 +17,7 @@ export default async (context: Context): Promise<void> => {
       .items.readAll<Test>()
       .fetchAll();
     const items: Test[] = response.resources;
-    console.log({ items });
+    context.log.verbose({ items });
 
     // 各項目をcourseName単位でまとめるようにレスポンス整形
     const body: GetTests = items.reduce((prev: GetTests, item: Test) => {
@@ -33,17 +33,17 @@ export default async (context: Context): Promise<void> => {
       }
       return prev;
     }, {});
+    context.log.verbose({ body });
 
     context.res = {
       status: 200,
       body: JSON.stringify(body),
     };
   } catch (e) {
-    console.error(e);
-
+    context.log.error(e);
     context.res = {
       status: 500,
-      body: JSON.stringify(e),
+      body: "Internal Server Error",
     };
   }
 };

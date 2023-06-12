@@ -1,4 +1,4 @@
-import { FeedResponse, SqlQuerySpec } from "@azure/cosmos";
+import { FeedResponse, ItemResponse, SqlQuerySpec } from "@azure/cosmos";
 import { Context } from "@azure/functions";
 import { PutEn2JaReq, PutEn2JaRes } from "../../types/functions";
 import { Flag } from "../cosmosDB";
@@ -15,6 +15,7 @@ const COSMOS_DB_ITEMS_ID = "isUsedUpTransLator";
 export default async (context: Context): Promise<void> => {
   try {
     const texts: PutEn2JaReq = context.req?.body;
+    context.log.info({ texts });
 
     // Cosmos DBのSystemsデータベースのFlagsコンテナーから、
     // Azure Translatorの無料枠を使い切ったかのフラグを取得
@@ -27,22 +28,25 @@ export default async (context: Context): Promise<void> => {
       COSMOS_DB_DATABASE_NAME,
       COSMOS_DB_CONTAINER_NAME
     );
-    const response: FeedResponse<Flag> = await container.items
+    const fetchAllResponse: FeedResponse<Flag> = await container.items
       .query<Flag>(query)
       .fetchAll();
-    console.dir(response, { depth: null });
+    context.log.verbose({ fetchAllResponse });
 
     // 当月中にAzure Translatorの無料枠を使い切ったことがある場合、Azure Translatorにリクエストする必要がないため
     // 最初からDeepLにリクエストを送るように制御する
-    if (response.resources.length > 0) {
+    if (fetchAllResponse.resources.length > 0) {
       const now: Date = new Date();
       if (
-        response.resources[0].year === now.getFullYear() &&
-        response.resources[0].month === now.getMonth() + 1
+        fetchAllResponse.resources[0].year === now.getFullYear() &&
+        fetchAllResponse.resources[0].month === now.getMonth() + 1
       ) {
         isUsedUpTransLator = true;
       } else {
-        await container.item(COSMOS_DB_ITEMS_ID).delete();
+        const deleteResponse: ItemResponse<Flag> = await container
+          .item(COSMOS_DB_ITEMS_ID)
+          .delete<Flag>();
+        context.log.verbose({ deleteResponse });
       }
     }
 
@@ -52,26 +56,29 @@ export default async (context: Context): Promise<void> => {
     } else {
       body = await translateByAzureTranslator(texts);
       if (!body) {
-        // Azure Translatorの無料枠を使い切ったためフラグを設定
+        // Azure Translatorの無料枠を使い切ったため、Warningログを出力してフラグを設定
+        context.log.warn("Azure Translator Free Tier is used up.");
         const now: Date = new Date();
-        await container.items.upsert<Flag>({
-          id: COSMOS_DB_ITEMS_ID,
-          year: now.getFullYear(),
-          month: now.getMonth() + 1,
-        });
+        const upsertResponse: ItemResponse<Flag> =
+          await container.items.upsert<Flag>({
+            id: COSMOS_DB_ITEMS_ID,
+            year: now.getFullYear(),
+            month: now.getMonth() + 1,
+          });
+        context.log.verbose({ upsertResponse });
 
         body = await translateByDeepL(texts);
       }
     }
+    context.log.verbose({ body });
     if (!body) throw new Error("Translated texts are empty.");
 
     context.res = { status: 200, body };
   } catch (e) {
-    console.error(e);
-
+    context.log.error(e);
     context.res = {
       status: 500,
-      body: JSON.stringify(e),
+      body: "Internal Server Error",
     };
   }
 };

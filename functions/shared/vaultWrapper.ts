@@ -37,16 +37,11 @@ export const decryptNumberArrays2Strings = async (
 ): Promise<string[]> => {
   const decryptResults: DecryptResult[] = await Promise.all(
     encryptedStrings.map(
-      (encryptedString: number[], i: number): Promise<DecryptResult> =>
-        cryptographyClient
-          .decrypt({
-            algorithm: "RSA1_5",
-            ciphertext: Uint8Array.from(encryptedString),
-          })
-          .catch((e) => {
-            console.error(`${i}th Decrypt Error`);
-            throw e;
-          })
+      (encryptedString: number[]): Promise<DecryptResult> =>
+        cryptographyClient.decrypt({
+          algorithm: "RSA1_5",
+          ciphertext: Uint8Array.from(encryptedString),
+        })
     )
   );
   return decryptResults.map((decryptResult: DecryptResult) =>

@@ -16,7 +16,7 @@ const VAULT_CRYPTOGRAPHY_KEY_NAME = "manual-import-data";
 export default async (context: Context): Promise<void> => {
   try {
     const { testId, questionNumber } = context.bindingData;
-    console.log({ testId, questionNumber });
+    context.log.info({ testId, questionNumber });
 
     // questionNumberのバリデーションチェック
     if (isNaN(parseInt(questionNumber))) {
@@ -52,7 +52,8 @@ export default async (context: Context): Promise<void> => {
       )
         .items.query<QueryQuestionAnswer>(query)
         .fetchAll();
-    console.dir(response, { depth: null });
+    context.log.verbose({ response });
+
     if (response.resources.length === 0) {
       context.res = {
         status: 404,
@@ -62,6 +63,7 @@ export default async (context: Context): Promise<void> => {
     } else if (response.resources.length > 1) {
       throw new Error("Not Unique Question");
     }
+
     const result: QueryQuestionAnswer = response.resources[0];
 
     let explanations: string[] | undefined;
@@ -162,15 +164,17 @@ export default async (context: Context): Promise<void> => {
       },
       references: result.references || [],
     };
+    context.log.verbose({ body });
+
     context.res = {
       status: 200,
       body: JSON.stringify(body),
     };
   } catch (e) {
-    console.error(e);
+    context.log.error(e);
     context.res = {
       status: 500,
-      body: JSON.stringify(e),
+      body: "Internal Server Error",
     };
   }
 };
