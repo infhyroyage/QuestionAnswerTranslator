@@ -52,7 +52,7 @@ export default async (context: Context): Promise<void> => {
       )
         .items.query<QueryQuestionAnswer>(query)
         .fetchAll();
-    context.log.info({ response });
+    context.log.info({ resources: response.resources });
 
     if (response.resources.length === 0) {
       context.res = {
