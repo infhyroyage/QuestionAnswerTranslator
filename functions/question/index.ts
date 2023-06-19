@@ -108,7 +108,7 @@ export default async (context: Context): Promise<void> => {
             result.escapeTranslatedIdxes.choices.includes(idx),
         };
       }),
-      isCorrectedMulti: result.correctIdxes.length > 1,
+      isMultiplied: result.correctIdxes.length > 1,
     };
     context.log.info({ body });
 

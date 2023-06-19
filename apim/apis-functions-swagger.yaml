@@ -190,7 +190,7 @@ paths:
                           type: boolean
                         isEscapedTranslation:
                           type: boolean
-                  isCorrectedMulti:
+                  isMultiplied:
                     type: boolean
         "400":
           description: 問題番号が不正です

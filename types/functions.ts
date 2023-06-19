@@ -18,7 +18,7 @@ export type GetHealthcheck = {
 export type GetQuestion = {
   subjects: Sentence[];
   choices: Sentence[];
-  isCorrectedMulti: boolean;
+  isMultiplied: boolean;
 };
 
 export type GetQuestionAnswer = {
