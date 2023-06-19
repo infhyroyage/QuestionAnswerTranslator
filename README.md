@@ -7,7 +7,7 @@
 
 ## 概要
 
-[QuestionAnswerPortal](https://github.com/infhyroyage/QuestionAnswerPortal)から呼び出す、[QuestionAnswerSwagger](https://github.com/infhyroyage/QuestionAnswerSwagger)に従った API サーバーを構成する。
+[QuestionAnswerPortal](https://github.com/infhyroyage/QuestionAnswerPortal)の API サーバーを構成する。
 
 ## アーキテクチャー図
 
@@ -202,8 +202,8 @@ functions 配下に cd し、以下のファイルを持つ関数アプリのプ
 
 ### API Management
 
-上記で生成した関数アプリが HTTP Trigger の場合は、その関数アプリの API リファレンスである Swagger を[QuestionAnswerSwagger の swagger.yaml](https://github.com/infhyroyage/QuestionAnswerSwagger/blob/main/swagger.yaml)に記述する。
-API Management のデプロイには、この Swagger を用いている。
+上記で生成した関数アプリが HTTP Trigger の場合、その関数アプリの API リファレンスである [Swagger](https://infhyroyage.github.io/QuestionAnswerTranslator/) を apim/apis-functions-swagger.yaml に記述する。
+API Management のデプロイは、この Swagger を使用する。
 
 ## localhost 環境構築
 
