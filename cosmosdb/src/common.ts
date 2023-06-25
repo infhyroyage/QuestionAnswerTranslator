@@ -339,7 +339,7 @@ export const generateQuestionItems = async (
   let questionItems: Question[], courseName: string;
   if (process.argv.length === 2) {
     // コマンドライン引数にコース名・テスト名未指定
-    // UsersテータベースのQuestionコンテナーをquery
+    // UsersテータベースのQuestionコンテナーの全項目のidをquery
     const query: SqlQuerySpec = {
       query: "SELECT c.id FROM c",
     };
@@ -369,23 +369,24 @@ export const generateQuestionItems = async (
           }
 
           const testId: string = testItem.id;
-          const nonInsertedImportItem: ImportItem[] = importData[courseName][
-            testName
-          ].filter(
-            (item: ImportItem) =>
-              !insertedQuestionIds.includes(`${testId}_${item.number}`)
+          const nonInsertedInnerQuestionItems: Question[] = importData[
+            courseName
+          ][testName].reduce(
+            (prev: Question[], item: ImportItem, idx: number) => {
+              if (!insertedQuestionIds.includes(`${testId}_${idx + 1}`)) {
+                prev.push({
+                  ...item,
+                  id: `${testId}_${idx + 1}`,
+                  number: idx + 1,
+                  testId,
+                });
+              }
+              return prev;
+            },
+            []
           );
 
-          return [
-            ...prevInnerQuestionItems,
-            ...nonInsertedImportItem.map((item: ImportItem) => {
-              return {
-                ...item,
-                id: `${testId}_${item.number}`,
-                testId,
-              };
-            }),
-          ];
+          return [...prevInnerQuestionItems, ...nonInsertedInnerQuestionItems];
         }, []);
 
         return [...prevQuestionItems, ...innerQuestionItems];
@@ -411,11 +412,12 @@ export const generateQuestionItems = async (
       (prevQuestionItems: Question[], testIdAndName: TestIdAndName) => {
         const items: Question[] = importData[courseName][
           testIdAndName.testName
-        ].map((item: ImportItem) => {
+        ].map((item: ImportItem, idx: number) => {
           const testId: string = testIdAndName.testId;
           return {
             ...item,
-            id: `${testId}_${item.number}`,
+            id: `${testId}_${idx + 1}`,
+            number: idx + 1,
             testId,
           };
         });
@@ -443,13 +445,16 @@ export const generateQuestionItems = async (
     }
 
     const testId: string = testItem.id;
-    questionItems = importData[courseName][testName].map((item: ImportItem) => {
-      return {
-        ...item,
-        id: `${testId}_${item.number}`,
-        testId,
-      };
-    });
+    questionItems = importData[courseName][testName].map(
+      (item: ImportItem, idx: number) => {
+        return {
+          ...item,
+          id: `${testId}_${idx + 1}`,
+          number: idx + 1,
+          testId,
+        };
+      }
+    );
   } else {
     throw new Error("Invalid arguments");
   }

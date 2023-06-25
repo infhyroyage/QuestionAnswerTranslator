@@ -120,7 +120,6 @@ export const importData: ImportData = {
   "コース名1": {
     "テスト名1": [
       {
-        number: 1, // 問題番号(1スタート)
         subjects: ["問題文1", "https://xxx.com/yyy/zzz.png", "問題文2", ... ], // 問題文または画像URL
         choices: ["選択肢1", "選択肢2", ... ], // 選択肢
         correctIdxes: [0], // 回答の選択肢のインデックス(複数回答の場合は複数指定)
@@ -139,7 +138,7 @@ export const importData: ImportData = {
         references: ["https://xxx.com/yyy/zzz.html", ... ] // 解説URL(省略可能)
       },
       {
-        number: 2,
+        subjects: [ ... ],
         :
       },
       :

@@ -1,10 +1,5 @@
 export type ImportItem = {
   /**
-   * 問題番号(1スタート)
-   */
-  number: number;
-
-  /**
    * 問題文または画像URL
    */
   subjects: string[];
