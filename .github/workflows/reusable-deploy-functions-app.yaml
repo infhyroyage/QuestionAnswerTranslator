@@ -17,7 +17,7 @@ on:
         required: false
         type: string
       NODE_VERSION:
-        default: "16.19.0"
+        default: "16.20.1"
         required: false
         type: string
     secrets:
