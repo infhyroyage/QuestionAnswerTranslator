@@ -1,0 +1,12 @@
+{
+  "bindings": [
+    {
+      "name": "jsonContentBinary",
+      "type": "blobTrigger",
+      "direction": "in",
+      "path": "test-container/{courseName}/{testName}.json",
+      "connection": "AzureWebJobsStorage"
+    }
+  ],
+  "scriptFile": "../dist/functions/import-json/index.js"
+}
