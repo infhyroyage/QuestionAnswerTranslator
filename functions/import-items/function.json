@@ -8,5 +8,5 @@
       "connection": "AzureWebJobsStorage"
     }
   ],
-  "scriptFile": "../dist/functions/import-json/index.js"
+  "scriptFile": "../dist/functions/import-items/index.js"
 }
