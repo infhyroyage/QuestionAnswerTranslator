@@ -27,6 +27,15 @@
       "name": "qatranslator-je-cognitive"
     },
     "cosmosDB": {
+      "containerNames": {
+        "flag": "Flag",
+        "question": "Question",
+        "test": "Test"
+      },
+      "databaseNames": {
+        "systems": "Systems",
+        "users": "Users"
+      },
       "name": "qatranslator-je-cosmosdb"
     },
     "functions": {
@@ -189,7 +198,7 @@
       }
     },
     {
-      "apiVersion": "2022-02-15-preview",
+      "apiVersion": "2022-11-15",
       "kind": "GlobalDocumentDB",
       "type": "Microsoft.DocumentDb/databaseAccounts",
       "name": "[variables('cosmosDB').name]",
@@ -230,7 +239,96 @@
       "tags": {
         "defaultExperience": "false",
         "hidden-cosmos-mmspecial": ""
-      }
+      },
+      "resources": [
+        {
+          "type": "sqlDatabases",
+          "apiVersion": "2022-11-15",
+          "name": "[variables('cosmosDB').databaseNames.systems]",
+          "dependsOn": [
+            "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name)]"
+          ],
+          "properties": {
+            "resource": {
+              "id": "[variables('cosmosDB').databaseNames.systems]"
+            }
+          },
+          "resources": [
+            {
+              "type": "containers",
+              "apiVersion": "2022-11-15",
+              "name": "[variables('cosmosDB').containerNames.flag]",
+              "dependsOn": [
+                "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name)]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosDB').name, variables('cosmosDB').databaseNames.systems)]"
+              ],
+              "properties": {
+                "resource": {
+                  "id": "[variables('cosmosDB').containerNames.flag]",
+                  "partitionKey": {
+                    "paths": [
+                      "/id"
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "sqlDatabases",
+          "apiVersion": "2022-11-15",
+          "name": "[variables('cosmosDB').databaseNames.users]",
+          "dependsOn": [
+            "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name)]"
+          ],
+          "properties": {
+            "resource": {
+              "id": "[variables('cosmosDB').databaseNames.users]"
+            }
+          },
+          "resources": [
+            {
+              "type": "containers",
+              "apiVersion": "2022-11-15",
+              "name": "[variables('cosmosDB').containerNames.test]",
+              "dependsOn": [
+                "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name)]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosDB').name, variables('cosmosDB').databaseNames.users)]"
+              ],
+              "properties": {
+                "resource": {
+                  "id": "[variables('cosmosDB').containerNames.test]",
+                  "partitionKey": {
+                    "paths": [
+                      "/id"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "type": "containers",
+              "apiVersion": "2022-11-15",
+              "name": "[variables('cosmosDB').containerNames.question]",
+              "dependsOn": [
+                "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name)]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosDB').name, variables('cosmosDB').databaseNames.users)]"
+              ],
+              "properties": {
+                "resource": {
+                  "id": "[variables('cosmosDB').containerNames.question]",
+                  "partitionKey": {
+                    "paths": [
+                      "/id"
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "apiVersion": "2021-08-01",
@@ -452,7 +550,7 @@
             "attributes": {
               "enabled": true
             },
-            "value": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name), '2022-02-15-preview').primaryMasterKey]"
+            "value": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name), '2022-11-15').primaryMasterKey]"
           }
         },
         {
@@ -468,7 +566,7 @@
             "attributes": {
               "enabled": true
             },
-            "value": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name), '2022-02-15-preview').primaryReadonlyMasterKey]"
+            "value": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name), '2022-11-15').primaryReadonlyMasterKey]"
           }
         },
         {
