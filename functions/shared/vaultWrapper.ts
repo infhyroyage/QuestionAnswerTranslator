@@ -2,6 +2,7 @@ import { ManagedIdentityCredential } from "@azure/identity";
 import {
   CryptographyClient,
   DecryptResult,
+  EncryptResult,
   KeyClient,
   KeyVaultKey,
 } from "@azure/keyvault-keys";
@@ -23,6 +24,37 @@ export const createCryptographyClient = async (
     throw new Error(`Key vault key "${keyName}" is not found.`);
   }
   return new CryptographyClient(importKey.id, credential);
+};
+
+/**
+ * 指定したstring型の平文(複数個)を、それぞれstring型→Uint8Array型→number[]型として暗号化する
+ * @param {string[]} rawStrings 平文(複数個)
+ * @param {CryptographyClient} cryptographyClient Key Vaultでの暗号化/復号クライアント
+ * @returns {Promise<number[][]>} 暗号化した0〜255の値を持つ配列(複数個)のPromise
+ */
+export const encryptStrings2NumberArrays = async (
+  rawStrings: string[],
+  cryptographyClient: CryptographyClient
+): Promise<number[][]> => {
+  const encryptResults: EncryptResult[] = await Promise.all(
+    rawStrings.map(
+      (rawString: string, i: number): Promise<EncryptResult> =>
+        cryptographyClient
+          .encrypt({
+            algorithm: "RSA1_5",
+            plaintext: Buffer.from(rawString),
+          })
+          .catch((e) => {
+            console.error(
+              `${i}th Encrypt Error(${rawString.length} chars): ${rawString}`
+            );
+            throw e;
+          })
+    )
+  );
+  return encryptResults.map((encryptedResult: EncryptResult) =>
+    Array.from(encryptedResult.result)
+  );
 };
 
 /**

@@ -7,10 +7,16 @@ import {
 import { FeedResponse, ItemResponse, SqlQuerySpec } from "@azure/cosmos";
 import { v4 as uuidv4 } from "uuid";
 import { Question, Test } from "../cosmosDB";
+import { CryptographyClient } from "@azure/keyvault-keys";
+import {
+  createCryptographyClient,
+  decryptNumberArrays2Strings,
+  encryptStrings2NumberArrays,
+} from "../shared/vaultWrapper";
 
 const COSMOS_DB_DATABASE_NAME = "Users";
 const COSMOS_DB_CONTAINER_NAMES = { test: "Test", question: "Question" };
-// const VAULT_CRYPTOGRAPHY_KEY_NAME = "manual-import-data";
+const VAULT_CRYPTOGRAPHY_KEY_NAME = "manual-import-data";
 
 export default async (context: Context): Promise<void> => {
   try {
@@ -90,12 +96,178 @@ export default async (context: Context): Promise<void> => {
           .fetchAll();
       insertedQuestionItems = insertedQuestionItemsRes.resources;
     }
+
+    // 取得したUsersテータベースのQuestionコンテナーの各項目を復号化
+    const cryptographyClient: CryptographyClient =
+      await createCryptographyClient(VAULT_CRYPTOGRAPHY_KEY_NAME);
+    const decryptPromises: Promise<Question>[] = insertedQuestionItems.map(
+      async (insertedQuestionItem: Question) => {
+        const subjects: string[] = await decryptNumberArrays2Strings(
+          insertedQuestionItem.subjects as number[][],
+          cryptographyClient
+        );
+
+        const choices: string[] = await decryptNumberArrays2Strings(
+          insertedQuestionItem.choices as number[][],
+          cryptographyClient
+        );
+
+        let explanations: string[] | undefined = undefined;
+        if (insertedQuestionItem.explanations) {
+          explanations = await decryptNumberArrays2Strings(
+            insertedQuestionItem.explanations as number[][],
+            cryptographyClient
+          );
+        }
+
+        let incorrectChoicesExplanations: (string[] | null)[] | undefined =
+          undefined;
+        if (insertedQuestionItem.incorrectChoicesExplanations) {
+          incorrectChoicesExplanations = [];
+          for (const incorrectChoiceExplanations of insertedQuestionItem.incorrectChoicesExplanations) {
+            if (incorrectChoiceExplanations) {
+              const decryptedIncorrectChoiceExplanations: string[] =
+                await decryptNumberArrays2Strings(
+                  incorrectChoiceExplanations as number[][],
+                  cryptographyClient
+                );
+              incorrectChoicesExplanations.push(
+                decryptedIncorrectChoiceExplanations
+              );
+            } else {
+              incorrectChoicesExplanations.push(null);
+            }
+          }
+        }
+
+        return {
+          ...insertedQuestionItem,
+          subjects,
+          choices,
+          explanations,
+          incorrectChoicesExplanations,
+        };
+      }
+    );
+    if (insertedQuestionItems.length > 0) {
+      insertedQuestionItems = await Promise.all<Promise<Question>[]>(
+        decryptPromises
+      );
+    }
     context.log.info({ insertedQuestionItems });
 
-    // TODO: 取得したUsersテータベースのQuestionコンテナーの各項目を復号化
+    // 読み込んだjsonファイルの各ImportItemにて、取得したUsersテータベースの
+    // Questionコンテナーに存在して差分がない項目を抽出
+    let upsertQuestionItems: Question[] = jsonData.reduce(
+      (prev: Question[], item: ImportItem, idx: number) => {
+        const insertedQuestionItem: Question | undefined =
+          insertedQuestionItems.find(
+            (item: Question) => item.id === `${testId}_${idx + 1}`
+          );
+        if (
+          !insertedQuestionItem ||
+          insertedQuestionItem.subjects !== item.subjects ||
+          insertedQuestionItem.choices !== item.choices ||
+          insertedQuestionItem.correctIdxes !== item.correctIdxes ||
+          insertedQuestionItem.explanations !== item.explanations ||
+          insertedQuestionItem.incorrectChoicesExplanations !==
+            item.incorrectChoicesExplanations ||
+          insertedQuestionItem.indicateImgIdxes !== item.indicateImgIdxes ||
+          insertedQuestionItem.escapeTranslatedIdxes !==
+            item.escapeTranslatedIdxes ||
+          insertedQuestionItem.references !== item.references
+        ) {
+          const upsertQuestionItem: Question = {
+            ...item,
+            id: `${testId}_${idx + 1}`,
+            number: idx + 1,
+            testId,
+          };
+          context.log.info({ upsertQuestionItem });
+          prev.push(upsertQuestionItem);
+        }
+        return prev;
+      },
+      []
+    );
+    context.log.info({ upsertQuestionItems });
 
-    // TODO: 読み込んだjsonファイルの各ImportItemにて、取得したUsersテータベースの
-    // Questionコンテナーに存在して差分がない場合以外はupsert
+    // 抽出したUsersテータベースのQuestionコンテナーの各項目を暗号化
+    const encryptPromises: Promise<Question>[] = upsertQuestionItems.map(
+      async (upsertQuestionItem: Question) => {
+        const subjects: number[][] = await encryptStrings2NumberArrays(
+          upsertQuestionItem.subjects as string[],
+          cryptographyClient
+        );
+
+        const choices: number[][] = await encryptStrings2NumberArrays(
+          upsertQuestionItem.choices as string[],
+          cryptographyClient
+        );
+
+        let explanations: number[][] | undefined = undefined;
+        if (upsertQuestionItem.explanations) {
+          explanations = await encryptStrings2NumberArrays(
+            upsertQuestionItem.explanations as string[],
+            cryptographyClient
+          );
+        }
+
+        let incorrectChoicesExplanations: (number[][] | null)[] | undefined =
+          undefined;
+        if (upsertQuestionItem.incorrectChoicesExplanations) {
+          incorrectChoicesExplanations = [];
+          for (const incorrectChoiceExplanations of upsertQuestionItem.incorrectChoicesExplanations) {
+            if (incorrectChoiceExplanations) {
+              const decryptedIncorrectChoiceExplanations: number[][] =
+                await encryptStrings2NumberArrays(
+                  incorrectChoiceExplanations as string[],
+                  cryptographyClient
+                );
+              incorrectChoicesExplanations.push(
+                decryptedIncorrectChoiceExplanations
+              );
+            } else {
+              incorrectChoicesExplanations.push(null);
+            }
+          }
+        }
+
+        return {
+          ...upsertQuestionItem,
+          subjects,
+          choices,
+          explanations,
+          incorrectChoicesExplanations,
+        };
+      }
+    );
+    if (upsertQuestionItems.length > 0) {
+      upsertQuestionItems = await Promise.all<Promise<Question>[]>(
+        encryptPromises
+      );
+    }
+
+    // 暗号化したUsersテータベースのQuestionコンテナーの各項目をupsert
+    // 比較的要求ユニット(RU)数が多いDB操作を行うため、upsertの合間に3秒間sleepする
+    if (upsertQuestionItems.length > 0) {
+      const sleep = (sleepPeriod: number): Promise<unknown> =>
+        new Promise((resolve) => setTimeout(resolve, sleepPeriod));
+      for (let i = 0; i < upsertQuestionItems.length; i++) {
+        const item: Question = upsertQuestionItems[i];
+        const res: ItemResponse<Question> = await getReadWriteContainer(
+          COSMOS_DB_DATABASE_NAME,
+          COSMOS_DB_CONTAINER_NAMES.question
+        ).items.upsert<Question>(item);
+        if (res.statusCode >= 400) {
+          throw new Error(
+            `Status Code ${res.statusCode}: ${JSON.stringify(item)}`
+          );
+        }
+
+        await sleep(3000);
+      }
+    }
 
     context.res = {
       status: 200,
