@@ -4,7 +4,7 @@
       "name": "jsonContentBinary",
       "type": "blobTrigger",
       "direction": "in",
-      "path": "test-container/{courseName}/{testName}.json",
+      "path": "import-items/{courseName}/{testName}.json",
       "connection": "AzureWebJobsStorage"
     }
   ],

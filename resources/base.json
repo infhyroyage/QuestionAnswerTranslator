@@ -331,7 +331,7 @@
       ]
     },
     {
-      "apiVersion": "2021-08-01",
+      "apiVersion": "2022-09-01",
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('storageAccount').name]",
       "location": "[resourceGroup().location]",
@@ -342,7 +342,49 @@
       "properties": {
         "minimumTlsVersion": "TLS1_2",
         "supportsHttpsTrafficOnly": true
-      }
+      },
+      "resources": [
+        {
+          "type": "blobServices",
+          "apiVersion": "2022-09-01",
+          "name": "default",
+          "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name)]"
+          ],
+          "sku": {
+            "name": "Standard_LRS",
+            "tier": "Standard"
+          },
+          "properties": {
+            "cors": {
+              "corsRules": []
+            },
+            "deleteRetentionPolicy": {
+              "allowPermanentDelete": false,
+              "enabled": false
+            }
+          },
+          "resources": [
+            {
+              "type": "containers",
+              "apiVersion": "2022-09-01",
+              "name": "import-items",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccount').name, 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name)]"
+              ],
+              "properties": {
+                "immutableStorageWithVersioning": {
+                  "enabled": false
+                },
+                "defaultEncryptionScope": "$account-encryption-key",
+                "denyEncryptionScopeOverride": false,
+                "publicAccess": "None"
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "apiVersion": "2021-03-01",
