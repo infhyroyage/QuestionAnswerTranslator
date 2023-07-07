@@ -46,6 +46,7 @@
       "name": "qatranslator-je-insights"
     },
     "storageAccount": {
+      "containerName": "import-items",
       "name": "qatranslatorjesa"
     },
     "vault": {
@@ -368,7 +369,7 @@
             {
               "type": "containers",
               "apiVersion": "2022-09-01",
-              "name": "import-items",
+              "name": "[variables('storageAccount').containerName]",
               "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccount').name, 'default')]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name)]"
