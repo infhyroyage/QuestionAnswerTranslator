@@ -671,7 +671,7 @@
             "attributes": {
               "enabled": true
             },
-            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccount').name,';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name), '2021-08-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccount').name,';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name), '2022-09-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
           }
         }
       ]
