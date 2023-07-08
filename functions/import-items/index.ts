@@ -250,6 +250,7 @@ export default async (context: Context): Promise<void> => {
 
     // 暗号化したUsersテータベースのQuestionコンテナーの各項目をupsert
     // 比較的要求ユニット(RU)数が多いDB操作を行うため、upsertの合間に3秒間sleepする
+    // https://docs.microsoft.com/ja-jp/azure/cosmos-db/sql/troubleshoot-request-rate-too-large
     if (upsertQuestionItems.length > 0) {
       const sleep = (sleepPeriod: number): Promise<unknown> =>
         new Promise((resolve) => setTimeout(resolve, sleepPeriod));
