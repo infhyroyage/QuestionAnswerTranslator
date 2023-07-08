@@ -3,7 +3,6 @@ import { Question, Test } from "../../types/cosmosDB";
 import { ImportData } from "../../types/import";
 import {
   createDatabasesAndContainers,
-  generateCosmosClient,
   createImportData,
   importTestItems,
   generateTestItems,
@@ -11,13 +10,20 @@ import {
   importQuestionItemsAndSleep,
 } from "./common";
 
+const COSMOSDB_LOCAL_KEY =
+  "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
+const COSMOSDB_LOCAL_URI = "https://localhost:8081";
+
 const main = async () => {
   // インポートデータ作成
   const importData: ImportData = createImportData();
   console.log("createImportData: OK");
 
   // 各データベース・コンテナー作成
-  const cosmosClient: CosmosClient = await generateCosmosClient();
+  const cosmosClient: CosmosClient = new CosmosClient({
+    endpoint: COSMOSDB_LOCAL_URI,
+    key: COSMOSDB_LOCAL_KEY,
+  });
   await createDatabasesAndContainers(cosmosClient);
   console.log("createDatabasesAndContainers: OK");
 
@@ -29,7 +35,7 @@ const main = async () => {
   await importTestItems(testItems, cosmosClient);
   console.log("importTestItems: OK");
 
-  // UsersテータベースのQuestionコンテナーの項目を生成
+  // UsersテータベースのQuestionコンテナーの未格納の項目を生成
   const questionItems: Question[] = await generateQuestionItems(
     importData,
     cosmosClient,
@@ -38,12 +44,7 @@ const main = async () => {
   console.log("generateQuestionItems: OK");
 
   // UsersテータベースのQuestionコンテナーの項目をインポート
-  // 暫定でsleepの秒数はローカル環境で1秒、非ローカル環境で3秒とする
-  await importQuestionItemsAndSleep(
-    questionItems,
-    cosmosClient,
-    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] ? 1000 : 3000
-  );
+  await importQuestionItemsAndSleep(questionItems, cosmosClient);
   console.log("importQuestionItemsAndSleep: OK");
 };
 
