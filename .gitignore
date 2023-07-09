@@ -115,3 +115,7 @@ data
 
 # Azure Functions Core Tools
 functions/local.settings.json
+
+# Azurite
+__blobstorage__/
+__azurite_db_*.json
