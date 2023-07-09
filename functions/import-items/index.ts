@@ -183,7 +183,6 @@ export default async (context: Context): Promise<void> => {
             number: idx + 1,
             testId,
           };
-          context.log.info({ upsertQuestionItem });
           prev.push(upsertQuestionItem);
         }
         return prev;
