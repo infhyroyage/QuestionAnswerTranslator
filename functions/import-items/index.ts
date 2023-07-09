@@ -177,6 +177,32 @@ export default async (context: Context): Promise<void> => {
             item.escapeTranslatedIdxes ||
           insertedQuestionItem.references !== item.references
         ) {
+          // DEBUG
+          context.log.info({ insertedQuestionItem });
+          context.log.info({ item });
+          context.log.info({
+            debug: [
+              !insertedQuestionItem,
+              insertedQuestionItem &&
+                insertedQuestionItem.subjects !== item.subjects,
+              insertedQuestionItem &&
+                insertedQuestionItem.choices !== item.choices,
+              insertedQuestionItem &&
+                insertedQuestionItem.correctIdxes !== item.correctIdxes,
+              insertedQuestionItem &&
+                insertedQuestionItem.explanations !== item.explanations,
+              insertedQuestionItem &&
+                insertedQuestionItem.incorrectChoicesExplanations !==
+                  item.incorrectChoicesExplanations,
+              insertedQuestionItem &&
+                insertedQuestionItem.indicateImgIdxes !== item.indicateImgIdxes,
+              insertedQuestionItem &&
+                insertedQuestionItem.escapeTranslatedIdxes !==
+                  item.escapeTranslatedIdxes,
+              insertedQuestionItem &&
+                insertedQuestionItem.references !== item.references,
+            ],
+          });
           const upsertQuestionItem: Question = {
             ...item,
             id: `${testId}_${idx + 1}`,
