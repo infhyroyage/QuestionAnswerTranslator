@@ -110,49 +110,34 @@ Variables タブから「New repository variable」ボタンを押下して、�
 ### 4. インポートデータファイルの作成
 
 `qatranslator-je-cosmosdb`に格納するデータは、GitHub 上で管理せず、**インポートデータファイル**と呼ぶ特定のフォーマットで記述した Typescript のソースコードを、ローカル上で管理する運用としている。
-インポートデータファイルは、ローカルで git clone した QuestionAnswerTranslator リポジトリの cosmosdb/data 配下に importData.ts というファイル名で用意する必要がある。
+インポートデータファイルは、ローカルで git clone した QuestionAnswerTranslator リポジトリ直下に`data/(コース名)/(テスト名).json`のパスでディレクトリ・json ファイルを作成する必要がある。
 インポートデータファイルのフォーマットを以下に示す。
 
-```typescript
-import { ImportData } from "../../types/import";
-
-export const importData: ImportData = {
-  "コース名1": {
-    "テスト名1": [
-      {
-        subjects: ["問題文1", "https://xxx.com/yyy/zzz.png", "問題文2", ... ], // 問題文または画像URL
-        choices: ["選択肢1", "選択肢2", ... ], // 選択肢
-        correctIdxes: [0], // 回答の選択肢のインデックス(複数回答の場合は複数指定)
-        explanations: ["解説文1", "解説文2", ... ], // 解説文または画像URL(省略可能)
-        incorrectChoicesExplanations: [null, ["選択肢2の解説文1", "選択肢2の解説文2", ... ], ... ], // 不正解の選択肢の解説文(正解の選択肢はnull、省略可能)
-        indicateImgIdxes: { // 画像URLのインデックス群(省略可能)
-          subjects: [0, ... ], // subjects(省略可能)
-          explanations: [2, ... ] // explanations(省略可能)
-        },
-        escapeTranslatedIdxes: { // 翻訳不必要な文字列のインデックス群(省略可能)
-          subjects: [0, ... ], // subjects(省略可能)
-          choices: [1, ... ], // choices(省略可能)
-          explanations: [2, ... ], // explanations(省略可能)
-          incorrectChoicesExplanations: [null, [0, ... ], ... ] // incorrectChoicesExplanations(正解の選択肢はnull、省略可能)
-        },
-        references: ["https://xxx.com/yyy/zzz.html", ... ] // 解説URL(省略可能)
-      },
-      {
-        subjects: [ ... ],
-        :
-      },
-      :
-    ],
-    "テスト名2": [
-      :
-    ],
+```json
+[
+  {
+    "subjects": ["問題文1", "https://xxx.com/yyy/zzz.png", "問題文2", ... ], // 問題文または画像URL
+    "choices": ["選択肢1", "選択肢2", ... ], // 選択肢
+    "correctIdxes": [0], // 回答の選択肢のインデックス(複数回答の場合は複数指定)
+    "explanations": ["解説文1", "解説文2", ... ], // 解説文または画像URL(省略可能)
+    "incorrectChoicesExplanations": [null, ["選択肢2の解説文1", "選択肢2の解説文2", ... ], ... ], // 不正解の選択肢の解説文(正解の選択肢はnull、省略可能)
+    "indicateImgIdxes": { // 画像URLのインデックス群(省略可能)
+      "subjects": [0, ... ], // subjects(省略可能)
+      "explanations": [2, ... ] // explanations(省略可能)
+    },
+    "escapeTranslatedIdxes": { // 翻訳不必要な文字列のインデックス群(省略可能)
+      "subjects": [0, ... ], // subjects(省略可能)
+      "choices": [1, ... ], // choices(省略可能)
+      "explanations": [2, ... ], // explanations(省略可能)
+      "incorrectChoicesExplanations": [null, [0, ... ], ... ] // incorrectChoicesExplanations(正解の選択肢はnull、省略可能)
+    },
+    "references": ["https://xxx.com/yyy/zzz.html", ... ] // 解説URL(省略可能)
+  },
+  {
+    "subjects": [ ... ],
     :
   },
-  "コース名2": {
-    :
-  },
-  :
-}
+]
 ```
 
 ## Azure リソース環境構築
@@ -161,13 +146,9 @@ export const importData: ImportData = {
 
 1. QuestionAnswerTranslator リポジトリの各 workflow をすべて有効化する。
 2. QuestionAnswerTranslator リポジトリの Actions > 左側の Create Azure Resources > 最後の実行名 の順で押下し、右上の「Re-run jobs」から「Re-run all jobs」を押下し、確認ダイアログ内の「Re-run jobs」ボタンを押下する。
-3. Azure Portal から Key Vault > qatranslator-je-vault > Access policies > Create の順で押下し、以下の通り「Next」ボタンを入力しながら「Create」ボタンを押下して、自身の AzureAD ユーザーの Azure Key Vault へのアクセス許可を追加する。
-   - Permission : 「Key permissions」配下の「Get」と「Encrypt」、および、「Secret permissions」配下の「Get」に、それぞれチェックを入れる。
-   - Principal : 自身の AzureAD ユーザー名を検索して選択する。
-   - Application (optional) : 入力しない。
-4. ターミナルを起動して以下のコマンドを実行し、Azure にデプロイ済の Cosmos DB に対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+3. ターミナルを起動して以下のコマンドを実行し、Azure にデプロイ済のストレージアカウントに対し、すべてのインポートデータファイルを一括アップロードする。
    ```bash
-   npm run azure:cosmosdbImport
+   az storage blob directory upload --account-name qatranslatorjesa -c import-items -s "data/*" -d . -r
    ```
 
 ### 削除手順
@@ -212,12 +193,19 @@ Azure にリソースを構築せず、localhost 上で以下のサーバーを�
 | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------- |
 | Azure Functions(HTTP Trigger の関数アプリのみ) | [Azure Functions Core Tools](https://docs.microsoft.com/ja-jp/azure/azure-functions/functions-run-local) | 9229       |
 | Cosmos DB                                      | [Azure Cosmos DB Linux Emulator](https://docs.microsoft.com/ja-jp/azure/cosmos-db/local-emulator)        | 8081       |
+| Blob ストレージ                                | [Azurite](https://marketplace.visualstudio.com/items?itemName=Azurite.azurite)                           | 10000      |
+| Queue ストレージ                               | [Azurite](https://marketplace.visualstudio.com/items?itemName=Azurite.azurite)                           | 10001      |
+| Table ストレージ                               | [Azurite](https://marketplace.visualstudio.com/items?itemName=Azurite.azurite)                           | 10002      |
 
 localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://localhost:8081/_explorer/index.html) にアクセスすると、Cosmos DB 内のデータを参照・更新することができる。
 
 ### 構築手順
 
-1. Azure Functions Core Tools および Docker をインストールする。
+1. 以下をすべてインストールする。
+   - Azure Functions Core Tools
+   - Azurite
+   - Docker
+   - VSCode
 2. 以下を記述したファイル`local.settings.json`を QuestionAnswerTranslator リポジトリの functions ディレクトリ配下に保存する。
    ```json
    {
@@ -240,11 +228,12 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://l
    }
    ```
    - CORS は任意のオリジンを許可するように設定しているため、特定のオリジンのみ許可したい場合は`Host` > `CORS`にそのオリジンを設定すること。
-3. ターミナルを起動して以下のコマンドを実行し、Azure Functions を起動する。実行したターミナルはそのまま放置する。
+3. VSCode を起動してコマンドパレッドを起動して`Azurite: Start`と検索してコマンドを実行し、Blob/Queue/Table ストレージをすべて起動する。実行した VSCode はそのまま放置する。
+4. ターミナルを起動して以下のコマンドを実行し、Azure Functions を起動する。実行したターミナルはそのまま放置する。
    ```bash
    npm run local:functions
    ```
-4. 3 とは別のターミナルで以下のコマンドを実行し、Cosmos DB を起動する。実行したターミナルはそのまま放置する。
+5. 4 とは別のターミナルで以下のコマンドを実行し、Cosmos DB を起動する。実行したターミナルはそのまま放置する。
    ```bash
    npm run local:cosmosdbCreate
    ```
@@ -252,18 +241,19 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://l
    ```
    localcosmosdb     | Started
    ```
-5. 4 とは別のターミナルで以下のコマンドを実行し、起動した Cosmos DB サーバーに対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+6. 5 とは別のターミナルで以下のコマンドを実行し、起動した Cosmos DB サーバーに対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
    ```bash
    npm run local:cosmosdbImport
    ```
 
 ### 削除手順
 
-1. ターミナルを起動して以下のコマンドを実行し、起動した Cosmos DB を停止する。
+1. ターミナルを起動して以下のコマンドを実行し、構築手順の 6 で起動した Cosmos DB を停止する。
    ```bash
    npm run local:cosmosdbDestroy
    ```
-2. 構築手順の 3 で起動した Azure Functions のターミナルに対して Ctrl+C キーを入力し、起動した Azure Functions を停止する。
+2. 構築手順の 4 で起動した Azure Functions のターミナルに対して Ctrl+C キーを入力し、起動した Azure Functions を停止する。
+3. 構築手順の 3 で起動した Blob/Queue/Table ストレージの VSCode に対してコマンドパレッドを起動して`Azurite: Close`と検索してコマンドを実行し、Blob/Queue/Table ストレージをすべて停止する。
 
 ## 完全初期化
 
