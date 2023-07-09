@@ -181,27 +181,12 @@ export default async (context: Context): Promise<void> => {
           context.log.info({ insertedQuestionItem });
           context.log.info({ item });
           context.log.info({
-            debug: [
-              !insertedQuestionItem,
+            insertedQuestionItem:
+              insertedQuestionItem && insertedQuestionItem.subjects,
+            item: item.subjects,
+            jubgement:
               insertedQuestionItem &&
-                insertedQuestionItem.subjects !== item.subjects,
-              insertedQuestionItem &&
-                insertedQuestionItem.choices !== item.choices,
-              insertedQuestionItem &&
-                insertedQuestionItem.correctIdxes !== item.correctIdxes,
-              insertedQuestionItem &&
-                insertedQuestionItem.explanations !== item.explanations,
-              insertedQuestionItem &&
-                insertedQuestionItem.incorrectChoicesExplanations !==
-                  item.incorrectChoicesExplanations,
-              insertedQuestionItem &&
-                insertedQuestionItem.indicateImgIdxes !== item.indicateImgIdxes,
-              insertedQuestionItem &&
-                insertedQuestionItem.escapeTranslatedIdxes !==
-                  item.escapeTranslatedIdxes,
-              insertedQuestionItem &&
-                insertedQuestionItem.references !== item.references,
-            ],
+              insertedQuestionItem.subjects !== item.subjects,
           });
           const upsertQuestionItem: Question = {
             ...item,
