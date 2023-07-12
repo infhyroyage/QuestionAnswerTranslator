@@ -6,7 +6,12 @@ import {
 } from "../shared/cosmosDBWrapper";
 import { FeedResponse, ItemResponse, SqlQuerySpec } from "@azure/cosmos";
 import { v4 as uuidv4 } from "uuid";
-import { Question, Test } from "../cosmosDB";
+import {
+  EscapeTranslatedIdxes,
+  IndicateImgIdxes,
+  Question,
+  Test,
+} from "../cosmosDB";
 import { CryptographyClient } from "@azure/keyvault-keys";
 import {
   createCryptographyClient,
@@ -142,16 +147,57 @@ export default async (context: Context): Promise<void> => {
           }
         }
 
-        return {
+        const insertedImportItem: ImportItem = {
           subjects,
           choices,
           correctIdxes: insertedQuestionItem.correctIdxes,
-          explanations,
-          incorrectChoicesExplanations,
-          indicateImgIdxes: insertedQuestionItem.indicateImgIdxes,
-          escapeTranslatedIdxes: insertedQuestionItem.escapeTranslatedIdxes,
-          references: insertedQuestionItem.references,
         };
+        if (explanations) {
+          insertedImportItem.explanations = explanations;
+        }
+        if (incorrectChoicesExplanations) {
+          insertedImportItem.incorrectChoicesExplanations =
+            incorrectChoicesExplanations;
+        }
+        if (insertedQuestionItem.indicateImgIdxes) {
+          const indicateImgIdxes: IndicateImgIdxes = {};
+          if (insertedQuestionItem.indicateImgIdxes.subjects) {
+            indicateImgIdxes.subjects =
+              insertedQuestionItem.indicateImgIdxes.subjects;
+          }
+          if (insertedQuestionItem.indicateImgIdxes.explanations) {
+            indicateImgIdxes.explanations =
+              insertedQuestionItem.indicateImgIdxes.explanations;
+          }
+          insertedImportItem.indicateImgIdxes = indicateImgIdxes;
+        }
+        if (insertedQuestionItem.escapeTranslatedIdxes) {
+          const escapeTranslatedIdxes: EscapeTranslatedIdxes = {};
+          if (insertedQuestionItem.escapeTranslatedIdxes.subjects) {
+            escapeTranslatedIdxes.subjects =
+              insertedQuestionItem.escapeTranslatedIdxes.subjects;
+          }
+          if (insertedQuestionItem.escapeTranslatedIdxes.choices) {
+            escapeTranslatedIdxes.choices =
+              insertedQuestionItem.escapeTranslatedIdxes.choices;
+          }
+          if (insertedQuestionItem.escapeTranslatedIdxes.explanations) {
+            escapeTranslatedIdxes.explanations =
+              insertedQuestionItem.escapeTranslatedIdxes.explanations;
+          }
+          if (
+            insertedQuestionItem.escapeTranslatedIdxes
+              .incorrectChoicesExplanations
+          ) {
+            escapeTranslatedIdxes.incorrectChoicesExplanations =
+              insertedQuestionItem.escapeTranslatedIdxes.incorrectChoicesExplanations;
+          }
+          insertedImportItem.escapeTranslatedIdxes = escapeTranslatedIdxes;
+        }
+        if (insertedQuestionItem.references) {
+          insertedImportItem.references = insertedQuestionItem.references;
+        }
+        return insertedImportItem;
       }
     );
     if (insertedQuestionItems.length > 0) {
