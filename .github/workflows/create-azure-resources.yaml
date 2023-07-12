@@ -61,6 +61,8 @@ jobs:
             -n ${{ env.FUNCTIONS_NAME }} \
             --settings @resources/functions-appsettings-common.json
 
+  # Azure Functionsのアプリケーション設定設定を同時実行すると後勝ちする場合があるため
+  # 直列的に実行するようにJob/Stepを構成する
   set-functions-appsettings-regenerative:
     runs-on: ubuntu-latest
     needs: set-functions-appsettings-common
