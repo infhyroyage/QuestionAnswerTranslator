@@ -164,13 +164,11 @@ export default async (context: Context): Promise<void> => {
     // 読み込んだjsonファイルの各ImportItemにて、取得したUsersテータベースの
     // Questionコンテナーに存在して差分がない項目を抽出
     const upsertImportItems: ImportItem[] = jsonData.reduce(
-      (prev: ImportItem[], jsonImportItem: ImportItem, idx: number) => {
+      (prev: ImportItem[], jsonImportItem: ImportItem) => {
         const insertedQuestionItem: ImportItem | undefined =
-          insertedImportItems.find((insertedImportItem: ImportItem) => {
-            if (idx === 0)
-              context.log.info({ insertedImportItem, jsonImportItem });
-            return deepEqual(insertedImportItem, jsonImportItem);
-          });
+          insertedImportItems.find((insertedImportItem: ImportItem) =>
+            deepEqual(insertedImportItem, jsonImportItem)
+          );
         if (!insertedQuestionItem) {
           prev.push(jsonImportItem);
         }
