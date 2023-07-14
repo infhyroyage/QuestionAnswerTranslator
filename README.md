@@ -231,11 +231,11 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://l
 3. VSCode を起動してコマンドパレッドを起動して`Azurite: Start`と検索してコマンドを実行し、Blob/Queue/Table ストレージをすべて起動する。実行した VSCode はそのまま放置する。
 4. ターミナルを起動して以下のコマンドを実行し、Azure Functions を起動する。実行したターミナルはそのまま放置する。
    ```bash
-   npm run local:functions
+   npm run functions:create
    ```
 5. 4 とは別のターミナルで以下のコマンドを実行し、Cosmos DB を起動する。実行したターミナルはそのまま放置する。
    ```bash
-   npm run local:cosmosdbCreate
+   npm run cosmosdb:create
    ```
    実行後、以下の標準出力が表示されるまで待機する。
    ```
@@ -243,14 +243,14 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://l
    ```
 6. 5 とは別のターミナルで以下のコマンドを実行し、起動した Cosmos DB サーバーに対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
    ```bash
-   npm run local:cosmosdbImport
+   npm run cosmosdb:import
    ```
 
 ### 削除手順
 
 1. ターミナルを起動して以下のコマンドを実行し、構築手順の 6 で起動した Cosmos DB を停止する。
    ```bash
-   npm run local:cosmosdbDestroy
+   npm run cosmosdb:destroy
    ```
 2. 構築手順の 4 で起動した Azure Functions のターミナルに対して Ctrl+C キーを入力し、起動した Azure Functions を停止する。
 3. 構築手順の 3 で起動した Blob/Queue/Table ストレージの VSCode に対してコマンドパレッドを起動して`Azurite: Close`と検索してコマンドを実行し、Blob/Queue/Table ストレージをすべて停止する。
