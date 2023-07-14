@@ -80,9 +80,9 @@ jobs:
               -o tsv \
           )
           sed -i.bak \
-            -e 's|{cognitiveKey}|${cognitiveKey}|g' \
-            -e 's|{cosmosdbKey}|${cosmosdbKey}|g' \
-            -e 's|{cosmosdbReadonlyKey}|${cosmosdbReadonlyKey}|g' \
+            -e "s|{cognitiveKey}|${cognitiveKey}|g" \
+            -e "s|{cosmosdbKey}|${cosmosdbKey}|g" \
+            -e "s|{cosmosdbReadonlyKey}|${cosmosdbReadonlyKey}|g" \
             resources/functions-appsettings.json
 
       - name: Update Functions Application Settings
