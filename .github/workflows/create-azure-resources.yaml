@@ -42,7 +42,9 @@ jobs:
           template: ./resources/base.json
           parameters: azureAdEAContributorObjectId=${{ vars.AZURE_AD_EA_CONTRIBUTOR_OBJECT_ID }} azureApimPublisherEmail=${{ secrets.AZURE_APIM_PUBLISHER_EMAIL }} deeplAuthKey=${{ secrets.DEEPL_AUTH_KEY }}
 
-  set-functions-appsettings-common:
+  # 短期間でAzure Functionsのアプリケーション設定を複数回更新すると、正常終了したのにも関わらず更新しない場合があるため
+  # 1回のみ更新するようにJob/Stepを構成する
+  set-functions-appsettings:
     runs-on: ubuntu-latest
     needs: create-resources
     steps:
@@ -54,74 +56,47 @@ jobs:
         with:
           creds: '{"clientId":"${{ vars.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
 
-      - name: Add Key Vault Other Secrets
+      - name: Update functions-appsettings.json
         run: |
-          az functionapp config appsettings set \
-            -g ${{ env.RESOURCE_GROUP }} \
-            -n ${{ env.FUNCTIONS_NAME }} \
-            --settings @resources/functions-appsettings-common.json
-
-  # Azure Functionsのアプリケーション設定設定を同時実行すると後勝ちする場合があるため
-  # 直列的に実行するようにJob/Stepを構成する
-  set-functions-appsettings-regenerative:
-    runs-on: ubuntu-latest
-    needs: set-functions-appsettings-common
-    steps:
-      - name: Checkout
-        uses: actions/checkout@main
-
-      - name: Login Azure as Contributor
-        uses: azure/login@v1
-        with:
-          creds: '{"clientId":"${{ vars.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
-
-      - name: Add Key Vault Cognitive Key
-        run: |
-          secretUri=$( \
+          cognitiveKey=$( \
             az keyvault secret show \
               --vault-name ${{ env.VAULT_NAME }} \
               -n cognitive-key \
               --query id \
               -o tsv \
           )
-          az functionapp config appsettings set \
-            -g ${{ env.RESOURCE_GROUP }} \
-            -n ${{ env.FUNCTIONS_NAME }} \
-            --settings "COGNITIVE_KEY=@Microsoft.KeyVault(SecretUri=${secretUri})"
-
-      - name: Add Key Vault Cosmos DB Primary Key
-        run: |
-          secretUri=$( \
+          cosmosdbKey=$( \
             az keyvault secret show \
               --vault-name ${{ env.VAULT_NAME }} \
               -n cosmos-db-primary-key \
               --query id \
               -o tsv \
           )
-          az functionapp config appsettings set \
-            -g ${{ env.RESOURCE_GROUP }} \
-            -n ${{ env.FUNCTIONS_NAME }} \
-            --settings "COSMOSDB_KEY=@Microsoft.KeyVault(SecretUri=${secretUri})"
-
-      - name: Add Key Vault Cosmos DB Primary Readonly Key
-        run: |
-          secretUri=$( \
+          cosmosdbReadonlyKey=$( \
             az keyvault secret show \
               --vault-name ${{ env.VAULT_NAME }} \
               -n cosmos-db-primary-readonly-key \
               --query id \
               -o tsv \
           )
+          sed -i.bak \
+            -e 's|{cognitiveKey}|${cognitiveKey}|g' \
+            -e 's|{cosmosdbKey}|${cosmosdbKey}|g' \
+            -e 's|{cosmosdbReadonlyKey}|${cosmosdbReadonlyKey}|g' \
+            resources/functions-appsettings.json
+
+      - name: Update Functions Application Settings
+        run: |
           az functionapp config appsettings set \
             -g ${{ env.RESOURCE_GROUP }} \
             -n ${{ env.FUNCTIONS_NAME }} \
-            --settings "COSMOSDB_READONLY_KEY=@Microsoft.KeyVault(SecretUri=${secretUri})"
+            --settings @resources/functions-appsettings.json
 
   # FunctionsにAzureWebJobsStorageのアプリケーション設定をせずにデプロイすると
   # InternalServerErrorとなってしまうデプロイ処理は、以下のJobに定義すること
   connect-apim-2-functions:
     runs-on: ubuntu-latest
-    needs: set-functions-appsettings-common
+    needs: set-functions-appsettings
     steps:
       - name: Checkout
         uses: actions/checkout@main
@@ -140,7 +115,7 @@ jobs:
           template: ./resources/connect-apim-2-functions.json
 
   use-build-functions-app-workflow:
-    needs: set-functions-appsettings-common
+    needs: set-functions-appsettings
     uses: ./.github/workflows/reusable-build-functions-app.yaml
 
   use-deploy-functions-app-workflow:
