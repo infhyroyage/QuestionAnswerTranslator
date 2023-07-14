@@ -50,9 +50,6 @@
       "name": "qatranslatorjesa"
     },
     "vault": {
-      "keyNames": {
-        "manualImportData": "manual-import-data"
-      },
       "name": "qatranslator-je-vault",
       "secretNames": {
         "cognitiveKey": "cognitive-key",
@@ -513,11 +510,7 @@
             "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('functions').name), '2018-11-01', 'Full').identity.principalId]",
             "tenantId": "[tenant().tenantId]",
             "permissions": {
-              "keys": [
-                "get",
-                "encrypt",
-                "decrypt"
-              ],
+              "keys": [],
               "secrets": [
                 "Get"
               ],
@@ -545,26 +538,6 @@
         "tenantId": "[tenant().tenantId]"
       },
       "resources": [
-        {
-          "type": "keys",
-          "apiVersion": "2021-11-01-preview",
-          "name": "[variables('vault').keyNames.manualImportData]",
-          "location": "[resourceGroup().location]",
-          "dependsOn": [
-            "[resourceId('Microsoft.KeyVault/vaults', variables('vault').name)]"
-          ],
-          "properties": {
-            "attributes": {
-              "enabled": true
-            },
-            "keyOps": [
-              "encrypt",
-              "decrypt"
-            ],
-            "keySize": 4096,
-            "kty": "RSA"
-          }
-        },
         {
           "type": "secrets",
           "apiVersion": "2021-11-01-preview",

@@ -21,7 +21,7 @@
 | `qatranslatorjesa`          | Functions から参照するストレージアカウント                                                   |
 | `qatranslator-je-cosmosdb`  | Functions からアクセスする Cosmos DB                                                         |
 | `qatranslator-je-cognitive` | Functions からアクセスする Translator(無料枠を使い切った場合は代わりに DeepL へアクセスする) |
-| `qatranslator-je-vault`     | 暗号鍵/シークレットを管理する Key Vault                                                      |
+| `qatranslator-je-vault`     | シークレットを管理する Key Vault                                                             |
 | `qatranslator-je-insights`  | App Service/API Management/Functions を一括で監視する Application Insights                   |
 
 ## 使用する主要なパッケージのバージョン
@@ -148,7 +148,7 @@ Variables タブから「New repository variable」ボタンを押下して、�
 2. QuestionAnswerTranslator リポジトリの Actions > 左側の Create Azure Resources > 最後の実行名 の順で押下し、右上の「Re-run jobs」から「Re-run all jobs」を押下し、確認ダイアログ内の「Re-run jobs」ボタンを押下する。
 3. ターミナルを起動して以下のコマンドを実行し、Azure にデプロイ済のストレージアカウントに対し、すべてのインポートデータファイルを 1 つずつ繰り返しアップロードする。
    ```bash
-   az storage blob directory upload --account-name qatranslatorjesa -c import-items -s "cosmosdb/data/(コース名)/(テスト名).json" -d "(コース名)" -r
+   az storage blob directory upload --account-name qatranslatorjesa -c import-items -s "cosmosdb/data/(コース名)" -d . -r
    ```
 
 ### 削除手順
