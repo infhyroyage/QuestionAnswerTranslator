@@ -1,17 +1,11 @@
 import { FeedResponse, SqlQuerySpec } from "@azure/cosmos";
 import { Context } from "@azure/functions";
-import { CryptographyClient } from "@azure/keyvault-keys";
 import { getReadOnlyContainer } from "../shared/cosmosDBWrapper";
-import {
-  createCryptographyClient,
-  decryptNumberArrays2Strings,
-} from "../shared/vaultWrapper";
 import { Question } from "../../types/cosmosDB";
 import { GetQuestionAnswer, IncorrectChoices } from "../../types/functions";
 
 const COSMOS_DB_DATABASE_NAME = "Users";
 const COSMOS_DB_CONTAINER_NAME = "Question";
-const VAULT_CRYPTOGRAPHY_KEY_NAME = "manual-import-data";
 
 export default async (context: Context): Promise<void> => {
   try {
@@ -63,90 +57,49 @@ export default async (context: Context): Promise<void> => {
     } else if (response.resources.length > 1) {
       throw new Error("Not Unique Question");
     }
-
     const result: QueryQuestionAnswer = response.resources[0];
 
-    let explanations: string[] | undefined;
-    let incorrectChoicesExplanations: (string[] | null)[] | undefined;
-    if (process.env["COSMOSDB_URI"] === "https://localhost:8081") {
-      // localhost環境のため、そのままexplanations/incorrectChoiceExplanationsを取得
-      explanations = result.explanations as string[] | undefined;
-      incorrectChoicesExplanations = result.incorrectChoicesExplanations as
-        | (string[] | null)[]
-        | undefined;
-    } else {
-      // 非localhost環境のため、暗号化されたexplanations/incorrectChoiceExplanationsの各要素を復号して取得
-      const cryptographyClient: CryptographyClient =
-        await createCryptographyClient(VAULT_CRYPTOGRAPHY_KEY_NAME);
-      if (result.explanations) {
-        explanations = await decryptNumberArrays2Strings(
-          result.explanations as number[][],
-          cryptographyClient
-        );
-      } else {
-        explanations = undefined;
-      }
-      if (result.incorrectChoicesExplanations) {
-        incorrectChoicesExplanations = [];
-        for (const incorrectChoiceExplanations of result.incorrectChoicesExplanations) {
-          if (incorrectChoiceExplanations) {
-            const decryptedIncorrectChoiceExplanations: string[] =
-              await decryptNumberArrays2Strings(
-                incorrectChoiceExplanations as number[][],
-                cryptographyClient
-              );
-            incorrectChoicesExplanations.push(
-              decryptedIncorrectChoiceExplanations
-            );
-          } else {
-            incorrectChoicesExplanations.push(null);
-          }
-        }
-      } else {
-        incorrectChoicesExplanations = undefined;
-      }
-    }
-
     // 不正解の選択肢の説明文のレスポンス組立て
-    const incorrectChoices: IncorrectChoices = incorrectChoicesExplanations
-      ? incorrectChoicesExplanations.reduce(
-          (
-            prevIncorrectChoices: IncorrectChoices,
-            incorrectChoiceExplanations: string[] | null,
-            choiceIdx: number
-          ) => {
-            if (incorrectChoiceExplanations) {
-              prevIncorrectChoices[`${choiceIdx}`] =
-                incorrectChoiceExplanations.map(
-                  (incorrectChoiceExplanation: string, idx: number) => {
-                    return {
-                      sentence: incorrectChoiceExplanation as string,
-                      isIndicatedImg: false,
-                      isEscapedTranslation:
-                        !!result.escapeTranslatedIdxes &&
-                        !!result.escapeTranslatedIdxes
-                          .incorrectChoicesExplanations &&
-                        !!result.escapeTranslatedIdxes
-                          .incorrectChoicesExplanations[choiceIdx] &&
-                        (
-                          result.escapeTranslatedIdxes
-                            .incorrectChoicesExplanations[choiceIdx] || []
-                        ).includes(idx),
-                    };
-                  }
-                );
-            }
-            return prevIncorrectChoices;
-          },
-          {}
-        )
-      : {};
+    const incorrectChoices: IncorrectChoices =
+      result.incorrectChoicesExplanations
+        ? result.incorrectChoicesExplanations.reduce(
+            (
+              prevIncorrectChoices: IncorrectChoices,
+              incorrectChoiceExplanations: string[] | null,
+              choiceIdx: number
+            ) => {
+              if (incorrectChoiceExplanations) {
+                prevIncorrectChoices[`${choiceIdx}`] =
+                  incorrectChoiceExplanations.map(
+                    (incorrectChoiceExplanation: string, idx: number) => {
+                      return {
+                        sentence: incorrectChoiceExplanation as string,
+                        isIndicatedImg: false,
+                        isEscapedTranslation:
+                          !!result.escapeTranslatedIdxes &&
+                          !!result.escapeTranslatedIdxes
+                            .incorrectChoicesExplanations &&
+                          !!result.escapeTranslatedIdxes
+                            .incorrectChoicesExplanations[choiceIdx] &&
+                          (
+                            result.escapeTranslatedIdxes
+                              .incorrectChoicesExplanations[choiceIdx] || []
+                          ).includes(idx),
+                      };
+                    }
+                  );
+              }
+              return prevIncorrectChoices;
+            },
+            {}
+          )
+        : {};
 
     const body: GetQuestionAnswer = {
       correctIdxes: result.correctIdxes,
       explanations: {
-        overall: explanations
-          ? explanations.map((explanation: string, idx: number) => {
+        overall: result.explanations
+          ? result.explanations.map((explanation: string, idx: number) => {
               return {
                 sentence: explanation,
                 isIndicatedImg:

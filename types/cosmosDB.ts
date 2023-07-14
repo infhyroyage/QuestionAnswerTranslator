@@ -1,8 +1,3 @@
-export type Subject = number[] | string;
-export type Choice = number[] | string;
-export type Explanation = number[] | string;
-export type IncorrectChoiceExplanation = number[] | string;
-export type IncorrectChoiceExplanations = IncorrectChoiceExplanation[] | null;
 export type IndicateImgIdxes = {
   subjects?: number[];
   explanations?: number[];
@@ -16,11 +11,11 @@ export type EscapeTranslatedIdxes = {
 export type Question = {
   id: string;
   number: number;
-  subjects: Subject[];
-  choices: Choice[];
+  subjects: string[];
+  choices: string[];
   correctIdxes: number[];
-  explanations?: Explanation[];
-  incorrectChoicesExplanations?: IncorrectChoiceExplanations[];
+  explanations?: string[];
+  incorrectChoicesExplanations?: (string[] | null)[];
   indicateImgIdxes?: IndicateImgIdxes;
   escapeTranslatedIdxes?: EscapeTranslatedIdxes;
   references?: string[];
