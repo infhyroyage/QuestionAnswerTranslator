@@ -146,9 +146,9 @@ Variables タブから「New repository variable」ボタンを押下して、�
 
 1. QuestionAnswerTranslator リポジトリの各 workflow をすべて有効化する。
 2. QuestionAnswerTranslator リポジトリの Actions > 左側の Create Azure Resources > 最後の実行名 の順で押下し、右上の「Re-run jobs」から「Re-run all jobs」を押下し、確認ダイアログ内の「Re-run jobs」ボタンを押下する。
-3. ターミナルを起動して以下のコマンドを実行し、Azure にデプロイ済のストレージアカウントに対し、すべてのインポートデータファイルを一括アップロードする。
+3. ターミナルを起動して以下のコマンドを実行し、Azure にデプロイ済のストレージアカウントに対し、すべてのインポートデータファイルを 1 つずつ繰り返しアップロードする。
    ```bash
-   az storage blob directory upload --account-name qatranslatorjesa -c import-items -s "data/*" -d . -r
+   az storage blob directory upload --account-name qatranslatorjesa -c import-items -s "cosmosdb/data/(コース名)/(テスト名).json" -d "(コース名)" -r
    ```
 
 ### 削除手順

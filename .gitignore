@@ -111,7 +111,7 @@ resources/base.parameters.json
 .vscode/
 
 # Import Data
-data
+cosmosdb/data
 
 # Azure Functions Core Tools
 functions/local.settings.json
