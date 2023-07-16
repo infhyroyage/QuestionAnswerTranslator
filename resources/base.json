@@ -297,6 +297,20 @@
               "properties": {
                 "resource": {
                   "id": "[variables('cosmosDB').containerNames.test]",
+                  "indexingPolicy": {
+                    "compositeIndexes": [
+                      [
+                        {
+                          "order": "ascending",
+                          "path": "/courseName"
+                        },
+                        {
+                          "order": "ascending",
+                          "path": "/testName"
+                        }
+                      ]
+                    ]
+                  },
                   "partitionKey": {
                     "paths": [
                       "/id"
