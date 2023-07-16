@@ -50,7 +50,7 @@ Azure リソース/localhost に環境を構築する事前準備として、以
    - Supported account types : `Accounts in this organizational directory only`
    - Redirect URI : `Single-page application(SPA)`(左) と `https://infhyroyage.github.io/QuestionAnswerPortal`(右)
 3. 登録して自動遷移した「QATranslator_MSAL」の Overview にある「Application (client) ID」の値(=クライアント ID)を手元に控える。
-4. Expose an API > Application ID URI の右にある小さな文字「Set」を押下し、Application ID URI の入力欄に`api://{3で手元に控えたクライアントID}`が自動反映されていることを確認し、Save ボタンを押下する。
+4. Expose an API > Application ID URI の右にある小さな文字「Add」を押下し、Application ID URI の入力欄に`api://{3で手元に控えたクライアントID}`が自動反映されていることを確認し、Save ボタンを押下する。
 5. Expose an API > Scopes defined by this API にある「Add a scope」を押下し、以下の項目を入力後、Save ボタンを押下する。
    - Scope name : `access_as_user`
    - Who can consent? : `Admins and users`
@@ -59,12 +59,13 @@ Azure リソース/localhost に環境を構築する事前準備として、以
    - User consent display name :`QATranslator`
    - User consent description : `Allow react app to access QATranslator backend on your behalf`
    - State : `Enabled`
-6. API permissions > Configured permissions の API / Permissions name に、Microsoft Graph API の「User.Read」が既に許可されていることを確認し、「Add a permission」を押下後、以下の順で操作する。
+6. API permissions > Configured permissions の API / Configured permissions にて、既定で Microsoft Graph API へのアクセス許可が与えられている「User.Read」の右側にある「...」を押下し、「Remove Permission」 > 「Yes, remove」を押下して、「User.Read」のアクセス許可を削除する。
+7. API permissions > Configured permissions の API / Configured permissions にて、「+ Add a permission」を押下後、以下の順で操作する。
    1. 「My APIs」タブの`QATranslator_MSAL`を選択。
    2. What type of permissions does your application require?にて「Delegated permissions」を選択。
    3. `QATranslator`の`access_as_user`のチェックボックスを選択。
    4. Add permissions ボタンを押下。
-7. Manifest から JSON 形式のマニフェストを表示し、`"accessTokenAcceptedVersion"`の値を`null`から`2`に変更する。
+8. Manifest から JSON 形式のマニフェストを表示し、`"accessTokenAcceptedVersion"`の値を`null`から`2`に変更する。
 
 ### 2. GitHub Actions 用サービスプリンシパルの発行
 
