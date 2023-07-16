@@ -89,6 +89,23 @@ export const createDatabasesAndContainers = async (
   await databaseRes.database.containers.createIfNotExists({
     id: "Test",
     partitionKey: "/id",
+    // Azure上では複合インデックスを作成するインデックスポリシーを定義しているが、
+    // 2023/07/16現在、Azure SDK for JavaScriptでは未サポートのためlocalhost環境上では定義しない
+    // https://github.com/Azure/azure-sdk-for-js/issues/21115
+    // indexingPolicy: {
+    //   compositeIndexes: [
+    //     [
+    //       {
+    //         path: "/courseName",
+    //         order: "ascending",
+    //       },
+    //       {
+    //         path: "/testName",
+    //         order: "ascending",
+    //       },
+    //     ],
+    //   ],
+    // },
   });
 
   // UsersデータベースのQuestionコンテナー
