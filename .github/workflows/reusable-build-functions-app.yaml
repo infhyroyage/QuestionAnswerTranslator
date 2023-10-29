@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@main
 
       - name: Setup Node ${{ inputs.NODE_VERSION }} Environment
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.NODE_VERSION }}
 
