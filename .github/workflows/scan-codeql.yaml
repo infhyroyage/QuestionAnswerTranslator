@@ -13,8 +13,8 @@ name: Scan Javascript/Typescript by CodeQL
 
 on:
   schedule:
-    # Every Sunday 00:00(UTC)
-    - cron: "0 0 * * 0"
+    # Every 1st of the month at 8:00(UTC)
+    - cron: "0 8 1 * *"
 
 jobs:
   analyze:
