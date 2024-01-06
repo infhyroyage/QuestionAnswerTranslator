@@ -41,7 +41,7 @@ export const createImportData = (): ImportData => {
         (dirResult: ImportDatabaseData, testName: string) => {
           // テスト名のjsonファイル名からjsonの中身を読込み
           const importItems: ImportItem[] = JSON.parse(
-            readFileSync(join(dataPath, courseName, testName), "utf8")
+            readFileSync(join(dataPath, courseName, `${testName}.json`), "utf8")
           );
 
           dirResult[testName] = importItems;
