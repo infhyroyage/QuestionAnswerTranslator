@@ -243,6 +243,7 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://l
      "ConnectionStrings": {}
    }
    ```
+   - 毎日 09:00(JST)に実行する「Regenerate Secrets」という workflow によって、qatranslator-je-cognitive のキー値は 1 日おきに再生成されるため、`COGNITIVE_KEY`の値も都度修正すること。
    - CORS は任意のオリジンを許可するように設定しているため、特定のオリジンのみ許可したい場合は`Host` > `CORS`にそのオリジンを設定すること。
 3. VSCode を起動してコマンドパレッドを起動して`Azurite: Start`と検索してコマンドを実行し、Blob/Queue/Table ストレージをすべて起動する。実行した VSCode はそのまま放置する。
 4. ターミナルを起動して以下のコマンドを実行し、Azure Functions を起動する。実行したターミナルはそのまま放置する。
