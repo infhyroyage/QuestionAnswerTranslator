@@ -1,6 +1,7 @@
 {
   "name": "questionanswertranslator",
   "version": "1.0.0",
+  "main": "functions/dist/src/*.js",
   "scripts": {
     "cosmosdb:create": "docker compose up",
     "cosmosdb:destroy": "docker compose down",
