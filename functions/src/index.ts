@@ -25,21 +25,24 @@ app.http("tests", {
   handler: tests,
 });
 
-app.http("tests/{testId}", {
+app.http("test", {
   methods: ["GET"],
   authLevel: "function",
+  route: "tests/{testId}",
   handler: test,
 });
 
-app.http("tests/{testId}/questions/{questionNumber}", {
+app.http("question", {
   methods: ["GET"],
   authLevel: "function",
+  route: "tests/{testId}/questions/{questionNumber}",
   handler: question,
 });
 
-app.http("tests/{testId}/questions/{questionNumber}/answer", {
+app.http("answer", {
   methods: ["GET"],
   authLevel: "function",
+  route: "tests/{testId}/questions/{questionNumber}/answer",
   handler: answer,
 });
 
