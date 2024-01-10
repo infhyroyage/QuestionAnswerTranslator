@@ -41,7 +41,7 @@ export default async function (
         "SELECT c.subjects, c.choices, c.correctIdxes, c.indicateImgIdxes, c.escapeTranslatedIdxes FROM c WHERE c.testId = @testId AND c.number = @number",
       parameters: [
         { name: "@testId", value: testId },
-        { name: "@number", value: questionNumber },
+        { name: "@number", value: parseInt(questionNumber) },
       ],
     };
     const response: FeedResponse<QueryQuestion> = await getReadOnlyContainer(
