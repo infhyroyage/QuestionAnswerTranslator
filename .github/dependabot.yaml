@@ -6,10 +6,25 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
-    directory: "/"
+    directory: "/functions"
     schedule:
       interval: "monthly"
       time: "15:00"
+      timezone: "Asia/Tokyo"
+    assignees:
+      - "infhyroyage"
+    ignore:
+      - dependency-name: "@types/node"
+      - dependency-name: "typescript"
+    labels: []
+    reviewers:
+      - "infhyroyage"
+
+  - package-ecosystem: "npm"
+    directory: "/cosmosdb"
+    schedule:
+      interval: "monthly"
+      time: "15:30"
       timezone: "Asia/Tokyo"
     assignees:
       - "infhyroyage"
