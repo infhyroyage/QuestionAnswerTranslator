@@ -11,6 +11,5 @@
         "excludedTypes": "Request"
       }
     }
-  },
-  "watchDirectories": ["shared"]
+  }
 }

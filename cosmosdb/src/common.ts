@@ -20,7 +20,7 @@ import { join } from "path";
  */
 export const createImportData = (): ImportData => {
   // dataファイル/ディレクトリが存在しない場合は空オブジェクトをreturn
-  const dataPath = join(process.cwd(), "cosmosdb", "data");
+  const dataPath = join(process.cwd(), "data");
   if (!existsSync(dataPath)) return {};
 
   // dataディレクトリに存在する、コース名をすべて取得

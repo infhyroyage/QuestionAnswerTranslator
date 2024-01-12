@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - .github/workflows/create-azure-resources.yaml
-      - package*.json
       - resources**
 
 env:

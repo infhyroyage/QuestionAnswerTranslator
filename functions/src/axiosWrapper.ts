@@ -5,7 +5,7 @@ import {
   CognitiveTranslation,
   DeepLResponse,
   DeepLTranslation,
-} from "../../types/translation";
+} from "../translation";
 
 const AZURE_TRANSLATOR_URL: string =
   "https://api.cognitive.microsofttranslator.com/translate";
