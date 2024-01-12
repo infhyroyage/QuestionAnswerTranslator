@@ -9,7 +9,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@azure/cosmos": "^3.17.3",
+    "@azure/cosmos": "^4.0.0",
     "@azure/functions": "^4.1.0",
     "@azure/identity": "^4.0.0",
     "axios": "^1.6.2",
