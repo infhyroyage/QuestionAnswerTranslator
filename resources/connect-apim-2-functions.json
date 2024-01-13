@@ -22,19 +22,19 @@
   "resources": [
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
-      "apiVersion": "2021-11-01-preview",
+      "apiVersion": "2023-02-01",
       "name": "[concat(variables('vault').name, '/', variables('vault').secretNames.functionsDefaultHostKey)]",
       "location": "[resourceGroup().location]",
       "properties": {
         "attributes": {
           "enabled": true
         },
-        "value": "[listKeys(resourceId('Microsoft.Web/sites/host', variables('functions').name, 'default'), '2018-11-01').functionKeys.default]"
+        "value": "[listKeys(resourceId('Microsoft.Web/sites/host', variables('functions').name, 'default'), '2022-09-01').functionKeys.default]"
       }
     },
     {
       "type": "Microsoft.ApiManagement/service/namedValues",
-      "apiVersion": "2021-12-01-preview",
+      "apiVersion": "2022-08-01",
       "name": "[concat(variables('apim').name, '/', variables('apim').namedValuesNames.functionsDefaultHostKey)]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
@@ -43,14 +43,14 @@
       "properties": {
         "displayName": "[variables('apim').namedValuesNames.functionsDefaultHostKey]",
         "keyVault": {
-          "secretIdentifier": "[reference(resourceId('Microsoft.KeyVault/vaults/secrets', variables('vault').name, variables('vault').secretNames.functionsDefaultHostKey), '2021-11-01-preview', 'Full').properties.secretUri]"
+          "secretIdentifier": "[reference(resourceId('Microsoft.KeyVault/vaults/secrets', variables('vault').name, variables('vault').secretNames.functionsDefaultHostKey), '2023-02-01', 'Full').properties.secretUri]"
         },
         "secret": true
       }
     },
     {
       "type": "Microsoft.ApiManagement/service/backends",
-      "apiVersion": "2021-12-01-preview",
+      "apiVersion": "2022-08-01",
       "name": "[concat(variables('apim').name, '/', variables('apim').backendsName)]",
       "location": "[resourceGroup().location]",
       "dependsOn": [

@@ -65,7 +65,7 @@
   "resources": [
     {
       "type": "Microsoft.ApiManagement/service",
-      "apiVersion": "2021-01-01-preview",
+      "apiVersion": "2022-08-01",
       "name": "[variables('apim').name]",
       "location": "[resourceGroup().location]",
       "identity": {
@@ -90,7 +90,7 @@
       "resources": [
         {
           "type": "apis",
-          "apiVersion": "2021-12-01-preview",
+          "apiVersion": "2022-08-01",
           "name": "[variables('apim').apisName]",
           "dependsOn": [
             "[resourceId('Microsoft.ApiManagement/service', variables('apim').name)]",
@@ -110,7 +110,7 @@
         },
         {
           "type": "apis",
-          "apiVersion": "2021-12-01-preview",
+          "apiVersion": "2022-08-01",
           "name": "[variables('apim').apisHealthcheckName]",
           "dependsOn": [
             "[resourceId('Microsoft.ApiManagement/service', variables('apim').name)]",
@@ -130,7 +130,7 @@
         },
         {
           "type": "namedValues",
-          "apiVersion": "2021-12-01-preview",
+          "apiVersion": "2022-08-01",
           "name": "[variables('apim').namedValuesNames.insightsInstrumentationKey]",
           "dependsOn": [
             "[resourceId('Microsoft.ApiManagement/service', variables('apim').name)]",
@@ -139,14 +139,14 @@
           "properties": {
             "displayName": "[variables('apim').namedValuesNames.insightsInstrumentationKey]",
             "keyVault": {
-              "secretIdentifier": "[reference(resourceId('Microsoft.KeyVault/vaults/secrets', variables('vault').name, variables('vault').secretNames.insightsInstrumentationKey), '2021-11-01-preview', 'Full').properties.secretUri]"
+              "secretIdentifier": "[reference(resourceId('Microsoft.KeyVault/vaults/secrets', variables('vault').name, variables('vault').secretNames.insightsInstrumentationKey), '2023-02-01', 'Full').properties.secretUri]"
             },
             "secret": true
           }
         },
         {
           "type": "loggers",
-          "apiVersion": "2019-01-01",
+          "apiVersion": "2022-08-01",
           "name": "[variables('apim').loggersName]",
           "dependsOn": [
             "[resourceId('Microsoft.ApiManagement/service', variables('apim').name)]",
@@ -163,7 +163,7 @@
         },
         {
           "type": "diagnostics",
-          "apiVersion": "2019-01-01",
+          "apiVersion": "2022-08-01",
           "name": "applicationinsights",
           "dependsOn": [
             "[resourceId('Microsoft.ApiManagement/service', variables('apim').name)]",
@@ -184,7 +184,7 @@
     },
     {
       "type": "Microsoft.CognitiveServices/accounts",
-      "apiVersion": "2022-03-01",
+      "apiVersion": "2023-05-01",
       "name": "[variables('cognitive').name]",
       "location": "[resourceGroup().location]",
       "sku": {
@@ -196,7 +196,7 @@
       }
     },
     {
-      "apiVersion": "2022-11-15",
+      "apiVersion": "2023-04-15",
       "kind": "GlobalDocumentDB",
       "type": "Microsoft.DocumentDb/databaseAccounts",
       "name": "[variables('cosmosDB').name]",
@@ -241,7 +241,7 @@
       "resources": [
         {
           "type": "sqlDatabases",
-          "apiVersion": "2022-11-15",
+          "apiVersion": "2023-04-15",
           "name": "[variables('cosmosDB').databaseNames.systems]",
           "dependsOn": [
             "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name)]"
@@ -254,7 +254,7 @@
           "resources": [
             {
               "type": "containers",
-              "apiVersion": "2022-11-15",
+              "apiVersion": "2023-04-15",
               "name": "[variables('cosmosDB').containerNames.flag]",
               "dependsOn": [
                 "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name)]",
@@ -275,7 +275,7 @@
         },
         {
           "type": "sqlDatabases",
-          "apiVersion": "2022-11-15",
+          "apiVersion": "2023-04-15",
           "name": "[variables('cosmosDB').databaseNames.users]",
           "dependsOn": [
             "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name)]"
@@ -288,7 +288,7 @@
           "resources": [
             {
               "type": "containers",
-              "apiVersion": "2022-11-15",
+              "apiVersion": "2023-04-15",
               "name": "[variables('cosmosDB').containerNames.test]",
               "dependsOn": [
                 "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name)]",
@@ -321,7 +321,7 @@
             },
             {
               "type": "containers",
-              "apiVersion": "2022-11-15",
+              "apiVersion": "2023-04-15",
               "name": "[variables('cosmosDB').containerNames.question]",
               "dependsOn": [
                 "[resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name)]",
@@ -343,7 +343,7 @@
       ]
     },
     {
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2023-01-01",
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('storageAccount').name]",
       "location": "[resourceGroup().location]",
@@ -358,7 +358,7 @@
       "resources": [
         {
           "type": "blobServices",
-          "apiVersion": "2022-09-01",
+          "apiVersion": "2023-01-01",
           "name": "default",
           "dependsOn": [
             "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name)]"
@@ -379,7 +379,7 @@
           "resources": [
             {
               "type": "containers",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2023-01-01",
               "name": "[variables('storageAccount').containerName]",
               "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccount').name, 'default')]",
@@ -399,7 +399,7 @@
       ]
     },
     {
-      "apiVersion": "2021-03-01",
+      "apiVersion": "2022-09-01",
       "name": "[variables('functions').planName]",
       "type": "Microsoft.Web/serverfarms",
       "location": "[resourceGroup().location]",
@@ -416,7 +416,7 @@
       }
     },
     {
-      "apiVersion": "2020-02-02-preview",
+      "apiVersion": "2020-02-02",
       "name": "[variables('insights').name]",
       "type": "microsoft.insights/components",
       "location": "[resourceGroup().location]",
@@ -429,7 +429,7 @@
       }
     },
     {
-      "apiVersion": "2018-11-01",
+      "apiVersion": "2022-09-01",
       "name": "[variables('functions').name]",
       "type": "Microsoft.Web/sites",
       "location": "[resourceGroup().location]",
@@ -481,12 +481,11 @@
           "keyVaultReferenceIdentity": "SystemAssigned",
           "netFrameworkVersion": "v6.0",
           "use32BitWorkerProcess": false
-        },
-        "virtualNetworkSubnetId": null
+        }
       }
     },
     {
-      "apiVersion": "2021-11-01-preview",
+      "apiVersion": "2023-02-01",
       "name": "[variables('vault').name]",
       "location": "[resourceGroup().location]",
       "type": "Microsoft.KeyVault/vaults",
@@ -509,7 +508,7 @@
             }
           },
           {
-            "objectId": "[reference(resourceId('Microsoft.ApiManagement/service', variables('apim').name), '2021-01-01-preview', 'Full').identity.principalId]",
+            "objectId": "[reference(resourceId('Microsoft.ApiManagement/service', variables('apim').name), '2022-08-01', 'Full').identity.principalId]",
             "tenantId": "[tenant().tenantId]",
             "permissions": {
               "keys": [],
@@ -521,7 +520,7 @@
             }
           },
           {
-            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('functions').name), '2018-11-01', 'Full').identity.principalId]",
+            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('functions').name), '2022-09-01', 'Full').identity.principalId]",
             "tenantId": "[tenant().tenantId]",
             "permissions": {
               "keys": [],
@@ -554,7 +553,7 @@
       "resources": [
         {
           "type": "secrets",
-          "apiVersion": "2021-11-01-preview",
+          "apiVersion": "2023-02-01",
           "name": "[variables('vault').secretNames.cognitiveKey]",
           "location": "[resourceGroup().location]",
           "dependsOn": [
@@ -565,12 +564,12 @@
             "attributes": {
               "enabled": true
             },
-            "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('cognitive').name), '2022-03-01').key1]"
+            "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('cognitive').name), '2023-05-01').key1]"
           }
         },
         {
           "type": "secrets",
-          "apiVersion": "2021-11-01-preview",
+          "apiVersion": "2023-02-01",
           "name": "[variables('vault').secretNames.cosmosDBPrimaryKey]",
           "location": "[resourceGroup().location]",
           "dependsOn": [
@@ -581,12 +580,12 @@
             "attributes": {
               "enabled": true
             },
-            "value": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name), '2022-11-15').primaryMasterKey]"
+            "value": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name), '2023-04-15').primaryMasterKey]"
           }
         },
         {
           "type": "secrets",
-          "apiVersion": "2021-11-01-preview",
+          "apiVersion": "2023-02-01",
           "name": "[variables('vault').secretNames.cosmosDBPrimaryReadonlyKey]",
           "location": "[resourceGroup().location]",
           "dependsOn": [
@@ -597,12 +596,12 @@
             "attributes": {
               "enabled": true
             },
-            "value": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name), '2022-11-15').primaryReadonlyMasterKey]"
+            "value": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosDB').name), '2023-04-15').primaryReadonlyMasterKey]"
           }
         },
         {
           "type": "secrets",
-          "apiVersion": "2021-11-01-preview",
+          "apiVersion": "2023-02-01",
           "name": "[variables('vault').secretNames.deeplAuthKey]",
           "location": "[resourceGroup().location]",
           "dependsOn": [
@@ -617,7 +616,7 @@
         },
         {
           "type": "secrets",
-          "apiVersion": "2021-11-01-preview",
+          "apiVersion": "2023-02-01",
           "name": "[variables('vault').secretNames.insightsConnectionString]",
           "location": "[resourceGroup().location]",
           "dependsOn": [
@@ -633,7 +632,7 @@
         },
         {
           "type": "secrets",
-          "apiVersion": "2021-11-01-preview",
+          "apiVersion": "2023-02-01",
           "name": "[variables('vault').secretNames.insightsInstrumentationKey]",
           "location": "[resourceGroup().location]",
           "dependsOn": [
@@ -649,7 +648,7 @@
         },
         {
           "type": "secrets",
-          "apiVersion": "2021-11-01-preview",
+          "apiVersion": "2023-02-01",
           "name": "[variables('vault').secretNames.storageConnectionString]",
           "location": "[resourceGroup().location]",
           "dependsOn": [
@@ -660,7 +659,7 @@
             "attributes": {
               "enabled": true
             },
-            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccount').name,';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name), '2022-09-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccount').name,';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name), '2023-01-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
           }
         }
       ]
