@@ -206,9 +206,9 @@ Azure にリソースを構築せず、localhost 上で以下のサーバーを�
 | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------- |
 | Azure Functions(HTTP Trigger の関数アプリのみ) | [Azure Functions Core Tools](https://docs.microsoft.com/ja-jp/azure/azure-functions/functions-run-local) | 9229       |
 | Cosmos DB                                      | [Azure Cosmos DB Linux Emulator](https://docs.microsoft.com/ja-jp/azure/cosmos-db/local-emulator)        | 8081       |
-| Blob ストレージ                                | [Azurite](https://marketplace.visualstudio.com/items?itemName=Azurite.azurite)                           | 10000      |
-| Queue ストレージ                               | [Azurite](https://marketplace.visualstudio.com/items?itemName=Azurite.azurite)                           | 10001      |
-| Table ストレージ                               | [Azurite](https://marketplace.visualstudio.com/items?itemName=Azurite.azurite)                           | 10002      |
+| Blob ストレージ                                | [Azurite](https://learn.microsoft.com/ja-jp/azure/storage/common/storage-use-azurite)                    | 10000      |
+| Queue ストレージ                               | [Azurite](https://learn.microsoft.com/ja-jp/azure/storage/common/storage-use-azurite)                    | 10001      |
+| Table ストレージ                               | [Azurite](https://learn.microsoft.com/ja-jp/azure/storage/common/storage-use-azurite)                    | 10002      |
 
 localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://localhost:8081/_explorer/index.html) にアクセスすると、Cosmos DB 内のデータを参照・更新することができる。
 
@@ -216,7 +216,6 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://l
 
 1. 以下をすべてインストールする。
    - Azure Functions Core Tools
-   - Azurite
    - Docker
    - VSCode
 2. 以下を記述したファイル`local.settings.json`を QuestionAnswerTranslator リポジトリの functions ディレクトリ配下に保存する。
@@ -242,36 +241,33 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://l
    ```
    - 毎日 09:00(JST)に実行する「Regenerate Secrets」という workflow によって、qatranslator-je-cognitive のキー値は 1 日おきに再生成されるため、`COGNITIVE_KEY`の値も都度修正すること。
    - CORS は任意のオリジンを許可するように設定しているため、特定のオリジンのみ許可したい場合は`Host` > `CORS`にそのオリジンを設定すること。
-3. VSCode を起動してコマンドパレッドを起動して`Azurite: Start`と検索してコマンドを実行し、Blob/Queue/Table ストレージをすべて起動する。実行した VSCode はそのまま放置する。
-4. ターミナルを起動して以下のコマンドを実行し、Azure Functions を起動する。実行したターミナルはそのまま放置する。
+3. ターミナルを起動して以下のコマンドを実行し、Cosmos DB、Blob/Queue/Table ストレージをすべて起動する。実行したターミナルはそのまま放置する。
    ```bash
-   cd functions
-   npm run start
-   ```
-5. 4 とは別のターミナルで以下のコマンドを実行し、Cosmos DB を起動する。実行したターミナルはそのまま放置する。
-   ```bash
-   cd cosmosdb
-   npm run start
+   docker compose up
    ```
    実行後、以下の標準出力が表示されるまで待機する。
    ```
    localcosmosdb     | Started
    ```
-6. 5 とは別のターミナルで以下のコマンドを実行し、起動した Cosmos DB サーバーに対し、インポートデータファイルからインポートする(タイムアウトなどで失敗した場合、もう一度実行し直すこと)。
+4. 3 とは別のターミナルで以下のコマンドを実行し、Azure Functions を起動する。実行したターミナルはそのまま放置する。
+   ```bash
+   cd functions
+   npm run start
+   ```
+5. 4 とは別のターミナルで以下のコマンドを実行し、起動した Cosmos DB サーバーに対し、インポートデータファイルからインポートする。
    ```bash
    cd cosmosdb
    npm run import
    ```
+   - タイムアウトなどで失敗した場合、もう一度実行し直すこと。
 
 ### 削除手順
 
-1. ターミナルを起動して以下のコマンドを実行し、構築手順の 6 で起動した Cosmos DB を停止する。
+1. 構築手順の 4 で起動した Azure Functions のターミナルに対して Ctrl+C キーを入力し、起動した Azure Functions を停止する。
+2. ターミナルを起動して以下のコマンドを実行し、構築手順の 3 で起動した Cosmos DB、Blob/Queue/Table ストレージをすべて停止する。
    ```bash
-   cd cosmosdb
-   npm run stop
+   docker compose down
    ```
-2. 構築手順の 4 で起動した Azure Functions のターミナルに対して Ctrl+C キーを入力し、起動した Azure Functions を停止する。
-3. 構築手順の 3 で起動した Blob/Queue/Table ストレージの VSCode に対してコマンドパレッドを起動して`Azurite: Close`と検索してコマンドを実行し、Blob/Queue/Table ストレージをすべて停止する。
 
 ## 完全初期化
 

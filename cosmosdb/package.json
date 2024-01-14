@@ -2,9 +2,7 @@
   "name": "question-answer-translator-cosmosdb",
   "version": "1.0.0",
   "scripts": {
-    "import": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/import.ts",
-    "start": "docker compose up",
-    "stop": "docker compose down"
+    "import": "NODE_TLS_REJECT_UNAUTHORIZED=0 ts-node src/import.ts"
   },
   "dependencies": {
     "@azure/cosmos": "^3.17.3",
