@@ -111,7 +111,7 @@ jobs:
           scope: resourcegroup
           subscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
-          template: ./resources/connect-apim-2-functions.json
+          template: ./resources/connect-apim-2-functions.bicep
 
   use-build-functions-app-workflow:
     needs: set-functions-appsettings
