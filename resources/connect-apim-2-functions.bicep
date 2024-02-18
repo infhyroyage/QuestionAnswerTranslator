@@ -15,7 +15,7 @@ var vault = {
   }
 }
 
-resource vault_name_vault_secretNames_functionsDefaultHostKey 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+resource vaultSecretsFunctionsDefaultHostKey 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
   name: '${vault.name}/${vault.secretNames.functionsDefaultHostKey}'
   properties: {
     attributes: {
@@ -28,18 +28,18 @@ resource vault_name_vault_secretNames_functionsDefaultHostKey 'Microsoft.KeyVaul
   }
 }
 
-resource apim_name_apim_namedValuesNames_functionsDefaultHostKey 'Microsoft.ApiManagement/service/namedValues@2022-08-01' = {
+resource apimNamedValuesFunctionsDefaultHostKey 'Microsoft.ApiManagement/service/namedValues@2022-08-01' = {
   name: '${apim.name}/${apim.namedValuesNames.functionsDefaultHostKey}'
   properties: {
     displayName: apim.namedValuesNames.functionsDefaultHostKey
     keyVault: {
-      secretIdentifier: vault_name_vault_secretNames_functionsDefaultHostKey.properties.secretUri
+      secretIdentifier: vaultSecretsFunctionsDefaultHostKey.properties.secretUri
     }
     secret: true
   }
 }
 
-resource apim_name_apim_backends 'Microsoft.ApiManagement/service/backends@2022-08-01' = {
+resource apimBackends 'Microsoft.ApiManagement/service/backends@2022-08-01' = {
   name: '${apim.name}/${apim.backendsName}'
   properties: {
     description: functions.name
@@ -54,5 +54,5 @@ resource apim_name_apim_backends 'Microsoft.ApiManagement/service/backends@2022-
       }
     }
   }
-  dependsOn: [apim_name_apim_namedValuesNames_functionsDefaultHostKey]
+  dependsOn: [apimNamedValuesFunctionsDefaultHostKey]
 }
