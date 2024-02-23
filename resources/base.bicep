@@ -14,8 +14,6 @@ var apimNamedValuesNames = {
 }
 var apimOrgName = 'qatranslator-je-apim-org'
 
-var translatorName = 'qatranslator-je-cognitive'
-
 var cosmosDBContainerNames = {
   flag: 'Flag'
   question: 'Question'
@@ -37,9 +35,11 @@ var lawName = 'qatranslator-je-law'
 var storageBlobContainerName = 'import-items'
 var storageName = 'qatranslatorjesa'
 
+var translatorName = 'qatranslator-je-translator'
+
 var vaultName = 'qatranslator-je-vault'
 var vaultSecretNames = {
-  cognitiveKey: 'cognitive-key'
+  translatorKey: 'translator-key'
   cosmosDBPrimaryKey: 'cosmos-db-primary-key'
   cosmosDBPrimaryReadonlyKey: 'cosmos-db-primary-readonly-key'
   deeplAuthKey: 'deepl-auth-key'
@@ -437,9 +437,9 @@ resource vault 'Microsoft.KeyVault/vaults@2023-02-01' = {
     tenantId: tenant().tenantId
   }
 }
-resource vaultSecretsCognitiveKey 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
+resource vaultSecretsTranslatorKey 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = {
   parent: vault
-  name: vaultSecretNames.cognitiveKey
+  name: vaultSecretNames.translatorKey
   properties: {
     attributes: {
       enabled: true

@@ -57,10 +57,10 @@ jobs:
 
       - name: Update functions-appsettings.json
         run: |
-          cognitiveKey=$( \
+          translatorKey=$( \
             az keyvault secret show \
               --vault-name ${{ env.VAULT_NAME }} \
-              -n cognitive-key \
+              -n translator-key \
               --query id \
               -o tsv \
           )
@@ -79,7 +79,7 @@ jobs:
               -o tsv \
           )
           sed -i.bak \
-            -e "s|{cognitiveKey}|${cognitiveKey}|g" \
+            -e "s|{translatorKey}|${translatorKey}|g" \
             -e "s|{cosmosdbKey}|${cosmosdbKey}|g" \
             -e "s|{cosmosdbReadonlyKey}|${cosmosdbReadonlyKey}|g" \
             resources/functions-appsettings.json
