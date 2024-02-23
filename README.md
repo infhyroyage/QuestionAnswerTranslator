@@ -184,7 +184,7 @@ json の各キーの説明を、以下に示す。
    ```
 5. 4 のターミナルで以下のコマンドを実行し、論理的に削除した`qatranslator-je-apim`を物理的に削除する。
    ```bash
-   az rest -m DELETE -u https://management.azure.com/subscriptions/(サブスクリプションID)/providers/Microsoft.ApiManagement/locations/japaneast/deletedservices/qatranslator-je-apim?api-version=2021-08-01
+   az rest -m DELETE -u https://management.azure.com/subscriptions/(サブスクリプションID)/providers/Microsoft.ApiManagement/locations/japaneast/deletedservices/qatranslator-je-apim?api-version=2022-08-01
    ```
 
 ## API 追加開発時の対応
