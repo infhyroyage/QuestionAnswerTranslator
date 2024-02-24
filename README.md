@@ -13,16 +13,16 @@
 
 ![architecture.drawio](architecture.drawio.svg)
 
-| Azure リソース名            | 概要                                                                                         |
-| --------------------------- | -------------------------------------------------------------------------------------------- |
-| `qatranslator-je-apim`      | ユーザー/App Service からアクセスする API Management                                         |
-| `qatranslator-je-func`      | API Management からアクセスする Functions                                                    |
-| `qatranslator-je-funcplan`  | Functions のプラン                                                                           |
-| `qatranslatorjesa`          | Functions から参照するストレージアカウント                                                   |
-| `qatranslator-je-cosmosdb`  | Functions からアクセスする Cosmos DB                                                         |
-| `qatranslator-je-cognitive` | Functions からアクセスする Translator(無料枠を使い切った場合は代わりに DeepL へアクセスする) |
-| `qatranslator-je-vault`     | シークレットを管理する Key Vault                                                             |
-| `qatranslator-je-insights`  | App Service/API Management/Functions を一括で監視する Application Insights                   |
+| Azure リソース名             | 概要                                                                                         |
+| ---------------------------- | -------------------------------------------------------------------------------------------- |
+| `qatranslator-je-apim`       | ユーザー/App Service からアクセスする API Management                                         |
+| `qatranslator-je-func`       | API Management からアクセスする Functions                                                    |
+| `qatranslator-je-funcplan`   | Functions のプラン                                                                           |
+| `qatranslatorjesa`           | Functions から参照するストレージアカウント                                                   |
+| `qatranslator-je-cosmosdb`   | Functions からアクセスする Cosmos DB                                                         |
+| `qatranslator-je-translator` | Functions からアクセスする Translator(無料枠を使い切った場合は代わりに DeepL へアクセスする) |
+| `qatranslator-je-vault`      | シークレットを管理する Key Vault                                                             |
+| `qatranslator-je-insights`   | App Service/API Management/Functions を一括で監視する Application Insights                   |
 
 ## 使用する主要なパッケージのバージョン
 
@@ -178,13 +178,13 @@ json の各キーの説明を、以下に示す。
    ```bash
    az keyvault purge -n qatranslator-je-vault
    ```
-4. 3 のターミナルで以下のコマンドを実行し、論理的に削除した`qatranslator-je-cognitive`を物理的に削除する。
+4. 3 のターミナルで以下のコマンドを実行し、論理的に削除した`qatranslator-je-translator`を物理的に削除する。
    ```bash
-   az resource delete --ids /subscriptions/(サブスクリプションID)/providers/Microsoft.CognitiveServices/locations/japaneast/resourceGroups/qatranslator-je/deletedAccounts/qatranslator-je-cognitive
+   az resource delete --ids /subscriptions/(サブスクリプションID)/providers/Microsoft.CognitiveServices/locations/japaneast/resourceGroups/qatranslator-je/deletedAccounts/qatranslator-je-translator
    ```
 5. 4 のターミナルで以下のコマンドを実行し、論理的に削除した`qatranslator-je-apim`を物理的に削除する。
    ```bash
-   az rest -m DELETE -u https://management.azure.com/subscriptions/(サブスクリプションID)/providers/Microsoft.ApiManagement/locations/japaneast/deletedservices/qatranslator-je-apim?api-version=2021-08-01
+   az rest -m DELETE -u https://management.azure.com/subscriptions/(サブスクリプションID)/providers/Microsoft.ApiManagement/locations/japaneast/deletedservices/qatranslator-je-apim?api-version=2022-08-01
    ```
 
 ## API 追加開発時の対応
@@ -224,7 +224,7 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://l
      "IsEncrypted": false,
      "Values": {
        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-       "COGNITIVE_KEY": "(Azureリソース環境構築時にデプロイしたqatranslator-je-cognitiveのキー値)",
+       "TRANSLATOR_KEY": "(Azureリソース環境構築時にデプロイしたqatranslator-je-translatorのキー値)",
        "COSMOSDB_KEY": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
        "COSMOSDB_READONLY_KEY": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
        "COSMOSDB_URI": "https://localhost:8081",
@@ -239,7 +239,7 @@ localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://l
      "ConnectionStrings": {}
    }
    ```
-   - 毎日 09:00(JST)に実行する「Regenerate Secrets」という workflow によって、qatranslator-je-cognitive のキー値は 1 日おきに再生成されるため、`COGNITIVE_KEY`の値も都度修正すること。
+   - 毎日 09:00(JST)に実行する「Regenerate Secrets」という workflow によって、qatranslator-je-translator のキー値は 1 日おきに再生成されるため、`TRANSLATOR_KEY`の値も都度修正すること。
    - CORS は任意のオリジンを許可するように設定しているため、特定のオリジンのみ許可したい場合は`Host` > `CORS`にそのオリジンを設定すること。
 3. ターミナルを起動して以下のコマンドを実行し、Cosmos DB、Blob/Queue/Table ストレージをすべて起動する。実行したターミナルはそのまま放置する。
    ```bash

@@ -21,7 +21,7 @@ jobs:
           node-version: ${{ inputs.NODE_VERSION }}
 
       - name: Restore Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-qatranslator-func-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
@@ -47,4 +47,5 @@ jobs:
             functions/dist
             functions/host.json
             functions/package.json
+            functions/package-lock.json
             !functions/node_modules
