@@ -104,8 +104,8 @@ dist
 # TernJS port file
 .tern-port
 
-# ARM Template Parameter JSON Files
-resources/base.parameters.json
+# Bicep Parameter Files
+resources/*.parameters.bicepparam
 
 # vscode
 .vscode/
@@ -117,5 +117,6 @@ cosmosdb/data
 functions/local.settings.json
 
 # Azurite
-__blobstorage__/
-__azurite_db_*.json
+azurite/__blobstorage__
+azurite/__queuestorage__
+azurite/__azurite_db_*.json

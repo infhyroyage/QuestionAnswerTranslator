@@ -19,14 +19,14 @@ export default async function (
   context: InvocationContext
 ): Promise<FunctionResult> {
   try {
-    // TODO: courseName、testName、blobの中身を取得
-    context.info({ blob });
-    const courseName: string = (blob as any).courseName;
-    const testName: string = (blob as any).testName;
+    // Blobトリガーで受け取ったメタデータから可変パラメーターを取得
+    const metadata = context.triggerMetadata as Record<string, string>;
+    const courseName: string = metadata.courseName as string;
+    const testName: string = metadata.testName as string;
     context.info({ courseName, testName });
 
     // Blobトリガーで受け取ったjsonファイルのバイナリデータをImportItem[]型として読込み
-    const jsonData: ImportItem[] = JSON.parse(blob as any);
+    const jsonData: ImportItem[] = JSON.parse((blob as Buffer).toString());
 
     // UsersテータベースのTestコンテナーの項目を取得
     const testQuery: SqlQuerySpec = {

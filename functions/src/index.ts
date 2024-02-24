@@ -49,12 +49,5 @@ app.http("answer", {
 app.storageBlob("jsonContentBinary", {
   connection: "AzureWebJobsStorage",
   path: "import-items/{courseName}/{testName}.json",
-  // TODO: 不要かも
-  // extraInputs: [
-  //   input.storageBlob({
-  //     connection: "AzureWebJobsStorage",
-  //     path: "import-items/{courseName}/{testName}.json",
-  //   }),
-  // ],
   handler: importItems,
 });
