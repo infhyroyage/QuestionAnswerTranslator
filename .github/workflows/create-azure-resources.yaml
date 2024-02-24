@@ -38,7 +38,7 @@ jobs:
           scope: resourcegroup
           subscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
-          template: ./resources/base.json
+          template: ./resources/base.bicep
           parameters: azureAdEAContributorObjectId=${{ vars.AZURE_AD_EA_CONTRIBUTOR_OBJECT_ID }} azureApimPublisherEmail=${{ secrets.AZURE_APIM_PUBLISHER_EMAIL }} deeplAuthKey=${{ secrets.DEEPL_AUTH_KEY }}
 
   # 短期間でAzure Functionsのアプリケーション設定を複数回更新すると、正常終了したのにも関わらず更新しない場合があるため
@@ -57,10 +57,10 @@ jobs:
 
       - name: Update functions-appsettings.json
         run: |
-          cognitiveKey=$( \
+          translatorKey=$( \
             az keyvault secret show \
               --vault-name ${{ env.VAULT_NAME }} \
-              -n cognitive-key \
+              -n translator-key \
               --query id \
               -o tsv \
           )
@@ -79,7 +79,7 @@ jobs:
               -o tsv \
           )
           sed -i.bak \
-            -e "s|{cognitiveKey}|${cognitiveKey}|g" \
+            -e "s|{translatorKey}|${translatorKey}|g" \
             -e "s|{cosmosdbKey}|${cosmosdbKey}|g" \
             -e "s|{cosmosdbReadonlyKey}|${cosmosdbReadonlyKey}|g" \
             resources/functions-appsettings.json
@@ -111,7 +111,7 @@ jobs:
           scope: resourcegroup
           subscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ env.RESOURCE_GROUP }}
-          template: ./resources/connect-apim-2-functions.json
+          template: ./resources/connect-apim-2-functions.bicep
 
   use-build-functions-app-workflow:
     needs: set-functions-appsettings
