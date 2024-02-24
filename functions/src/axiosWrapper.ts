@@ -22,9 +22,9 @@ export const translateByAzureTranslator = async (
 ): Promise<string[] | undefined> => {
   if (texts.length === 0) return [];
 
-  const cognitiveKey: string | undefined = process.env["COGNITIVE_KEY"];
-  if (!cognitiveKey) {
-    throw new Error("Unset COGNITIVE_KEY");
+  const translatorKey: string | undefined = process.env["TRANSLATOR_KEY"];
+  if (!translatorKey) {
+    throw new Error("Unset TRANSLATOR_KEY");
   }
 
   try {
@@ -39,7 +39,7 @@ export const translateByAzureTranslator = async (
       }),
       {
         headers: {
-          "Ocp-Apim-Subscription-Key": cognitiveKey,
+          "Ocp-Apim-Subscription-Key": translatorKey,
           "Ocp-Apim-Subscription-Region": "japaneast",
           "Content-Type": "application/json",
         },
