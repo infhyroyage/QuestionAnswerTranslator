@@ -46,7 +46,7 @@ export const translateByAzureTranslator = async (
         params: {
           "api-version": "3.0",
           from: "en",
-          to: ["ja"],
+          to: "ja",
         },
         responseType: "json",
       }
