@@ -33,7 +33,7 @@ jobs:
             -l ${{ env.LOCATION }}
 
       - name: Create Resources
-        uses: azure/arm-deploy@v1
+        uses: azure/arm-deploy@v2
         with:
           scope: resourcegroup
           subscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
@@ -106,7 +106,7 @@ jobs:
           creds: '{"clientId":"${{ vars.AZURE_AD_SP_CONTRIBUTOR_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_AD_SP_CONTRIBUTOR_CLIENT_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
 
       - name: Create Resources
-        uses: azure/arm-deploy@v1
+        uses: azure/arm-deploy@v2
         with:
           scope: resourcegroup
           subscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
