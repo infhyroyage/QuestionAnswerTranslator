@@ -210,7 +210,11 @@ Azure にリソースを構築せず、localhost 上で以下のサーバーを�
 | Queue ストレージ                               | [Azurite](https://learn.microsoft.com/ja-jp/azure/storage/common/storage-use-azurite)                    | 10001      |
 | Table ストレージ                               | [Azurite](https://learn.microsoft.com/ja-jp/azure/storage/common/storage-use-azurite)                    | 10002      |
 
-localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://localhost:8081/_explorer/index.html) にアクセスすると、Cosmos DB 内のデータを参照・更新することができる。
+> [!TIP]
+> localhost 環境構築後、 [Azure Cosmos DB Emulator の index.html](https://localhost:8081/_explorer/index.html) にアクセスすると、Cosmos DB 内のデータを参照・更新することができる。
+
+> [!CAUTION]  
+> [Azure Cosmos DB Emulator のリポジトリの Issue](https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/54)で議論されている通り、Apple シリコンの macOS は、Azure Cosmos DB Emulator がサポートされていないため、localhost 環境を構築することができない。
 
 ### 構築手順
 
