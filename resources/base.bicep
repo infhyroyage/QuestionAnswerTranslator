@@ -17,12 +17,10 @@ var apimNamedValuesNames = {
 var apimOrgName = 'qatranslator-je-apim-org'
 
 var cosmosDBContainerNames = {
-  flag: 'Flag'
   question: 'Question'
   test: 'Test'
 }
 var cosmosDBDatabaseNames = {
-  systems: 'Systems'
   users: 'Users'
 }
 var cosmosDBName = 'qatranslator-je-cosmosdb'
@@ -178,27 +176,6 @@ resource cosmosDB 'Microsoft.DocumentDb/databaseAccounts@2023-04-15' = {
   tags: {
     defaultExperience: 'false'
     'hidden-cosmos-mmspecial': ''
-  }
-}
-resource cosmosDBDatabaseSystems 'Microsoft.DocumentDb/databaseAccounts/sqlDatabases@2023-04-15' = {
-  parent: cosmosDB
-  name: cosmosDBDatabaseNames.systems
-  properties: {
-    resource: {
-      id: cosmosDBDatabaseNames.systems
-    }
-  }
-}
-resource cosmosDBDatabaseSystemsContainerFlag 'Microsoft.DocumentDb/databaseAccounts/sqlDatabases/containers@2023-04-15' = {
-  parent: cosmosDBDatabaseSystems
-  name: cosmosDBContainerNames.flag
-  properties: {
-    resource: {
-      id: cosmosDBContainerNames.flag
-      partitionKey: {
-        paths: ['/id']
-      }
-    }
   }
 }
 resource cosmosDBDatabaseUsers 'Microsoft.DocumentDb/databaseAccounts/sqlDatabases@2023-04-15' = {
