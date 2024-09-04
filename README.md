@@ -3,6 +3,7 @@
 [![Create Azure Resources](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/create-azure-resources.yaml/badge.svg)](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/create-azure-resources.yaml)
 [![Build and Deploy Azure Functions Application](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/build-deploy-functions-app.yaml/badge.svg)](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/build-deploy-functions-app.yaml)
 [![Deploy API Management](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/deploy-apim.yaml/badge.svg)](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/deploy-apim.yaml)
+[![Deploy to Swagger UI](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/deploy-swagger-ui.yaml/badge.svg)](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/deploy-swagger-ui.yaml)
 [![Regenerate Secrets](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/regenerate-secrets.yaml/badge.svg)](https://github.com/infhyroyage/QuestionAnswerTranslator/actions/workflows/regenerate-secrets.yaml)
 
 ## 概要
@@ -218,7 +219,7 @@ Azure にリソースを構築せず、localhost 上で以下のサーバーを�
 1. 以下をすべてインストールする。
    - Azure Functions Core Tools
    - Docker
-   - VSCode
+   - Node.js 20.10.0
 2. 以下を記述したファイル`local.settings.json`を QuestionAnswerTranslator リポジトリの functions ディレクトリ配下に保存する。
    ```json
    {
