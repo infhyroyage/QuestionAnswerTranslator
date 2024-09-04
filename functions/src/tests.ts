@@ -5,8 +5,8 @@ import {
   InvocationContext,
 } from "@azure/functions";
 import { Test } from "../cosmosDB";
-import { getReadOnlyContainer } from "./cosmosDBWrapper";
 import { GetTests } from "../functions";
+import { getReadOnlyContainer } from "./cosmosDBWrapper";
 
 const COSMOS_DB_DATABASE_NAME = "Users";
 const COSMOS_DB_CONTAINER_NAME = "Test";
@@ -18,15 +18,7 @@ export default async function (
   try {
     // Cosmos DBのUsersデータベースのTestコンテナーから全項目取得
     const query: SqlQuerySpec = {
-      query: `SELECT c.id, c.courseName, c.testName, c.length FROM c${
-        // Azure上では複合インデックスを作成するインデックスポリシーを定義しているが、
-        // 2023/07/16現在、Azure SDK for JavaScriptでは未サポートでありlocalhost環境上では定義していないため、
-        // Azure上のみORDER BY句を設定する
-        // https://github.com/Azure/azure-sdk-for-js/issues/21115
-        process.env["COSMOSDB_URI"] === "https://localhost:8081"
-          ? ""
-          : " ORDER BY c.courseName ASC, c.testName ASC"
-      }`,
+      query: `SELECT c.id, c.courseName, c.testName, c.length FROM c ORDER BY c.courseName ASC, c.testName ASC`,
     };
     const response: FeedResponse<Test> = await getReadOnlyContainer(
       COSMOS_DB_DATABASE_NAME,
