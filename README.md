@@ -1,3 +1,3 @@
 # QuestionAnswerTranslator
 
-このリポジトリは [QuestionAnswerTranslator](https://github.com/infhyroyage/QuestionAnswerTranslator) の代わりに廃止されました。
+このリポジトリは [QuestionGPTTranslator](https://github.com/infhyroyage/QuestionGPTTranslator) の代わりに廃止されました。
